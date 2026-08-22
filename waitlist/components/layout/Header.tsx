@@ -72,10 +72,8 @@ export function Header() {
           </nav>
 
           {/* Right controls */}
-          <div className="flex items-center gap-4">
-            <div className="hidden md:block">
-              <LanguageToggle />
-            </div>
+          <div className="flex items-center gap-2.5 sm:gap-4">
+            <LanguageToggle />
             <ThemeToggle />
             <Button
               variant="primary"
