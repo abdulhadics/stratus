@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 import { StratusLogo, StratusWordmark } from '@/components/ui/StratusLogo';
 import { LanguageToggle } from '@/components/ui/LanguageToggle';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { Button } from '@/components/ui/Button';
 import { useTranslation } from '@/lib/i18n';
 
@@ -97,7 +98,10 @@ export function MobileNavigation({ isOpen, onClose, navItems, onNavigate }: Mobi
 
         {/* Bottom controls */}
         <div className="px-8 pb-10 space-y-6">
-          <LanguageToggle />
+          <div className="flex items-center justify-between">
+            <LanguageToggle />
+            <ThemeToggle />
+          </div>
           <Button
             variant="primary"
             size="lg"

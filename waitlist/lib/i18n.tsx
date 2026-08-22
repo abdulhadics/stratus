@@ -19,10 +19,10 @@ const translations = {
   'hero.headline.1': { en: 'You did not start your business', fr: 'Vous n\'avez pas lancé votre entreprise' },
   'hero.headline.2': { en: 'to exhaust yourself on work', fr: 'pour vous épuiser sur du travail' },
   'hero.headline.3': { en: 'that does not need you.', fr: 'qui n\'a pas besoin de vous.' },
-  'hero.badge': { en: 'COMING SOON', fr: 'PROCHAINEMENT' },
+  'hero.badge': { en: 'NOW ACCEPTING CLIENTS', fr: 'ACCEPTATION DE CLIENTS' },
   'hero.badgeText': {
-    en: 'We are launching our next cohort in September. Join the waitlist below to secure your spot.',
-    fr: 'Nous lançons notre prochaine cohorte en septembre. Rejoignez la liste d\'attente ci-dessous.'
+    en: 'We are currently onboarding our next cohort of service businesses. Apply below to secure your spot.',
+    fr: 'Nous accueillons actuellement notre prochaine cohorte d\'entreprises de services. Postulez ci-dessous.'
   },
   'hero.body.1': {
     en: 'You started it to build something. To serve people. To create a life that most people only talk about.',
@@ -229,8 +229,8 @@ const translations = {
   'waitlist.heading.1': { en: 'Apply for your spot', fr: 'Postulez pour votre place' },
   'waitlist.heading.2': { en: 'in the next cohort.', fr: 'dans la prochaine cohorte.' },
   'waitlist.body': {
-    en: 'We are fully booked until September. Founding rates end when the first 10 spots fill.',
-    fr: 'Nous sommes complets jusqu\'en septembre. Les tarifs fondateurs prennent fin quand les 10 premières places sont remplies.'
+    en: 'Limited cohort availability. Founding rates end when the first 10 spots fill.',
+    fr: 'Places en cohorte limitées. Les tarifs fondateurs prennent fin quand les 10 premières places sont remplies.'
   },
   'waitlist.name': { en: 'Full name', fr: 'Nom complet' },
   'waitlist.email': { en: 'Email address', fr: 'Adresse courriel' },
