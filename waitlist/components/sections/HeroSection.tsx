@@ -29,9 +29,9 @@ export function HeroSection() {
           </h1>
 
           {/* Live Status Badge */}
-          <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 mb-6 animate-fade-in-up opacity-0 animate-delay-200">
-            <span className="flex h-2 w-2 rounded-full bg-blue-400 animate-pulse" />
-            <span className="text-mono text-[11px] font-semibold text-blue-400 tracking-[0.18em]">
+          <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-blue-200 dark:border-blue-500/30 bg-blue-50 dark:bg-blue-500/10 mb-6 animate-fade-in-up opacity-0 animate-delay-200">
+            <span className="flex h-2 w-2 rounded-full bg-blue-600 dark:bg-blue-400 animate-pulse" />
+            <span className="text-mono text-[11px] font-semibold text-blue-600 dark:text-blue-400 tracking-[0.18em]">
               {t('hero.badge')}
             </span>
           </div>

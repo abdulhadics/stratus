@@ -59,26 +59,26 @@ export default function RootLayout({
               (function() {
                 try {
                   var theme = localStorage.getItem('theme');
-                  if (theme === 'light') {
-                    document.documentElement.classList.add('light');
-                  } else if (theme === 'dark' || !theme) {
+                  if (theme === 'dark') {
+                    document.documentElement.classList.add('dark');
                     document.documentElement.classList.remove('light');
-                  } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+                  } else {
                     document.documentElement.classList.add('light');
+                    document.documentElement.classList.remove('dark');
                   }
                 } catch(e) {}
               })();
             `,
           }}
         />
+        <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)" />
         <meta name="theme-color" content="#07090F" media="(prefers-color-scheme: dark)" />
-        <meta name="theme-color" content="#F8F7F4" media="(prefers-color-scheme: light)" />
       </head>
       <body className="min-h-screen antialiased" suppressHydrationWarning>
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
-          enableSystem
+          defaultTheme="light"
+          enableSystem={false}
           disableTransitionOnChange
           themes={['light', 'dark']}
         >
