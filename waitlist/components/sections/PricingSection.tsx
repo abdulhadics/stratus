@@ -48,12 +48,12 @@ export function PricingSection({ onSelectOffer }: PricingSectionProps) {
             onCta={() => handleCta('presence')}
           />
 
-          {/* PIPELINE (featured) */}
+          {/* MACHINE (featured) */}
           <PricingCard
-            label={t('pricing.pipeline.label')}
-            name={t('pricing.pipeline.name')}
-            subtitle={t('pricing.pipeline.subtitle')}
-            badge={t('pricing.pipeline.badge')}
+            label={t('pricing.machine.label')}
+            name={t('pricing.machine.name')}
+            subtitle={t('pricing.machine.subtitle')}
+            badge={t('pricing.machine.badge')}
             badgeVariant="blue"
             setupOriginal="$3,995"
             setupPrice="$1,695"
@@ -61,15 +61,15 @@ export function PricingSection({ onSelectOffer }: PricingSectionProps) {
             monthlyOriginal="$995"
             monthlyPrice="$695"
             monthlyLabel={t('pricing.monthly')}
-            monthlyNote={t('pricing.pipeline.note')}
-            spotsRemaining={t('pricing.pipeline.spots')}
+            monthlyNote={t('pricing.machine.note')}
+            spotsRemaining={t('pricing.machine.spots')}
             features={[
-              t('pricing.pipeline.f1'),
-              t('pricing.pipeline.f2'),
+              t('pricing.machine.f1'),
+              t('pricing.machine.f2'),
             ]}
-            disclaimer={t('pricing.pipeline.disclaimer')}
+            disclaimer={t('pricing.machine.disclaimer')}
             ctaText={t('pricing.cta')}
-            onCta={() => handleCta('pipeline')}
+            onCta={() => handleCta('machine')}
             featured
           />
 

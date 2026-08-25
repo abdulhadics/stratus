@@ -124,9 +124,20 @@ const translations = {
   'pricing.presence.f3': { en: 'Local profile optimization', fr: 'Optimisation du profil local' },
   'pricing.presence.f4': { en: 'Social media creation and optimization', fr: 'Création et optimisation des médias sociaux' },
 
-  // Pipeline
+  // Machine
+  'pricing.machine.label': { en: 'OFFER 02', fr: 'FORFAIT 02' },
+  'pricing.machine.name': { en: 'MACHINE', fr: 'MACHINE' },
+  'pricing.machine.subtitle': { en: 'FULL STRATUS SYSTEM', fr: 'SYSTÈME STRATUS COMPLET' },
+  'pricing.machine.badge': { en: 'FOUNDING RATE — FIRST 10 BUSINESSES ONLY', fr: 'TARIF FONDATEUR — 10 PREMIÈRES ENTREPRISES SEULEMENT' },
+  'pricing.machine.note': { en: 'includes all AI systems, temporarily discounted', fr: 'inclut tous les systèmes IA, temporairement réduit' },
+  'pricing.machine.spots': { en: '5 OF 10 FOUNDING SPOTS REMAINING', fr: '5 DES 10 PLACES FONDATRICES RESTANTES' },
+  'pricing.machine.f1': { en: 'Everything in PRESENCE', fr: 'Tout dans PRÉSENCE' },
+  'pricing.machine.f2': { en: 'The STRATUS Systems', fr: 'Les systèmes STRATUS' },
+  'pricing.machine.disclaimer': { en: 'Does not include administration of contacts or appointment confirmation.', fr: 'N\'inclut pas l\'administration des contacts ni la confirmation de rendez-vous.' },
+
+  // Backward compatibility alias for pipeline
   'pricing.pipeline.label': { en: 'OFFER 02', fr: 'FORFAIT 02' },
-  'pricing.pipeline.name': { en: 'PIPELINE', fr: 'PIPELINE' },
+  'pricing.pipeline.name': { en: 'MACHINE', fr: 'MACHINE' },
   'pricing.pipeline.subtitle': { en: 'FULL STRATUS SYSTEM', fr: 'SYSTÈME STRATUS COMPLET' },
   'pricing.pipeline.badge': { en: 'FOUNDING RATE — FIRST 10 BUSINESSES ONLY', fr: 'TARIF FONDATEUR — 10 PREMIÈRES ENTREPRISES SEULEMENT' },
   'pricing.pipeline.note': { en: 'includes all AI systems, temporarily discounted', fr: 'inclut tous les systèmes IA, temporairement réduit' },
@@ -143,7 +154,7 @@ const translations = {
   'pricing.command.custom': { en: 'Custom', fr: 'Sur mesure' },
   'pricing.command.byApp': { en: 'By application', fr: 'Sur demande' },
   'pricing.command.included': { en: 'dedicated operator included', fr: 'opérateur dédié inclus' },
-  'pricing.command.f1': { en: 'Everything in PIPELINE', fr: 'Tout dans PIPELINE' },
+  'pricing.command.f1': { en: 'Everything in MACHINE', fr: 'Tout dans MACHINE' },
   'pricing.command.f2': { en: 'Dedicated STRATUS Operator', fr: 'Opérateur STRATUS dédié' },
   'pricing.command.f3': { en: 'Contact administration', fr: 'Administration des contacts' },
   'pricing.command.f4': { en: 'Appointment confirmation and follow-up', fr: 'Confirmation et suivi des rendez-vous' },
@@ -262,7 +273,8 @@ const translations = {
   // Offer options
   'offer.placeholder': { en: 'Select an offer', fr: 'Sélectionnez un forfait' },
   'offer.presence': { en: 'Presence', fr: 'Présence' },
-  'offer.pipeline': { en: 'Pipeline', fr: 'Pipeline' },
+  'offer.machine': { en: 'Machine', fr: 'Machine' },
+  'offer.pipeline': { en: 'Machine', fr: 'Machine' },
   'offer.command': { en: 'Command', fr: 'Command' },
   'offer.founding': { en: 'Founding', fr: 'Fondateur' },
   'offer.unsure': { en: 'Not sure yet', fr: 'Pas encore certain' },

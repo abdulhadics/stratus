@@ -6,7 +6,7 @@ export const TRADE_OPTIONS = [
 
 export const MARKET_OPTIONS = ['ottawa-gatineau', 'montreal', 'other'] as const;
 
-export const OFFER_OPTIONS = ['presence', 'pipeline', 'founding'] as const;
+export const OFFER_OPTIONS = ['presence', 'machine', 'pipeline', 'command', 'founding'] as const;
 
 export const LANGUAGE_OPTIONS = ['en', 'fr'] as const;
 
