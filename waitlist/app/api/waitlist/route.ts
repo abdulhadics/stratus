@@ -132,12 +132,16 @@ export async function POST(request: Request) {
   }
 
   // 4. Build tags
+  const normalizedOffer = offer === 'pipeline' ? 'machine' : offer;
   const tags = [
     'src-website-waitlist',
     `lang-${language}`,
     `market-${market}`,
     `trade-${tradeType}`,
-    `offer-${offer}`,
+    `offer-${normalizedOffer}`,
+    `package: ${normalizedOffer}`,
+    `package:${normalizedOffer}`,
+    ...(normalizedOffer === 'machine' ? ['offer-machine', 'package: machine', 'package:machine', 'offer-pipeline', 'package: pipeline'] : []),
   ];
 
   // 5. Parse name parts
