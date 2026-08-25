@@ -133,7 +133,7 @@ export async function POST(request: Request) {
 
   // 4. Build tags
   const normalizedOffer = offer === 'pipeline' ? 'machine' : offer;
-  const tags = [
+  const baseTags = [
     'src-website-waitlist',
     `lang-${language}`,
     `market-${market}`,
@@ -141,8 +141,25 @@ export async function POST(request: Request) {
     `offer-${normalizedOffer}`,
     `package: ${normalizedOffer}`,
     `package:${normalizedOffer}`,
-    ...(normalizedOffer === 'machine' ? ['offer-machine', 'package: machine', 'package:machine', 'offer-pipeline', 'package: pipeline'] : []),
   ];
+
+  const offerSpecificTags: string[] = [];
+
+  if (normalizedOffer === 'machine') {
+    offerSpecificTags.push('offer-machine', 'package: machine', 'package:machine', 'offer-pipeline', 'package: pipeline');
+  } else if (normalizedOffer === 'founding') {
+    offerSpecificTags.push(
+      'package: machine founding',
+      'package:machine founding',
+      'package: pipeline founding',
+      'package:founding',
+      'package: founding',
+      'offer-founding',
+      'offer-machine-founding'
+    );
+  }
+
+  const tags = Array.from(new Set([...baseTags, ...offerSpecificTags]));
 
   // 5. Parse name parts
   const nameParts = name.trim().split(/\s+/);
