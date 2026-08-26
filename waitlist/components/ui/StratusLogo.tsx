@@ -7,7 +7,7 @@ export function StratusLogo({ className = '', size = 32 }: { className?: string;
         alt="STRATUS Logo"
         width={size}
         height={size}
-        className="block dark:hidden object-contain w-full h-full"
+        className="logo-light-img object-contain w-full h-full"
       />
       {/* Dark Mode Logo */}
       <img
@@ -15,7 +15,7 @@ export function StratusLogo({ className = '', size = 32 }: { className?: string;
         alt="STRATUS Logo"
         width={size}
         height={size}
-        className="hidden dark:block object-contain w-full h-full"
+        className="logo-dark-img object-contain w-full h-full"
       />
     </div>
   );

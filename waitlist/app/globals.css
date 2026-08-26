@@ -46,6 +46,21 @@
   color-scheme: light;
 }
 
+/* Logo theme visibility helper classes */
+.logo-light-img {
+  display: block !important;
+}
+.logo-dark-img {
+  display: none !important;
+}
+
+.dark .logo-light-img {
+  display: none !important;
+}
+.dark .logo-dark-img {
+  display: block !important;
+}
+
 /* Dark palette */
 .dark {
   --bg-primary: #07090F;
