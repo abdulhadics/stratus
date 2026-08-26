@@ -27,9 +27,9 @@ const ibmPlexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: 'STRATUS — Modern Boutique Operations Team',
   description: 'STRATUS runs the operational side of your business so you can focus on what you do best. Bilingual operations for trades and service businesses in Ottawa-Gatineau and Montreal.',
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://stratussystems.ca'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://stratusystems.co'),
   icons: {
-    icon: '/logolight.png',
+    icon: '/icon.png',
     shortcut: '/logolight.png',
     apple: '/logolight.png',
   },
