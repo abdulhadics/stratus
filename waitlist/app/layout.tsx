@@ -29,9 +29,9 @@ export const metadata: Metadata = {
   description: 'STRATUS runs the operational side of your business so you can focus on what you do best. Bilingual operations for trades and service businesses in Ottawa-Gatineau and Montreal.',
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://stratussystems.ca'),
   icons: {
-    icon: '/icon.png',
-    shortcut: '/logo.png',
-    apple: '/logo.png',
+    icon: '/logolight.png',
+    shortcut: '/logolight.png',
+    apple: '/logolight.png',
   },
   openGraph: {
     title: 'STRATUS — Modern Boutique Operations Team',

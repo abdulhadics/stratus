@@ -1,23 +1,13 @@
-export function StratusLogo({ className = '', size = 32 }: { className?: string; size?: number; showHexagon?: boolean }) {
+export function StratusLogo({ className = '', size = 36 }: { className?: string; size?: number; showHexagon?: boolean }) {
   return (
-    <div className={`relative flex items-center justify-center flex-shrink-0 ${className}`} style={{ width: size, height: size }}>
-      {/* Light Mode Logo */}
-      <img
-        src="/logolight.png"
-        alt="STRATUS Logo"
-        width={size}
-        height={size}
-        className="block dark:hidden object-contain w-full h-full"
-      />
-      {/* Dark Mode Logo */}
-      <img
-        src="/icon.png"
-        alt="STRATUS Logo"
-        width={size}
-        height={size}
-        className="hidden dark:block object-contain w-full h-full"
-      />
-    </div>
+    <img
+      src="/logolight.png"
+      alt="STRATUS Logo"
+      width={size}
+      height={size}
+      className={`object-contain flex-shrink-0 ${className}`}
+      style={{ width: size, height: size }}
+    />
   );
 }
 
