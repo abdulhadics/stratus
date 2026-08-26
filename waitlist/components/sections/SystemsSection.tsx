@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Container } from '@/components/layout/Container';
+import { StratusLogo } from '@/components/ui/StratusLogo';
 import { useTranslation } from '@/lib/i18n';
 
 const SYSTEMS = [
@@ -145,12 +146,7 @@ export function SystemsSection() {
                 className="pointer-events-none"
               >
                 <div className="w-full h-full flex items-center justify-center">
-                  <svg width="56" height="56" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="40" height="40" rx="8" className="fill-accent" />
-                    <path d="M10 14L20 9L30 14L20 19L10 14Z" fill="white" />
-                    <path d="M10 20L20 15L30 20L20 25L10 20Z" fill="white" fillOpacity="0.8" />
-                    <path d="M10 26L20 21L30 26L20 31L10 26Z" fill="white" fillOpacity="0.6" />
-                  </svg>
+                  <StratusLogo size={64} showHexagon={true} />
                 </div>
               </foreignObject>
             </g>
