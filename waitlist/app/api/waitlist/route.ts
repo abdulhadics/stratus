@@ -132,7 +132,7 @@ export async function POST(request: Request) {
   }
 
   // 4. Build tags
-  const normalizedOffer = offer === 'pipeline' ? 'machine' : offer;
+  const normalizedOffer = (offer as string) === 'pipeline' ? 'machine' : offer;
   const baseTags = [
     'src-website-waitlist',
     `lang-${language}`,

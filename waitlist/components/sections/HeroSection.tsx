@@ -65,18 +65,19 @@ export function HeroSection() {
 
       {/* Metric Strip */}
       <Container className="mt-16 sm:mt-24">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-border rounded-lg overflow-hidden border border-border">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-px bg-border rounded-lg overflow-hidden border border-border">
           {[
             { value: 'metric.response.value', label: 'metric.response.label' },
+            { value: 'metric.video.value', label: 'metric.video.label' },
             { value: 'metric.launch.value', label: 'metric.launch.label' },
             { value: 'metric.systems.value', label: 'metric.systems.label' },
             { value: 'metric.bilingual.value', label: 'metric.bilingual.label' },
           ].map((m) => (
-            <div key={m.value} className="bg-bg-primary p-5 sm:p-6">
-              <p className="text-[20px] sm:text-[24px] font-serif text-text-primary mb-1">
+            <div key={m.value} className="bg-bg-primary p-4 sm:p-5">
+              <p className="text-[18px] sm:text-[22px] font-serif text-text-primary mb-1">
                 {t(m.value as any)}
               </p>
-              <p className="text-mono text-[9px] text-text-secondary">
+              <p className="text-mono text-[9px] text-text-secondary leading-tight">
                 {t(m.label as any)}
               </p>
             </div>

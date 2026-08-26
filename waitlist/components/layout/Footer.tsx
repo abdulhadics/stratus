@@ -50,7 +50,7 @@ export function Footer() {
           <div className="flex flex-col items-start md:items-end text-left md:text-right space-y-2">
             <p className="text-[13px] text-text-secondary">{t('footer.location')}</p>
             <a
-              href="mailto:hello@stratussystems.co"
+              href="mailto:admin@stratussystems.co"
               className="text-[13px] text-text-secondary hover:text-accent transition-colors block"
             >
               {t('footer.email')}

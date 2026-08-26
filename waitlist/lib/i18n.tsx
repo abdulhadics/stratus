@@ -15,14 +15,14 @@ const translations = {
   'nav.joinWaitlist': { en: 'JOIN THE WAITLIST', fr: 'REJOINDRE LA LISTE' },
 
   // ── Hero ──
-  'hero.eyebrow': { en: 'OTTAWA-GATINEAU · MONTREAL · CANADA', fr: 'OTTAWA-GATINEAU · MONTRÉAL · CANADA' },
+  'hero.eyebrow': { en: 'OTTAWA-GATINEAU · MONTREAL · TORONTO · CANADA', fr: 'OTTAWA-GATINEAU · MONTRÉAL · TORONTO · CANADA' },
   'hero.headline.1': { en: 'You did not start your business', fr: 'Vous n\'avez pas lancé votre entreprise' },
   'hero.headline.2': { en: 'to exhaust yourself on work', fr: 'pour vous épuiser sur du travail' },
   'hero.headline.3': { en: 'that does not need you.', fr: 'qui n\'a pas besoin de vous.' },
-  'hero.badge': { en: 'NOW ACCEPTING CLIENTS', fr: 'ACCEPTATION DE CLIENTS' },
+  'hero.badge': { en: 'LIMITED SEATS TO BE MANAGED. NOW ALMOST FULL', fr: 'PLACES LIMITÉES · PRESQUE COMPLET' },
   'hero.badgeText': {
-    en: 'We are currently onboarding our next cohort of service businesses. Apply below to secure your spot.',
-    fr: 'Nous accueillons actuellement notre prochaine cohorte d\'entreprises de services. Postulez ci-dessous.'
+    en: 'Limited seats remain. Apply below to secure your spot in the next cohort.',
+    fr: 'Il reste peu de places. Postulez ci-dessous pour réserver votre place dans la prochaine cohorte.'
   },
   'hero.body.1': {
     en: 'You started it to build something. To serve people. To create a life that most people only talk about.',
@@ -35,6 +35,8 @@ const translations = {
   // ── Metrics ──
   'metric.response.value': { en: '< 60 sec', fr: '< 60 sec' },
   'metric.response.label': { en: 'EVERY INQUIRY HANDLED', fr: 'CHAQUE DEMANDE TRAITÉE' },
+  'metric.video.value': { en: '< 30 min', fr: '< 30 min' },
+  'metric.video.label': { en: 'A REAL VIDEO REPLY FROM YOU, BY US', fr: 'RÉPONSE VIDÉO RÉELLE DE VOUS, PAR NOUS' },
   'metric.launch.value': { en: 'Day 7', fr: 'Jour 7' },
   'metric.launch.label': { en: 'YOUR SYSTEM GOES LIVE', fr: 'VOTRE SYSTÈME EN LIGNE' },
   'metric.systems.value': { en: '6 systems', fr: '6 systèmes' },
@@ -48,18 +50,18 @@ const translations = {
   'promise.subline': { en: 'STRATUS RUNS THE REST — 6 SYSTEMS SIMULTANEOUSLY', fr: 'STRATUS GÈRE LE RESTE — 6 SYSTÈMES EN SIMULTANÉ' },
 
   // ── Systems ──
-  'systems.01.title': { en: 'Answers every call', fr: 'Répond à chaque appel' },
-  'systems.01.desc': { en: 'under 60 seconds · 24/7', fr: 'en moins de 60 secondes · 24/7' },
-  'systems.02.title': { en: 'Missed call', fr: 'Appel manqué' },
-  'systems.02.desc': { en: 'contact back', fr: 'rappel automatique' },
-  'systems.03.title': { en: 'Every form & message', fr: 'Chaque formulaire et message' },
-  'systems.03.desc': { en: 'followed up automatically', fr: 'suivi automatiquement' },
-  'systems.04.title': { en: 'Google Business Profile', fr: 'Profil Google Business' },
-  'systems.04.desc': { en: 'setup & optimization', fr: 'configuration et optimisation' },
-  'systems.05.title': { en: 'Every job', fr: 'Chaque travail' },
-  'systems.05.desc': { en: 'reviewed positively', fr: 'évalué positivement' },
-  'systems.06.title': { en: 'Database', fr: 'Base de données' },
-  'systems.06.desc': { en: 'reactivation', fr: 'réactivation' },
+  'systems.01.title': { en: 'Every call answered', fr: 'Chaque appel répondu' },
+  'systems.01.desc': { en: 'Under 60 seconds, day or night, real video, every time', fr: 'En moins de 60 secondes, jour ou nuit, vidéo réelle, à chaque fois' },
+  'systems.02.title': { en: 'Missed calls, never lost', fr: 'Appels manqués, jamais perdus' },
+  'systems.02.desc': { en: 'Instant text back', fr: 'Texto de rappel instantané' },
+  'systems.03.title': { en: 'Every lead followed up', fr: 'Chaque prospect suivi' },
+  'systems.03.desc': { en: 'Automatically, no exceptions', fr: 'Automatiquement, sans exception' },
+  'systems.04.title': { en: 'You look real everywhere', fr: 'Visible et crédible partout' },
+  'systems.04.desc': { en: 'Website, socials, Google, all current', fr: 'Site web, réseaux sociaux, Google, toujours à jour' },
+  'systems.05.title': { en: 'Reviews that book your next job', fr: 'Avis qui réservent votre prochain contrat' },
+  'systems.05.desc': { en: 'Every finished job, working for you', fr: 'Chaque travail terminé travaille pour vous' },
+  'systems.06.title': { en: 'Old clients come back', fr: 'Les anciens clients reviennent' },
+  'systems.06.desc': { en: 'Work you\'d never chase yourself', fr: 'Du travail que vous n\'auriez jamais relancé seul' },
 
   // ── Demo Section ──
   'demo.eyebrow': { en: 'MEET THE SYSTEM', fr: 'DÉCOUVREZ LE SYSTÈME' },
@@ -119,10 +121,15 @@ const translations = {
   // Presence
   'pricing.presence.label': { en: 'OFFER 01', fr: 'FORFAIT 01' },
   'pricing.presence.name': { en: 'PRESENCE', fr: 'PRÉSENCE' },
+  'pricing.presence.f0': { en: 'Access to STRATUS dashboard', fr: 'Accès au tableau de bord STRATUS' },
   'pricing.presence.f1': { en: 'Website (3 to 5 pages)', fr: 'Site web (3 à 5 pages)' },
   'pricing.presence.f2': { en: 'Google Business Profile — creation and optimization', fr: 'Profil Google Business — création et optimisation' },
-  'pricing.presence.f3': { en: 'Local profile optimization', fr: 'Optimisation du profil local' },
-  'pricing.presence.f4': { en: 'Social media creation and optimization', fr: 'Création et optimisation des médias sociaux' },
+  'pricing.presence.f3': { en: 'Social media creation and optimization', fr: 'Création et optimisation des médias sociaux' },
+  'pricing.presence.f4': { en: 'Facebook', fr: 'Facebook' },
+  'pricing.presence.f5': { en: 'LinkedIn', fr: 'LinkedIn' },
+  'pricing.presence.f6': { en: 'Instagram', fr: 'Instagram' },
+  'pricing.presence.f7': { en: 'YouTube (more)', fr: 'YouTube (et plus)' },
+  'pricing.presence.disclaimer': { en: 'Backed by our 30-Day Satisfaction Guarantee on your monthly fee', fr: 'Garanti par notre garantie de satisfaction de 30 jours sur votre tarif mensuel' },
 
   // Machine
   'pricing.machine.label': { en: 'OFFER 02', fr: 'FORFAIT 02' },
@@ -132,8 +139,9 @@ const translations = {
   'pricing.machine.note': { en: 'includes all AI systems, temporarily discounted', fr: 'inclut tous les systèmes IA, temporairement réduit' },
   'pricing.machine.spots': { en: '5 OF 10 FOUNDING SPOTS REMAINING', fr: '5 DES 10 PLACES FONDATRICES RESTANTES' },
   'pricing.machine.f1': { en: 'Everything in PRESENCE', fr: 'Tout dans PRÉSENCE' },
-  'pricing.machine.f2': { en: 'The STRATUS Systems', fr: 'Les systèmes STRATUS' },
-  'pricing.machine.disclaimer': { en: 'Does not include administration of contacts or appointment confirmation.', fr: 'N\'inclut pas l\'administration des contacts ni la confirmation de rendez-vous.' },
+  'pricing.machine.f2': { en: 'Access to STRATUS', fr: 'Accès à STRATUS' },
+  'pricing.machine.f3': { en: 'The STRATUS Systems', fr: 'Les systèmes STRATUS' },
+  'pricing.machine.disclaimer': { en: 'Backed by our 30-Day Satisfaction Guarantee on your monthly fee', fr: 'Garanti par notre garantie de satisfaction de 30 jours sur votre tarif mensuel' },
 
   // Backward compatibility alias for pipeline
   'pricing.pipeline.label': { en: 'OFFER 02', fr: 'FORFAIT 02' },
@@ -143,22 +151,24 @@ const translations = {
   'pricing.pipeline.note': { en: 'includes all AI systems, temporarily discounted', fr: 'inclut tous les systèmes IA, temporairement réduit' },
   'pricing.pipeline.spots': { en: '5 OF 10 FOUNDING SPOTS REMAINING', fr: '5 DES 10 PLACES FONDATRICES RESTANTES' },
   'pricing.pipeline.f1': { en: 'Everything in PRESENCE', fr: 'Tout dans PRÉSENCE' },
-  'pricing.pipeline.f2': { en: 'The STRATUS Systems', fr: 'Les systèmes STRATUS' },
-  'pricing.pipeline.disclaimer': { en: 'Does not include administration of contacts or appointment confirmation.', fr: 'N\'inclut pas l\'administration des contacts ni la confirmation de rendez-vous.' },
+  'pricing.pipeline.f2': { en: 'Access to STRATUS', fr: 'Accès à STRATUS' },
+  'pricing.pipeline.f3': { en: 'The STRATUS Systems', fr: 'Les systèmes STRATUS' },
+  'pricing.pipeline.disclaimer': { en: 'Backed by our 30-Day Satisfaction Guarantee on your monthly fee', fr: 'Garanti par notre garantie de satisfaction de 30 jours sur votre tarif mensuel' },
 
   // Command
   'pricing.command.label': { en: 'OFFER 03', fr: 'FORFAIT 03' },
   'pricing.command.name': { en: 'COMMAND', fr: 'COMMAND' },
   'pricing.command.subtitle': { en: 'FULLY MANAGED OPERATIONS', fr: 'OPÉRATIONS ENTIÈREMENT GÉRÉES' },
   'pricing.command.badge': { en: 'FULL — WAITLIST ONLY', fr: 'COMPLET — LISTE D\'ATTENTE SEULEMENT' },
-  'pricing.command.custom': { en: 'Custom', fr: 'Sur mesure' },
+  'pricing.command.custom': { en: 'Starting at $5,995', fr: 'À partir de 5 995 $' },
   'pricing.command.byApp': { en: 'By application', fr: 'Sur demande' },
-  'pricing.command.included': { en: 'dedicated operator included', fr: 'opérateur dédié inclus' },
+  'pricing.command.included': { en: 'starting at $1,495/month · dedicated operator included', fr: 'à partir de 1 495 $/mois · opérateur dédié inclus' },
   'pricing.command.f1': { en: 'Everything in MACHINE', fr: 'Tout dans MACHINE' },
   'pricing.command.f2': { en: 'Dedicated STRATUS Operator', fr: 'Opérateur STRATUS dédié' },
-  'pricing.command.f3': { en: 'Contact administration', fr: 'Administration des contacts' },
+  'pricing.command.f3': { en: 'Documents administration', fr: 'Administration des documents' },
   'pricing.command.f4': { en: 'Appointment confirmation and follow-up', fr: 'Confirmation et suivi des rendez-vous' },
   'pricing.command.f5': { en: 'Priority support and reporting', fr: 'Support prioritaire et rapports' },
+  'pricing.command.disclaimer': { en: 'Backed by our 30-Day Satisfaction Guarantee on your monthly fee', fr: 'Garanti par notre garantie de satisfaction de 30 jours sur votre tarif mensuel' },
 
   // ── Results Section ──
   'results.eyebrow': { en: 'WHY IT WORKS', fr: 'POURQUOI ÇA MARCHE' },
@@ -252,7 +262,7 @@ const translations = {
   'waitlist.offer': { en: 'Which offer interests you?', fr: 'Quel forfait vous intéresse ?' },
   'waitlist.submit': { en: 'APPLY FOR MY SPOT', fr: 'POSTULER POUR MA PLACE' },
   'waitlist.submitting': { en: 'SUBMITTING...', fr: 'ENVOI EN COURS...' },
-  'waitlist.tagline': { en: 'NO OBLIGATION · BILINGUAL · OTTAWA-GATINEAU · MONTREAL', fr: 'SANS OBLIGATION · BILINGUE · OTTAWA-GATINEAU · MONTRÉAL' },
+  'waitlist.tagline': { en: 'BILINGUAL · OTTAWA-GATINEAU · MONTREAL · TORONTO', fr: 'BILINGUE · OTTAWA-GATINEAU · MONTRÉAL · TORONTO' },
 
   // Trade options
   'trade.placeholder': { en: 'Select a trade', fr: 'Sélectionnez un métier' },
@@ -315,8 +325,8 @@ const translations = {
   'footer.nav.works': { en: 'Why It Works', fr: 'Pourquoi ça marche' },
   'footer.nav.packages': { en: 'Packages', fr: 'Forfaits' },
   'footer.nav.faq': { en: 'FAQ', fr: 'FAQ' },
-  'footer.location': { en: 'Ottawa-Gatineau · Montreal, Canada', fr: 'Ottawa-Gatineau · Montréal, Canada' },
-  'footer.email': { en: 'hello@stratussystems.co', fr: 'hello@stratussystems.co' },
+  'footer.location': { en: 'Ottawa-Gatineau · Montreal · Toronto, Canada', fr: 'Ottawa-Gatineau · Montréal · Toronto, Canada' },
+  'footer.email': { en: 'admin@stratussystems.co', fr: 'admin@stratussystems.co' },
   'footer.site': { en: 'stratussystems.co', fr: 'stratussystems.co' },
   'footer.copyright': { en: '© 2026 STRATUS. All rights reserved.', fr: '© 2026 STRATUS. Tous droits réservés.' },
 

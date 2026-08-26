@@ -33,17 +33,24 @@ export function PricingSection({ onSelectOffer }: PricingSectionProps) {
           <PricingCard
             label={t('pricing.presence.label')}
             name={t('pricing.presence.name')}
+            setupOriginal="$1,595"
             setupPrice="$995"
             setupLabel={t('pricing.setup')}
+            monthlyOriginal="$495"
             monthlyPrice="$295"
             monthlyLabel={t('pricing.monthly')}
             monthlyNote={t('pricing.ongoing')}
             features={[
+              t('pricing.presence.f0'),
               t('pricing.presence.f1'),
               t('pricing.presence.f2'),
               t('pricing.presence.f3'),
               t('pricing.presence.f4'),
+              t('pricing.presence.f5'),
+              t('pricing.presence.f6'),
+              t('pricing.presence.f7'),
             ]}
+            disclaimer={t('pricing.presence.disclaimer')}
             ctaText={t('pricing.cta')}
             onCta={() => handleCta('presence')}
           />
@@ -66,6 +73,7 @@ export function PricingSection({ onSelectOffer }: PricingSectionProps) {
             features={[
               t('pricing.machine.f1'),
               t('pricing.machine.f2'),
+              t('pricing.machine.f3'),
             ]}
             disclaimer={t('pricing.machine.disclaimer')}
             ctaText={t('pricing.cta')}
@@ -92,6 +100,7 @@ export function PricingSection({ onSelectOffer }: PricingSectionProps) {
               t('pricing.command.f4'),
               t('pricing.command.f5'),
             ]}
+            disclaimer={t('pricing.command.disclaimer')}
             ctaText={t('pricing.cta')}
             onCta={() => handleCta('founding')}
           />

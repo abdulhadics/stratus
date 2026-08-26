@@ -68,12 +68,8 @@ export function SystemsSection() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   return (
-    <section className="py-16 sm:py-24">
+    <section className="py-12 sm:py-16">
       <Container>
-        <p className="text-mono text-[11px] text-accent tracking-[0.12em] text-center mb-12">
-          {t('promise.subline')}
-        </p>
-
         {/* Honeycomb Diagram Container */}
         <div className="relative max-w-[650px] mx-auto">
           <svg
@@ -134,11 +130,11 @@ export function SystemsSection() {
               );
             })}
 
-            {/* Center Hexagon (Blue Outline + Logo) */}
+            {/* Center Hexagon (Blue Outline + Emblem) */}
             <g>
               <path
                 d={getHexPath(300, 260, 98)}
-                className="fill-bg-primary stroke-accent"
+                className="fill-accent/10 stroke-accent"
                 strokeWidth="2.5"
               />
               <foreignObject
@@ -149,11 +145,12 @@ export function SystemsSection() {
                 className="pointer-events-none"
               >
                 <div className="w-full h-full flex items-center justify-center">
-                  <img
-                    src="/logo.png"
-                    alt="STRATUS"
-                    className="w-14 h-14 object-contain"
-                  />
+                  <svg width="56" height="56" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="40" height="40" rx="8" className="fill-accent" />
+                    <path d="M10 14L20 9L30 14L20 19L10 14Z" fill="white" />
+                    <path d="M10 20L20 15L30 20L20 25L10 20Z" fill="white" fillOpacity="0.8" />
+                    <path d="M10 26L20 21L30 26L20 31L10 26Z" fill="white" fillOpacity="0.6" />
+                  </svg>
                 </div>
               </foreignObject>
             </g>
