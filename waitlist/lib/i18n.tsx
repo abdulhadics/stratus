@@ -326,7 +326,7 @@ const translations = {
   'footer.nav.packages': { en: 'Packages', fr: 'Forfaits' },
   'footer.nav.faq': { en: 'FAQ', fr: 'FAQ' },
   'footer.location': { en: 'Ottawa-Gatineau · Montreal · Toronto, Canada', fr: 'Ottawa-Gatineau · Montréal · Toronto, Canada' },
-  'footer.email': { en: 'admin@stratussystems.co', fr: 'admin@stratussystems.co' },
+  'footer.email': { en: 'hello@stratussystems.co', fr: 'hello@stratussystems.co' },
   'footer.site': { en: 'stratussystems.co', fr: 'stratussystems.co' },
   'footer.copyright': { en: '© 2026 STRATUS. All rights reserved.', fr: '© 2026 STRATUS. Tous droits réservés.' },
 
