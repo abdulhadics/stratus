@@ -138,17 +138,24 @@ export function SystemsSection() {
                 className="fill-accent/10 stroke-accent"
                 strokeWidth="2.5"
               />
-              <foreignObject
-                x="230"
-                y="190"
-                width="140"
-                height="140"
-                className="pointer-events-none"
-              >
-                <div className="w-full h-full flex items-center justify-center">
-                  <StratusLogo size={64} showHexagon={true} />
-                </div>
-              </foreignObject>
+              {/* Light Mode Center Emblem (Native SVG image scales in lockstep on mobile) */}
+              <image
+                href="/logolight.png"
+                x="260"
+                y="220"
+                width="80"
+                height="80"
+                className="logo-light-img pointer-events-none"
+              />
+              {/* Dark Mode Center Emblem */}
+              <image
+                href="/icon.png"
+                x="260"
+                y="220"
+                width="80"
+                height="80"
+                className="logo-dark-img pointer-events-none"
+              />
             </g>
           </svg>
         </div>
