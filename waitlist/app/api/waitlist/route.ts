@@ -124,7 +124,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const { name, email, phone, businessName, tradeType, market, offer, language, honeypot } = validation.data;
+  const { name, email, phone, businessName, tradeType, market, offer, language, isAvatarGate, honeypot } = validation.data;
 
   // 3. Reject honeypot submissions
   if (honeypot && honeypot.length > 0) {
@@ -142,6 +142,10 @@ export async function POST(request: Request) {
     `package: ${normalizedOffer}`,
     `package:${normalizedOffer}`,
   ];
+
+  if (isAvatarGate) {
+    baseTags.push('Warm, Self-Verified', 'Warm', 'Self-Verified', 'AI Avatar Gate');
+  }
 
   const offerSpecificTags: string[] = [];
 

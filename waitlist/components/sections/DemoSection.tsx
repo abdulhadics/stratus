@@ -1,14 +1,25 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { Container } from '@/components/layout/Container';
 import { SectionEyebrow } from '@/components/ui/SectionEyebrow';
 import { Button } from '@/components/ui/Button';
 import { useTranslation } from '@/lib/i18n';
+import { AvatarGateModal } from '@/components/ui/AvatarGateModal';
 
 export function DemoSection() {
   const { t } = useTranslation();
   const heygenUrl = process.env.NEXT_PUBLIC_HEYGEN_SHARE_URL;
   const teamImageUrl = process.env.NEXT_PUBLIC_TEAM_IMAGE_URL || '/team.jpeg';
+  const [isVerified, setIsVerified] = useState(false);
+  const [isGateOpen, setIsGateOpen] = useState(false);
+
+  useEffect(() => {
+    const verified = localStorage.getItem('stratus_avatar_verified');
+    if (verified === 'true') {
+      setIsVerified(true);
+    }
+  }, []);
 
   const scrollTo = (id: string) => {
     document.querySelector(id)?.scrollIntoView({ behavior: 'smooth' });
@@ -29,51 +40,72 @@ export function DemoSection() {
 
         {/* Two-column demo area */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {/* Left: HeyGen embed / placeholder */}
+          {/* Left: AI Avatar Gate / Interactive Experience */}
           <div className="relative">
-            {heygenUrl ? (
-              <div className="aspect-[4/3] rounded-lg overflow-hidden border border-border bg-bg-elevated">
-                <iframe
-                  src={heygenUrl}
-                  className="w-full h-full"
-                  allow="camera; microphone; autoplay"
-                  title="STRATUS Interactive Avatar"
-                  loading="lazy"
-                />
-              </div>
+            {isVerified ? (
+              /* Unlocked Avatar Experience */
+              heygenUrl ? (
+                <div className="aspect-[4/3] rounded-lg overflow-hidden border border-border bg-bg-elevated">
+                  <iframe
+                    src={heygenUrl}
+                    className="w-full h-full"
+                    allow="camera; microphone; autoplay"
+                    title="STRATUS Interactive Avatar"
+                    loading="lazy"
+                  />
+                </div>
+              ) : (
+                <div className="aspect-[4/3] rounded-lg border border-accent/40 bg-bg-elevated p-6 flex flex-col items-center justify-center text-center relative overflow-hidden">
+                  <div className="absolute top-3 right-3 px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-[10px] font-mono uppercase tracking-wider border border-emerald-500/20">
+                    ✓ Verified Access
+                  </div>
+                  <div className="w-12 h-12 rounded-full bg-accent/10 border border-accent/30 flex items-center justify-center mb-3">
+                    <span className="text-accent text-xl">🤖</span>
+                  </div>
+                  <h4 className="text-sm font-semibold text-text-primary mb-1">
+                    STRATUS AI Digital Assistant
+                  </h4>
+                  <p className="text-xs text-text-secondary max-w-[280px] mb-4">
+                    "Hi! I'm an AI digital assistant. How can I help streamline your operations today?"
+                  </p>
+                  <Button variant="secondary" size="sm" onClick={() => scrollTo('#waitlist')}>
+                    Book Discovery Call →
+                  </Button>
+                </div>
+              )
             ) : (
-              <div className="aspect-[4/3] rounded-lg border border-border bg-bg-elevated flex flex-col items-center justify-center">
-                <p className="text-mono text-[10px] text-accent mb-3">
-                  {t('demo.avatar.placeholder')}
+              /* Locked Avatar Gate Preview */
+              <div className="aspect-[4/3] rounded-lg border border-border bg-bg-elevated p-6 flex flex-col items-center justify-center text-center relative">
+                <div className="w-10 h-10 rounded-full bg-bg-surface border border-border flex items-center justify-center mb-3 text-text-dimmed">
+                  🔒
+                </div>
+                <h4 className="text-sm font-semibold text-text-primary mb-1">
+                  STRATUS AI Avatar Assistant
+                </h4>
+                <p className="text-xs text-text-dimmed max-w-[280px] mb-4">
+                  Join the waitlist and verify your email to unlock access to talk with the STRATUS AI assistant.
                 </p>
-                <p className="text-[12px] text-text-dimmed text-center px-8 max-w-[300px]">
-                  {t('demo.avatar.desc')}
-                </p>
+                <Button variant="primary" size="sm" onClick={() => setIsGateOpen(true)}>
+                  Join waitlist to talk to STRATUS →
+                </Button>
               </div>
             )}
+
             <p className="text-[12px] text-text-dimmed mt-3">
               {t('demo.caption.left')}
             </p>
           </div>
 
-          {/* Right: Team photo / placeholder */}
+          {/* Right: Team photo */}
           <div className="relative">
-            {teamImageUrl ? (
-              <div className="aspect-[4/3] rounded-lg overflow-hidden border border-border bg-bg-elevated">
-                <img
-                  src={teamImageUrl}
-                  alt="The STRATUS team"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </div>
-            ) : (
-              <div className="aspect-[4/3] rounded-lg border border-border bg-bg-elevated flex items-center justify-center">
-                <p className="text-mono text-[10px] text-text-dimmed">
-                  {t('demo.team.placeholder')}
-                </p>
-              </div>
-            )}
+            <div className="aspect-[4/3] rounded-lg overflow-hidden border border-border bg-bg-elevated">
+              <img
+                src={teamImageUrl}
+                alt="The STRATUS team"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </div>
             <p className="text-[12px] text-text-dimmed mt-3">
               {t('demo.caption.right')}
             </p>
@@ -84,6 +116,13 @@ export function DemoSection() {
         <Button variant="primary" size="lg" onClick={() => scrollTo('#waitlist')}>
           {t('nav.joinWaitlist')} →
         </Button>
+
+        {/* Avatar Gate Verification Modal */}
+        <AvatarGateModal
+          isOpen={isGateOpen}
+          onClose={() => setIsGateOpen(false)}
+          onVerified={() => setIsVerified(true)}
+        />
       </Container>
     </section>
   );
