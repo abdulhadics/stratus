@@ -8,7 +8,7 @@ import { useTranslation } from '@/lib/i18n';
 export function DemoSection() {
   const { t } = useTranslation();
   const heygenUrl = process.env.NEXT_PUBLIC_HEYGEN_SHARE_URL;
-  const teamImageUrl = process.env.NEXT_PUBLIC_TEAM_IMAGE_URL;
+  const teamImageUrl = process.env.NEXT_PUBLIC_TEAM_IMAGE_URL || '/team.jpeg';
 
   const scrollTo = (id: string) => {
     document.querySelector(id)?.scrollIntoView({ behavior: 'smooth' });

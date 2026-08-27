@@ -66,7 +66,7 @@ export function Footer() {
             {/* Social Links: LinkedIn, Instagram, Facebook */}
             <div className="flex items-center gap-3 pt-1">
               <a
-                href={process.env.NEXT_PUBLIC_LINKEDIN_URL || "https://linkedin.com"}
+                href={process.env.NEXT_PUBLIC_LINKEDIN_URL || "https://www.linkedin.com/company/stratus-system/about/"}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-text-dimmed hover:text-accent transition-colors"
@@ -77,7 +77,7 @@ export function Footer() {
                 </svg>
               </a>
               <a
-                href={process.env.NEXT_PUBLIC_INSTAGRAM_URL || "https://instagram.com"}
+                href={process.env.NEXT_PUBLIC_INSTAGRAM_URL || "https://www.instagram.com/stratus__worldelite/"}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-text-dimmed hover:text-accent transition-colors"
@@ -88,7 +88,7 @@ export function Footer() {
                 </svg>
               </a>
               <a
-                href={process.env.NEXT_PUBLIC_FACEBOOK_URL || "https://facebook.com"}
+                href={process.env.NEXT_PUBLIC_FACEBOOK_URL || "https://www.facebook.com/profile.php?id=61572432297088"}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-text-dimmed hover:text-accent transition-colors"
