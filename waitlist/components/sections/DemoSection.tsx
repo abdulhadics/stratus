@@ -98,11 +98,11 @@ export function DemoSection() {
 
           {/* Right: Team photo */}
           <div className="relative flex flex-col justify-between">
-            <div className="aspect-square md:aspect-[4/3] rounded-xl overflow-hidden border border-border bg-[#e4f1fb] dark:bg-bg-elevated flex items-center justify-center shadow-sm">
+            <div className="aspect-square md:aspect-[4/3] rounded-xl overflow-hidden border border-border bg-bg-elevated shadow-sm">
               <img
                 src={teamImageUrl}
                 alt="Meet The People - The STRATUS team"
-                className="w-full h-full object-contain p-1"
+                className="w-full h-full object-cover"
                 loading="lazy"
               />
             </div>
