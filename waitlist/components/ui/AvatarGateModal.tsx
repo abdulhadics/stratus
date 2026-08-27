@@ -41,8 +41,16 @@ export function AvatarGateModal({ isOpen, onClose, onVerified }: AvatarGateModal
     setGeneratedOtp(code);
 
     try {
-      // Simulate sending OTP / verification code
-      console.log(`[STRATUS VERIFICATION] Verification Code for ${formData.email}: ${code}`);
+      // Call real-time send-otp API endpoint
+      await fetch('/api/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: formData.email,
+          name: formData.name,
+          code,
+        }),
+      });
       setStep('otp');
     } catch {
       setErrorMsg('Failed to send verification code. Please try again.');
