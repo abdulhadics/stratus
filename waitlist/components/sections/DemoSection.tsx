@@ -39,13 +39,13 @@ export function DemoSection() {
         </p>
 
         {/* Two-column demo area */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 items-stretch">
           {/* Left: AI Avatar Gate / Interactive Experience */}
-          <div className="relative">
+          <div className="relative flex flex-col justify-between">
             {isVerified ? (
               /* Unlocked Avatar Experience */
               heygenUrl ? (
-                <div className="aspect-[4/3] rounded-lg overflow-hidden border border-border bg-bg-elevated">
+                <div className="aspect-square md:aspect-[4/3] rounded-xl overflow-hidden border border-border bg-bg-elevated shadow-sm">
                   <iframe
                     src={heygenUrl}
                     className="w-full h-full"
@@ -55,7 +55,7 @@ export function DemoSection() {
                   />
                 </div>
               ) : (
-                <div className="aspect-[4/3] rounded-lg border border-accent/40 bg-bg-elevated p-6 flex flex-col items-center justify-center text-center relative overflow-hidden">
+                <div className="aspect-square md:aspect-[4/3] rounded-xl border border-accent/40 bg-bg-elevated p-6 flex flex-col items-center justify-center text-center relative overflow-hidden shadow-sm">
                   <div className="absolute top-3 right-3 px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-[10px] font-mono uppercase tracking-wider border border-emerald-500/20">
                     ✓ Verified Access
                   </div>
@@ -75,7 +75,7 @@ export function DemoSection() {
               )
             ) : (
               /* Locked Avatar Gate Preview */
-              <div className="aspect-[4/3] rounded-lg border border-border bg-bg-elevated p-6 flex flex-col items-center justify-center text-center relative">
+              <div className="aspect-square md:aspect-[4/3] rounded-xl border border-border bg-bg-elevated p-6 flex flex-col items-center justify-center text-center relative shadow-sm">
                 <div className="w-10 h-10 rounded-full bg-bg-surface border border-border flex items-center justify-center mb-3 text-text-dimmed">
                   🔒
                 </div>
@@ -97,12 +97,12 @@ export function DemoSection() {
           </div>
 
           {/* Right: Team photo */}
-          <div className="relative">
-            <div className="aspect-[4/3] rounded-lg overflow-hidden border border-border bg-bg-elevated">
+          <div className="relative flex flex-col justify-between">
+            <div className="aspect-square md:aspect-[4/3] rounded-xl overflow-hidden border border-border bg-[#e4f1fb] dark:bg-bg-elevated flex items-center justify-center shadow-sm">
               <img
                 src={teamImageUrl}
-                alt="The STRATUS team"
-                className="w-full h-full object-cover"
+                alt="Meet The People - The STRATUS team"
+                className="w-full h-full object-contain p-1"
                 loading="lazy"
               />
             </div>
