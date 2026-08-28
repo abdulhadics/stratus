@@ -21,9 +21,9 @@ export function StratusLogo({ className = '', size = 32 }: { className?: string;
   );
 }
 
-export function StratusWordmark({ className = '' }: { className?: string }) {
+export function StratusWordmark({ className = '', fontSize = 'text-[20px]' }: { className?: string; fontSize?: string }) {
   return (
-    <span className={`text-mono text-[15px] tracking-[0.2em] font-semibold text-text-primary ${className}`}>
+    <span className={`text-mono ${fontSize} tracking-[0.2em] font-semibold text-text-primary ${className}`}>
       STRATUS
     </span>
   );

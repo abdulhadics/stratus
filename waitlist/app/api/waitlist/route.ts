@@ -151,16 +151,6 @@ export async function POST(request: Request) {
 
   if (normalizedOffer === 'machine') {
     offerSpecificTags.push('offer-machine', 'package: machine', 'package:machine', 'offer-pipeline', 'package: pipeline');
-  } else if (normalizedOffer === 'founding') {
-    offerSpecificTags.push(
-      'package: machine founding',
-      'package:machine founding',
-      'package: pipeline founding',
-      'package:founding',
-      'package: founding',
-      'offer-founding',
-      'offer-machine-founding'
-    );
   }
 
   const tags = Array.from(new Set([...baseTags, ...offerSpecificTags]));
@@ -231,6 +221,39 @@ export async function POST(request: Request) {
       if (!oppRes.ok) {
         const errorText = await oppRes.text().catch(() => 'Unknown error');
         console.warn(`[STRATUS API] Contact ${contactId} created but opportunity failed (${oppRes.status}):`, errorText);
+      }
+    }
+
+    // 8. Send direct confirmation email if RESEND_API_KEY is configured
+    const resendApiKey = process.env.RESEND_API_KEY;
+    if (resendApiKey) {
+      try {
+        await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${resendApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            from: 'STRATUS Systems <onboarding@stratusystems.co>',
+            to: [email],
+            subject: 'Application Received — STRATUS Systems',
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 540px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
+                <h2 style="color: #1e3a8a; margin-top: 0;">Application Received!</h2>
+                <p style="color: #334155; font-size: 15px; line-height: 1.6;">Hi ${firstName},</p>
+                <p style="color: #334155; font-size: 15px; line-height: 1.6;">Thank you for applying for the <strong>STRATUS 6 Systems</strong> platform for <strong>${businessName || 'your business'}</strong>.</p>
+                <p style="color: #334155; font-size: 15px; line-height: 1.6;">Our team is reviewing your details. In the meantime, you can explore our system promise and lock in your discovery call.</p>
+                <div style="margin: 24px 0; padding: 16px; background-color: #eff6ff; border-left: 4px solid #2563eb; border-radius: 4px;">
+                  <strong style="color: #1e40af;">Status:</strong> <span style="color: #1e3a8a;">Application Pending Review</span>
+                </div>
+                <p style="color: #64748b; font-size: 13px; border-top: 1px solid #e2e8f0; padding-top: 16px;">STRATUS Systems — Built for Trades & Operations.<br/><a href="https://stratussystems.co" style="color: #2563eb; text-decoration: none;">stratussystems.co</a></p>
+              </div>
+            `,
+          }),
+        });
+      } catch (emailErr) {
+        console.error('[STRATUS API] Direct confirmation email failed:', emailErr);
       }
     }
 

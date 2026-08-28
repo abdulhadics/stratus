@@ -52,10 +52,10 @@ export function Header() {
           <a
             href="#"
             onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-            className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
+            className="flex items-center gap-3 hover:opacity-80 transition-opacity py-1"
           >
-            <StratusLogo size={26} />
-            <StratusWordmark />
+            <StratusLogo size={52} />
+            <StratusWordmark fontSize="text-[22px]" />
           </a>
 
           {/* Desktop Nav */}

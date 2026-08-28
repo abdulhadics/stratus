@@ -74,19 +74,31 @@ export function DemoSection() {
                 </div>
               )
             ) : (
-              /* Locked Avatar Gate Preview */
-              <div className="aspect-square rounded-xl border border-border bg-bg-elevated p-6 flex flex-col items-center justify-center text-center relative shadow-sm">
-                <div className="w-10 h-10 rounded-full bg-bg-surface border border-border flex items-center justify-center mb-3 text-text-dimmed">
-                  🔒
+              /* Locked Avatar Gate Preview with 3-Second Teaser */
+              <div className="aspect-square rounded-xl border border-accent/30 bg-bg-elevated p-6 flex flex-col items-center justify-center text-center relative overflow-hidden shadow-sm">
+                <div className="absolute top-3 right-3 px-2 py-0.5 rounded bg-accent/10 text-accent text-[10px] font-mono uppercase tracking-wider border border-accent/20 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent animate-ping" />
+                  3s Teaser Preview
                 </div>
+
+                <div className="w-14 h-14 rounded-full bg-accent/10 border border-accent/30 flex items-center justify-center mb-3 animate-pulse">
+                  <span className="text-accent text-2xl">🗣️</span>
+                </div>
+
                 <h4 className="text-sm font-semibold text-text-primary mb-1">
-                  STRATUS AI Avatar Assistant
+                  STRATUS AI Digital Assistant
                 </h4>
-                <p className="text-xs text-text-dimmed max-w-[280px] mb-4">
-                  Join the waitlist and verify your email to unlock access to talk with the STRATUS AI assistant.
+
+                <div className="my-2 p-2.5 rounded-lg bg-bg-surface border border-border/80 text-xs text-text-primary italic max-w-[300px]">
+                  "Hi! I'm an AI digital assistant. How can I help streamline your operations today?"
+                </div>
+
+                <p className="text-[11px] text-text-dimmed max-w-[280px] mb-4">
+                  Verify your email to unlock full interactive voice conversations with STRATUS.
                 </p>
+
                 <Button variant="primary" size="sm" onClick={() => setIsGateOpen(true)}>
-                  Join waitlist to talk to STRATUS →
+                  Unlock Interactive AI Avatar →
                 </Button>
               </div>
             )}

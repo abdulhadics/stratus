@@ -22,9 +22,9 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8 items-start">
           {/* Left Column: Logo + tagline */}
           <div>
-            <div className="flex items-center gap-2.5 mb-3">
-              <StratusLogo size={22} />
-              <StratusWordmark />
+            <div className="flex items-center gap-3 mb-4">
+              <StratusLogo size={48} />
+              <StratusWordmark fontSize="text-[20px]" />
             </div>
             <p className="text-[13px] text-text-dimmed leading-relaxed">
               {t('footer.tagline')}

@@ -70,9 +70,9 @@ export function MobileNavigation({ isOpen, onClose, navItems, onNavigate }: Mobi
       >
         {/* Top bar */}
         <div className="flex items-center justify-between px-5 sm:px-8" style={{ height: 'var(--header-height)' }}>
-          <div className="flex items-center gap-2.5">
-            <StratusLogo size={26} />
-            <StratusWordmark />
+          <div className="flex items-center gap-3">
+            <StratusLogo size={44} />
+            <StratusWordmark fontSize="text-[20px]" />
           </div>
           <button
             onClick={onClose}

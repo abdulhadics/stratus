@@ -102,7 +102,7 @@ export function PricingSection({ onSelectOffer }: PricingSectionProps) {
             ]}
             disclaimer={t('pricing.command.disclaimer')}
             ctaText={t('pricing.cta')}
-            onCta={() => handleCta('founding')}
+            onCta={() => handleCta('command')}
           />
         </div>
       </Container>
