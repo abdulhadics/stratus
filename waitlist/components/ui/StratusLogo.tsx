@@ -3,7 +3,7 @@ export function StratusLogo({ className = '', size = 32 }: { className?: string;
     <div className={`relative flex items-center justify-center flex-shrink-0 ${className}`} style={{ width: size, height: size }}>
       {/* Light Mode Logo */}
       <img
-        src="/logolight.png"
+        src="/logolight-transparent.png"
         alt="STRATUS Logo"
         width={size}
         height={size}
@@ -11,11 +11,11 @@ export function StratusLogo({ className = '', size = 32 }: { className?: string;
       />
       {/* Dark Mode Logo */}
       <img
-        src="/icon.png"
+        src="/logolight-transparent.png"
         alt="STRATUS Logo"
         width={size}
         height={size}
-        className="logo-dark-img object-contain w-full h-full"
+        className="logo-dark-img object-contain w-full h-full filter brightness-125"
       />
     </div>
   );

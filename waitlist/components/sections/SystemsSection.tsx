@@ -138,23 +138,23 @@ export function SystemsSection() {
                 className="fill-accent/10 stroke-accent"
                 strokeWidth="2.5"
               />
-              {/* Light Mode Center Emblem (Native SVG image scales in lockstep on mobile) */}
+              {/* Light Mode Center Emblem (Transparent background, larger size) */}
               <image
-                href="/logolight.png"
-                x="260"
-                y="220"
-                width="80"
-                height="80"
+                href="/logolight-transparent.png"
+                x="235"
+                y="195"
+                width="130"
+                height="130"
                 className="logo-light-img pointer-events-none"
               />
               {/* Dark Mode Center Emblem */}
               <image
-                href="/icon.png"
-                x="260"
-                y="220"
-                width="80"
-                height="80"
-                className="logo-dark-img pointer-events-none"
+                href="/logolight-transparent.png"
+                x="235"
+                y="195"
+                width="130"
+                height="130"
+                className="logo-dark-img pointer-events-none filter brightness-125"
               />
             </g>
           </svg>
