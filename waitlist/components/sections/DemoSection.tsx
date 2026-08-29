@@ -77,14 +77,14 @@ export function DemoSection() {
               /* Locked Avatar Gate Preview with 3-Second Teaser Video */
               <div className="aspect-square rounded-xl border border-accent/40 bg-bg-elevated p-4 flex flex-col items-center justify-between text-center relative overflow-hidden shadow-md group">
                 {/* 3s Teaser Video / Background Animation */}
-                <div className="absolute inset-0 z-0 bg-gradient-to-b from-black/20 via-black/40 to-black/80 flex items-center justify-center">
+                <div className="absolute inset-0 z-0 bg-gradient-to-b from-black/0 via-black/10 to-black/80 flex items-center justify-center">
                   <video
                     src={process.env.NEXT_PUBLIC_AVATAR_TEASER_URL || "https://cdn.pixabay.com/video/2023/10/22/186104-877287752_tiny.mp4"}
                     autoPlay
                     loop
                     muted
                     playsInline
-                    className="w-full h-full object-cover opacity-60 filter contrast-110"
+                    className="w-full h-full object-cover opacity-90 filter contrast-110"
                   />
                 </div>
 
@@ -99,16 +99,18 @@ export function DemoSection() {
                   </div>
                 </div>
 
-                {/* Middle Speech Bubble */}
-                <div className="relative z-10 my-auto px-4 py-3 rounded-xl bg-black/70 backdrop-blur-md border border-white/20 text-white shadow-lg max-w-[290px]">
-                  <p className="text-xs font-medium leading-relaxed italic">
-                    "Hi! How can we help you streamline your business operations today?"
-                  </p>
+                {/* Cinematic Subtitle (At the bottom, above the button) */}
+                <div className="relative z-10 mt-auto mb-4 w-full flex justify-center">
+                  <div className="px-3 py-1.5 rounded bg-black/50 backdrop-blur-sm border border-white/10 text-white shadow-md inline-block max-w-[90%]">
+                    <p className="text-[11px] font-medium tracking-wide">
+                      "Hi! How can we help you streamline your business operations today?"
+                    </p>
+                  </div>
                 </div>
 
                 {/* Bottom Overlay & Unlock Action */}
-                <div className="relative z-10 w-full pt-2">
-                  <p className="text-[11px] text-white/80 mb-2 font-medium drop-shadow-sm">
+                <div className="relative z-10 w-full">
+                  <p className="text-[11px] text-white/90 mb-2 font-medium drop-shadow-md">
                     Verify email to unlock full interactive voice AI
                   </p>
                   <Button variant="primary" size="sm" onClick={() => setIsGateOpen(true)} className="w-full shadow-lg">
