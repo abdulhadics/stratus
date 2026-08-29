@@ -74,32 +74,47 @@ export function DemoSection() {
                 </div>
               )
             ) : (
-              /* Locked Avatar Gate Preview with 3-Second Teaser */
-              <div className="aspect-square rounded-xl border border-accent/30 bg-bg-elevated p-6 flex flex-col items-center justify-center text-center relative overflow-hidden shadow-sm">
-                <div className="absolute top-3 right-3 px-2 py-0.5 rounded bg-accent/10 text-accent text-[10px] font-mono uppercase tracking-wider border border-accent/20 flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent animate-ping" />
-                  3s Teaser Preview
+              /* Locked Avatar Gate Preview with 3-Second Teaser Video */
+              <div className="aspect-square rounded-xl border border-accent/40 bg-bg-elevated p-4 flex flex-col items-center justify-between text-center relative overflow-hidden shadow-md group">
+                {/* 3s Teaser Video / Background Animation */}
+                <div className="absolute inset-0 z-0 bg-gradient-to-b from-black/20 via-black/40 to-black/80 flex items-center justify-center">
+                  <video
+                    src={process.env.NEXT_PUBLIC_AVATAR_TEASER_URL || "https://cdn.pixabay.com/video/2023/10/22/186104-877287752_tiny.mp4"}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-full object-cover opacity-60 filter contrast-110"
+                  />
                 </div>
 
-                <div className="w-14 h-14 rounded-full bg-accent/10 border border-accent/30 flex items-center justify-center mb-3 animate-pulse">
-                  <span className="text-accent text-2xl">🗣️</span>
+                {/* Top Badge */}
+                <div className="relative z-10 w-full flex items-center justify-between">
+                  <div className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-white text-[10px] font-mono uppercase tracking-wider border border-white/20 flex items-center gap-1.5 shadow-sm">
+                    <span className="w-2 h-2 rounded-full bg-accent animate-ping" />
+                    3s Teaser Preview
+                  </div>
+                  <div className="w-7 h-7 rounded-full bg-black/60 backdrop-blur-md border border-white/20 flex items-center justify-center text-white text-xs">
+                    🔒
+                  </div>
                 </div>
 
-                <h4 className="text-sm font-semibold text-text-primary mb-1">
-                  STRATUS AI Digital Assistant
-                </h4>
-
-                <div className="my-2 p-2.5 rounded-lg bg-bg-surface border border-border/80 text-xs text-text-primary italic max-w-[300px]">
-                  "Hi! I'm an AI digital assistant. How can I help streamline your operations today?"
+                {/* Middle Speech Bubble */}
+                <div className="relative z-10 my-auto px-4 py-3 rounded-xl bg-black/70 backdrop-blur-md border border-white/20 text-white shadow-lg max-w-[290px]">
+                  <p className="text-xs font-medium leading-relaxed italic">
+                    "Hi! How can we help you streamline your business operations today?"
+                  </p>
                 </div>
 
-                <p className="text-[11px] text-text-dimmed max-w-[280px] mb-4">
-                  Verify your email to unlock full interactive voice conversations with STRATUS.
-                </p>
-
-                <Button variant="primary" size="sm" onClick={() => setIsGateOpen(true)}>
-                  Unlock Interactive AI Avatar →
-                </Button>
+                {/* Bottom Overlay & Unlock Action */}
+                <div className="relative z-10 w-full pt-2">
+                  <p className="text-[11px] text-white/80 mb-2 font-medium drop-shadow-sm">
+                    Verify email to unlock full interactive voice AI
+                  </p>
+                  <Button variant="primary" size="sm" onClick={() => setIsGateOpen(true)} className="w-full shadow-lg">
+                    Unlock Interactive AI Avatar →
+                  </Button>
+                </div>
               </div>
             )}
 
