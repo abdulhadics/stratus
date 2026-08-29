@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Container } from '@/components/layout/Container';
 import { SectionEyebrow } from '@/components/ui/SectionEyebrow';
 import { Button } from '@/components/ui/Button';
@@ -13,6 +13,29 @@ export function DemoSection() {
   const teamImageUrl = process.env.NEXT_PUBLIC_TEAM_IMAGE_URL || '/team.jpeg';
   const [isVerified, setIsVerified] = useState(false);
   const [isGateOpen, setIsGateOpen] = useState(false);
+  
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const handlePlayPreview = () => {
+    if (videoRef.current) {
+      videoRef.current.currentTime = 0;
+      videoRef.current.muted = false;
+      videoRef.current.loop = false;
+      videoRef.current.play();
+      setIsPlaying(true);
+    }
+  };
+
+  const handleVideoEnded = () => {
+    setIsPlaying(false);
+    if (videoRef.current) {
+      // Revert to silent visual loop after speaking once
+      videoRef.current.muted = true;
+      videoRef.current.loop = true;
+      videoRef.current.play();
+    }
+  };
 
   useEffect(() => {
     const verified = localStorage.getItem('stratus_avatar_verified');
@@ -77,15 +100,31 @@ export function DemoSection() {
               /* Locked Avatar Gate Preview with 3-Second Teaser Video */
               <div className="aspect-square rounded-xl border border-accent/40 bg-bg-elevated p-4 flex flex-col items-center justify-between text-center relative overflow-hidden shadow-md group">
                 {/* 3s Teaser Video / Background Animation */}
-                <div className="absolute inset-0 z-0 bg-gradient-to-b from-black/0 via-black/10 to-black/80 flex items-center justify-center">
+                <div 
+                  className="absolute inset-0 z-0 bg-gradient-to-b from-black/0 via-black/10 to-black/80 flex items-center justify-center cursor-pointer group/video"
+                  onClick={handlePlayPreview}
+                >
                   <video
+                    ref={videoRef}
                     src={process.env.NEXT_PUBLIC_AVATAR_TEASER_URL || "https://cdn.pixabay.com/video/2023/10/22/186104-877287752_tiny.mp4"}
                     autoPlay
                     loop
                     muted
                     playsInline
+                    onEnded={handleVideoEnded}
                     className="w-full h-full object-cover opacity-90 filter contrast-110"
                   />
+                  
+                  {/* Play/Unmute Button Overlay */}
+                  {!isPlaying && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20 transition-opacity hover:bg-black/30">
+                      <div className="w-14 h-14 rounded-full bg-accent/90 flex items-center justify-center text-white shadow-xl backdrop-blur-sm transform transition-transform group-hover/video:scale-110 border border-white/20">
+                        <svg className="w-6 h-6 ml-1" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M8 5v14l11-7z" />
+                        </svg>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Top Badge */}
