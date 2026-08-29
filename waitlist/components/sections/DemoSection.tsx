@@ -74,16 +74,18 @@ export function DemoSection() {
                 </div>
               )
             ) : (
-              /* Locked Avatar Gate Preview with Custom STRATUS Avatar */
+              /* Locked Avatar Gate Preview with 3-Second Teaser Video */
               <div className="aspect-square rounded-xl border border-accent/40 bg-bg-elevated p-4 flex flex-col items-center justify-between text-center relative overflow-hidden shadow-md group">
-                {/* Custom Non-Corporate AI Avatar Background */}
-                <div className="absolute inset-0 z-0 bg-gradient-to-b from-black/20 via-black/40 to-black/85 flex items-center justify-center">
-                  <img
-                    src="/avatar-preview.jpg"
-                    alt="STRATUS AI Digital Assistant"
-                    className="w-full h-full object-cover opacity-85 filter contrast-105 transition-transform duration-700 group-hover:scale-105"
+                {/* 3s Teaser Video / Background Animation */}
+                <div className="absolute inset-0 z-0 bg-gradient-to-b from-black/20 via-black/40 to-black/80 flex items-center justify-center">
+                  <video
+                    src={process.env.NEXT_PUBLIC_AVATAR_TEASER_URL || "https://cdn.pixabay.com/video/2023/10/22/186104-877287752_tiny.mp4"}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-full object-cover opacity-60 filter contrast-110"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-bg-primary/90 via-transparent to-black/40" />
                 </div>
 
                 {/* Top Badge */}
@@ -98,7 +100,7 @@ export function DemoSection() {
                 </div>
 
                 {/* Middle Speech Bubble */}
-                <div className="relative z-10 my-auto px-4 py-3 rounded-xl bg-black/75 backdrop-blur-md border border-white/20 text-white shadow-xl max-w-[290px]">
+                <div className="relative z-10 my-auto px-4 py-3 rounded-xl bg-black/70 backdrop-blur-md border border-white/20 text-white shadow-lg max-w-[290px]">
                   <p className="text-xs font-medium leading-relaxed italic">
                     "Hi! How can we help you streamline your business operations today?"
                   </p>
@@ -106,7 +108,7 @@ export function DemoSection() {
 
                 {/* Bottom Overlay & Unlock Action */}
                 <div className="relative z-10 w-full pt-2">
-                  <p className="text-[11px] text-white/90 mb-2 font-medium drop-shadow-md">
+                  <p className="text-[11px] text-white/80 mb-2 font-medium drop-shadow-sm">
                     Verify email to unlock full interactive voice AI
                   </p>
                   <Button variant="primary" size="sm" onClick={() => setIsGateOpen(true)} className="w-full shadow-lg">
