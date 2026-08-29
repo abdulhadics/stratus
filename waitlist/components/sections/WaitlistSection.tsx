@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { Container } from '@/components/layout/Container';
 import { SectionEyebrow } from '@/components/ui/SectionEyebrow';
 import { Button } from '@/components/ui/Button';
@@ -15,6 +16,7 @@ interface WaitlistSectionProps {
 
 export function WaitlistSection({ preselectedOffer }: WaitlistSectionProps) {
   const { t, language } = useTranslation();
+  const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
@@ -100,7 +102,7 @@ export function WaitlistSection({ preselectedOffer }: WaitlistSectionProps) {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        setStatus('success');
+        router.push('/apply/confirmation');
       } else {
         // Show translated error
         if (response.status === 400) {
