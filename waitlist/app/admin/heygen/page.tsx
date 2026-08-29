@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
 
 export default function HeyGenGenerator() {
   const [apiKey, setApiKey] = useState('');
@@ -103,9 +102,9 @@ export default function HeyGenGenerator() {
           />
         </div>
 
-        <Button onClick={generateVideo} disabled={status === 'Generating...'} className="w-full bg-blue-600 hover:bg-blue-700">
+        <button onClick={generateVideo} disabled={status === 'Generating...'} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50">
           {status === 'Generating...' ? 'Generating (Check Logs)...' : 'Generate Avatar & 3s Video'}
-        </Button>
+        </button>
 
         {videoUrl && (
           <div className="p-4 bg-green-900/30 border border-green-500 rounded">
