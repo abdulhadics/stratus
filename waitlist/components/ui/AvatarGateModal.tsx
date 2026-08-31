@@ -8,13 +8,15 @@ interface AvatarGateModalProps {
   isOpen: boolean;
   onClose: () => void;
   onVerified: () => void;
+  initialQuestion?: string;
+  visitorName?: string;
 }
 
-export function AvatarGateModal({ isOpen, onClose, onVerified }: AvatarGateModalProps) {
+export function AvatarGateModal({ isOpen, onClose, onVerified, initialQuestion, visitorName }: AvatarGateModalProps) {
   const { t } = useTranslation();
   const [step, setStep] = useState<'form' | 'otp'>('form');
   const [formData, setFormData] = useState({
-    name: '',
+    name: visitorName || '',
     email: '',
     phone: '',
   });
@@ -86,6 +88,7 @@ export function AvatarGateModal({ isOpen, onClose, onVerified }: AvatarGateModal
           offer: 'presence',
           language: 'en',
           isAvatarGate: true,
+          initialQuestion: initialQuestion || '',
         }),
       });
 

@@ -20,6 +20,7 @@ export const waitlistSchema = z.object({
   offer: z.enum(OFFER_OPTIONS, { error: 'Select an offer' }).optional().default('presence'),
   language: z.enum(LANGUAGE_OPTIONS).default('en'),
   isAvatarGate: z.boolean().optional(),
+  initialQuestion: z.string().max(1000).optional(),
   verificationCode: z.string().optional(),
   honeypot: z.string().max(0, 'Invalid submission').optional(),
 });

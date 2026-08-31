@@ -124,7 +124,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const { name, email, phone, businessName, tradeType, market, offer, language, isAvatarGate, honeypot } = validation.data;
+  const { name, email, phone, businessName, tradeType, market, offer, language, isAvatarGate, initialQuestion, honeypot } = validation.data;
 
   // 3. Reject honeypot submissions
   if (honeypot && honeypot.length > 0) {
@@ -166,6 +166,7 @@ export async function POST(request: Request) {
       tags,
       customFields: [
         { key: 'business_name', field_value: businessName },
+        ...(initialQuestion ? [{ key: 'initial_typed_question', field_value: initialQuestion }] : []),
       ],
     };
 
