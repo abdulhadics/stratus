@@ -113,8 +113,13 @@ export function AvatarChatWidget() {
         await connectToLiveKit(data.data.livekit_url, data.data.livekit_client_token);
         setStep('live');
       } else {
-        console.error('[STRATUS] LiveAvatar session failed:', data.error);
-        setLiveAvatarError(data.error || 'Could not start avatar session.');
+        let errMsg = data.error || 'Could not start avatar session.';
+        try {
+          const parsed = typeof errMsg === 'string' ? JSON.parse(errMsg) : errMsg;
+          if (parsed?.message) errMsg = parsed.message;
+        } catch {}
+        console.error('[STRATUS] LiveAvatar session failed:', errMsg);
+        setLiveAvatarError(errMsg);
         // Fallback: show text response
         addMessage('john', `I'd love to discuss "${userQuestion}" in detail. Let me connect you with our team for a proper walkthrough.`);
         setStep('ended');

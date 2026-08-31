@@ -28,13 +28,12 @@ export async function POST(request: Request) {
         mode: 'FULL',
         avatar_id: LIVEAVATAR_AVATAR_ID,
         is_sandbox: body.sandbox === true,
-        ...(body.voice_id && {
-          avatar_persona: {
-            voice_id: body.voice_id,
-            ...(body.context_id && { context_id: body.context_id }),
-            language: body.language || 'en',
-          },
-        }),
+        avatar_persona: {
+          ...(process.env.LIVEAVATAR_VOICE_ID ? { voice_id: process.env.LIVEAVATAR_VOICE_ID } : {}),
+          ...(body.voice_id ? { voice_id: body.voice_id } : {}),
+          ...(body.context_id ? { context_id: body.context_id } : {}),
+          language: body.language || 'en',
+        },
       }),
     });
 
