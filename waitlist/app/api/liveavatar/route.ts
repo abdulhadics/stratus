@@ -1,15 +1,15 @@
 import { NextResponse } from 'next/server';
 
-const LIVEAVATAR_API_KEY = process.env.LIVEAVATAR_API_KEY;
-const LIVEAVATAR_AVATAR_ID = process.env.LIVEAVATAR_AVATAR_ID;
+const LIVEAVATAR_API_KEY = process.env.LIVEAVATAR_API_KEY || 'e7806c8c-fd26-4de1-b94c-6a64066b0ab9';
+const LIVEAVATAR_AVATAR_ID = process.env.LIVEAVATAR_AVATAR_ID || '64b526e4-741c-43b6-a918-4e40f3261c7a';
 const LIVEAVATAR_API_BASE = 'https://api.liveavatar.com';
 
 // Step 1: Create a session token
 export async function POST(request: Request) {
   try {
-    if (!LIVEAVATAR_API_KEY || !LIVEAVATAR_AVATAR_ID) {
+    if (!LIVEAVATAR_API_KEY) {
       return NextResponse.json(
-        { success: false, error: 'LiveAvatar API key or Avatar ID not configured.' },
+        { success: false, error: 'LiveAvatar API key not configured.' },
         { status: 400 }
       );
     }
