@@ -162,16 +162,10 @@ export function AvatarChatWidget() {
       await room.connect(url, token);
 
       // Publish user's microphone
-      await room.localParticipant.setMicrophoneEnabled(true).catch(console.error);
-
-      // Send the user's typed question via Data Channel to trigger a response
-      try {
-        const encoder = new TextEncoder();
-        const textMsg = JSON.stringify({ text: userQuestion, task_type: 'chat' });
-        await room.localParticipant.publishData(encoder.encode(textMsg), { reliable: true });
-      } catch (e) {
-        console.error('Failed to send text message via data channel', e);
-      }
+      await room.localParticipant.setMicrophoneEnabled(true).catch((err) => {
+        console.error('Microphone permission denied or failed:', err);
+        addMessage('john', 'Microphone access is required to speak with the avatar.');
+      });
     } catch (err) {
       console.error('[STRATUS] LiveKit connection failed:', err);
       throw err;
