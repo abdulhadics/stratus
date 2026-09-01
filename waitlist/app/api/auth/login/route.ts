@@ -8,7 +8,8 @@ export async function POST(req: NextRequest) {
     // Basic hardcoded check for MVP "U1" account
     if (username === 'U1' && password === 'stratus123') {
       // Set an HTTP-only cookie
-      cookies().set({
+      const cookieStore = await cookies();
+      cookieStore.set({
         name: 'stratus_auth_token',
         value: 'authenticated',
         httpOnly: true,
