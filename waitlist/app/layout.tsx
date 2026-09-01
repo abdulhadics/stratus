@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Cormorant_Garamond, Inter, IBM_Plex_Mono } from 'next/font/google';
 import { ThemeProvider } from 'next-themes';
 import { LanguageProvider } from '@/lib/i18n';
+import { AuthProvider } from '@/components/providers/AuthProvider';
 import './globals.css';
 
 const cormorant = Cormorant_Garamond({
@@ -82,9 +83,11 @@ export default function RootLayout({
           disableTransitionOnChange
           themes={['light', 'dark']}
         >
-          <LanguageProvider>
-            {children}
-          </LanguageProvider>
+          <AuthProvider>
+            <LanguageProvider>
+              {children}
+            </LanguageProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

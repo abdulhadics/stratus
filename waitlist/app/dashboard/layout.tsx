@@ -3,10 +3,12 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
-import { LayoutDashboard, Users, LogOut, Settings, Briefcase } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import { LayoutDashboard, Users, LogOut, Settings, Briefcase, ShieldAlert } from 'lucide-react';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { data: session } = useSession();
 
   const navigation = [
     { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
@@ -14,6 +16,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: 'Opportunities', href: '/dashboard/opportunities', icon: Briefcase },
     { name: 'Settings', href: '/dashboard/settings', icon: Settings },
   ];
+
+  if (session?.user?.role === 'ADMIN') {
+    navigation.push({ name: 'Admin Panel', href: '/dashboard/admin', icon: ShieldAlert });
+  }
 
   return (
     <div className="min-h-screen bg-bg-main flex">
@@ -52,11 +58,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="p-4 border-t border-border">
           <div className="flex items-center gap-3 px-3 py-2">
             <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center text-accent font-bold text-sm">
-              U1
+              {session?.user?.name?.[0] || session?.user?.email?.[0]?.toUpperCase() || 'U'}
             </div>
             <div className="flex-1 overflow-hidden">
-              <p className="text-sm font-medium text-text-primary truncate">Demo User</p>
-              <p className="text-xs text-text-dimmed truncate">u1@stratusystems.co</p>
+              <p className="text-sm font-medium text-text-primary truncate">{session?.user?.name || 'User'}</p>
+              <p className="text-xs text-text-dimmed truncate">{session?.user?.email}</p>
             </div>
           </div>
         </div>
