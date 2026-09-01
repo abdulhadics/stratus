@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
@@ -17,18 +18,17 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
+      const res = await signIn('credentials', {
+        redirect: false,
+        email: username, // The UI says "username", but NextAuth expects "email" based on our setup
+        password: password,
       });
 
-      if (res.ok) {
+      if (res?.error) {
+        setError(res.error);
+      } else {
         router.push('/dashboard');
         router.refresh();
-      } else {
-        const data = await res.json();
-        setError(data.error || 'Invalid credentials');
       }
     } catch (err) {
       setError('An error occurred. Please try again.');
@@ -63,7 +63,7 @@ export default function LoginPage() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="w-full px-4 py-2 bg-bg-elevated border border-border rounded-lg text-text-primary focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent"
-              placeholder="e.g. U1"
+              placeholder="e.g. boss@stratusystems.co"
               required
             />
           </div>

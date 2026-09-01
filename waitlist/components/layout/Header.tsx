@@ -76,6 +76,14 @@ export function Header() {
             <LanguageToggle />
             <ThemeToggle />
             <Button
+              variant="outline"
+              size="sm"
+              className="hidden sm:inline-flex border-accent text-accent hover:bg-accent/10"
+              onClick={() => { window.location.href = '/login'; }}
+            >
+              Client Portal
+            </Button>
+            <Button
               variant="primary"
               size="sm"
               className="hidden sm:inline-flex"
