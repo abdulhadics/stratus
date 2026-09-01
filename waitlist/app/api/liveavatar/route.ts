@@ -25,15 +25,17 @@ export async function POST(request: Request) {
         'content-type': 'application/json',
       },
       body: JSON.stringify({
-        mode: 'FULL',
+        mode: body.mode || 'LITE',
         avatar_id: LIVEAVATAR_AVATAR_ID,
         is_sandbox: body.sandbox === true,
-        avatar_persona: {
-          ...(process.env.LIVEAVATAR_VOICE_ID ? { voice_id: process.env.LIVEAVATAR_VOICE_ID } : {}),
-          ...(body.voice_id ? { voice_id: body.voice_id } : {}),
-          ...(body.context_id ? { context_id: body.context_id } : {}),
-          language: body.language || 'en',
-        },
+        ...(body.mode === 'FULL' && {
+          avatar_persona: {
+            ...(process.env.LIVEAVATAR_VOICE_ID ? { voice_id: process.env.LIVEAVATAR_VOICE_ID } : {}),
+            ...(body.voice_id ? { voice_id: body.voice_id } : {}),
+            ...(body.context_id ? { context_id: body.context_id } : {}),
+            language: body.language || 'en',
+          },
+        }),
       }),
     });
 
