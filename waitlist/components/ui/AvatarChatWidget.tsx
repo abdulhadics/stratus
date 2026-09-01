@@ -103,7 +103,11 @@ export function AvatarChatWidget() {
       const res = await fetch('/api/liveavatar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sandbox: false }),
+        body: JSON.stringify({ 
+          sandbox: true, 
+          mode: 'FULL',
+          question: userQuestion 
+        }),
       });
 
       const data = await res.json();
@@ -142,21 +146,32 @@ export function AvatarChatWidget() {
       room.on(RoomEvent.TrackSubscribed, (track) => {
         if (track.kind === Track.Kind.Video && videoRef.current) {
           track.attach(videoRef.current);
+          videoRef.current.play().catch(console.error);
         }
         if (track.kind === Track.Kind.Audio && audioRef.current) {
           track.attach(audioRef.current);
+          audioRef.current.play().catch(console.error);
         }
       });
 
       room.on(RoomEvent.Disconnected, () => {
         setStep('ended');
-        addMessage('john', "Thanks for chatting! If you'd like to continue the conversation, book a discovery call with our team.");
+        addMessage('john', "The LiveAvatar session has ended. (Note: Sandbox sessions are limited to 1 minute). If you'd like to continue, please book a discovery call.");
       });
 
       await room.connect(url, token);
 
       // Publish user's microphone
-      await room.localParticipant.setMicrophoneEnabled(true);
+      await room.localParticipant.setMicrophoneEnabled(true).catch(console.error);
+
+      // Send the user's typed question via Data Channel to trigger a response
+      try {
+        const encoder = new TextEncoder();
+        const textMsg = JSON.stringify({ text: userQuestion, task_type: 'chat' });
+        await room.localParticipant.publishData(encoder.encode(textMsg), { reliable: true });
+      } catch (e) {
+        console.error('Failed to send text message via data channel', e);
+      }
     } catch (err) {
       console.error('[STRATUS] LiveKit connection failed:', err);
       throw err;
@@ -194,24 +209,30 @@ export function AvatarChatWidget() {
         </div>
       </div>
 
-      {/* Live Avatar Video (shown when connected) */}
-      {step === 'live' && (
-        <div className="relative w-full aspect-video bg-black">
-          <video
-            ref={videoRef}
-            autoPlay
-            playsInline
-            className="w-full h-full object-cover"
-          />
-          <audio ref={audioRef} autoPlay />
-          <div className="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-mono border border-emerald-500/30">
-            ● LIVE
-          </div>
+      {/* Live Avatar Video (always rendered to ensure refs exist for LiveKit, hidden via CSS) */}
+      <div className={`relative w-full flex-1 bg-black ${step === 'live' ? 'flex flex-col items-center justify-center' : 'hidden'}`}>
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <audio ref={audioRef} autoPlay />
+        
+        {/* Overlays */}
+        <div className="absolute top-4 right-4 px-2 py-1 rounded bg-emerald-500/90 text-white text-[10px] font-bold tracking-widest uppercase shadow-lg shadow-emerald-500/20 z-10 flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+          LIVE
         </div>
-      )}
+
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-bg-surface/90 border border-border backdrop-blur-md shadow-xl z-10 text-xs text-text-primary flex items-center gap-2">
+           <svg className="w-3 h-3 text-emerald-500 animate-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.87 3.13 7 7 7v3h4v-3c3.87 0 7-3.13 7-7h-2z"/></svg>
+           Avatar is listening... Speak now!
+        </div>
+      </div>
 
       {/* Chat Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-[200px] max-h-[320px]">
+      <div className={`flex-1 overflow-y-auto p-4 space-y-3 min-h-[200px] max-h-[320px] ${step === 'live' ? 'hidden' : 'block'}`}>
         {messages.map((msg, i) => (
           <div
             key={i}

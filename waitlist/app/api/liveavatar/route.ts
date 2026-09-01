@@ -26,7 +26,7 @@ export async function POST(request: Request) {
       },
       body: JSON.stringify({
         mode: body.mode || 'LITE',
-        avatar_id: LIVEAVATAR_AVATAR_ID,
+        avatar_id: body.sandbox === true ? 'dd73ea75-1218-4ef3-92ce-606d5f7fbc0a' : LIVEAVATAR_AVATAR_ID,
         is_sandbox: body.sandbox === true,
         ...(body.mode === 'FULL' && {
           avatar_persona: {
@@ -34,6 +34,7 @@ export async function POST(request: Request) {
             ...(body.voice_id ? { voice_id: body.voice_id } : {}),
             ...(body.context_id ? { context_id: body.context_id } : {}),
             language: body.language || 'en',
+            prompt: `You are John, an AI assistant for STRATUS. The user just asked you: "${body.question || 'Hello'}". Answer their question directly and concisely.`
           },
         }),
       }),
