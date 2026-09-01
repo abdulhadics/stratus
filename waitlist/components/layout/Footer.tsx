@@ -77,7 +77,7 @@ export function Footer() {
                 </svg>
               </a>
               <a
-                href={process.env.NEXT_PUBLIC_INSTAGRAM_URL || "https://www.instagram.com/stratus__worldelite/"}
+                href={process.env.NEXT_PUBLIC_INSTAGRAM_URL || "https://www.instagram.com/stratus_systems/"}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-text-dimmed hover:text-accent transition-colors"
