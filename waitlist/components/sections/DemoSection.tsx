@@ -4,7 +4,7 @@ import { Container } from '@/components/layout/Container';
 import { SectionEyebrow } from '@/components/ui/SectionEyebrow';
 import { Button } from '@/components/ui/Button';
 import { useTranslation } from '@/lib/i18n';
-import { AvatarChatWidget } from '@/components/ui/AvatarChatWidget';
+import { PublicTextChatWidget } from '@/components/ui/PublicTextChatWidget';
 
 export function DemoSection() {
   const { t } = useTranslation();
@@ -32,7 +32,7 @@ export function DemoSection() {
           {/* Left: AI Avatar Chat Widget */}
           <div className="relative flex flex-col justify-between">
             <div className="aspect-square rounded-xl overflow-hidden">
-              <AvatarChatWidget />
+              <PublicTextChatWidget />
             </div>
             <p className="text-[12px] text-text-dimmed mt-3">
               {t('demo.caption.left')}

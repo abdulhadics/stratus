@@ -1,4 +1,5 @@
 import { Users, Briefcase, TrendingUp } from 'lucide-react';
+import { AvatarChatWidget } from '@/components/ui/AvatarChatWidget';
 
 export default function DashboardOverview() {
   const stats = [
@@ -34,16 +35,14 @@ export default function DashboardOverview() {
         ))}
       </div>
 
-      {/* Recent Activity Placeholder */}
-      <div className="rounded-2xl bg-bg-surface border border-border shadow-sm overflow-hidden">
+      {/* Avatar Chat Widget */}
+      <div className="rounded-2xl bg-bg-surface border border-border shadow-sm overflow-hidden h-[600px] flex flex-col">
         <div className="px-6 py-4 border-b border-border">
-          <h2 className="text-lg font-semibold text-text-primary">Recent Activity</h2>
+          <h2 className="text-lg font-semibold text-text-primary">Stratus Support Avatar</h2>
+          <p className="text-sm text-text-dimmed">Ask technical questions or calculate costs.</p>
         </div>
-        <div className="p-12 text-center text-text-dimmed flex flex-col items-center justify-center">
-          <div className="w-16 h-16 mb-4 rounded-full bg-bg-elevated flex items-center justify-center">
-             <TrendingUp className="w-8 h-8 opacity-50" />
-          </div>
-          <p>Your recent pipeline activity will appear here.</p>
+        <div className="flex-1 w-full bg-bg-secondary relative">
+          <AvatarChatWidget />
         </div>
       </div>
     </div>
