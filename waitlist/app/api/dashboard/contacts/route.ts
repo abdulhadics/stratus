@@ -2,11 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
   try {
-    const GHL_API_TOKEN = process.env.GHL_API_TOKEN;
+    const GHL_API_TOKEN = process.env.GHL_DASHBOARD_API_TOKEN;
     const GHL_LOCATION_ID = process.env.GHL_LOCATION_ID;
 
     if (!GHL_API_TOKEN || !GHL_LOCATION_ID) {
-      return NextResponse.json({ error: 'GHL credentials not configured' }, { status: 500 });
+      return NextResponse.json({ error: 'GHL dashboard credentials not configured' }, { status: 500 });
     }
 
     // GoHighLevel API v2 uses a Bearer token and Version header
