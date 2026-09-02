@@ -73,7 +73,7 @@ const translations = {
   'demo.avatar.placeholder': { en: 'AVATAR LOADING SLOT', fr: 'ESPACE AVATAR EN CHARGEMENT' },
   'demo.avatar.desc': { en: 'Interactive avatar embed goes here. Add the HeyGen share link to activate it.', fr: 'L\'avatar interactif s\'affichera ici. Ajoutez le lien de partage HeyGen pour l\'activer.' },
   'demo.caption.left': { en: 'Type or speak your question. Answers in seconds, in English or French.', fr: 'Tapez ou posez votre question. Réponses en quelques secondes, en anglais ou en français.' },
-  'demo.caption.right': { en: 'The team behind the system.', fr: 'L\'équipe derrière le système.' },
+  'demo.caption.right': { en: 'A Real human team, who works around the clock.', fr: 'Une vraie équipe humaine, qui travaille 24h/24.' },
   'demo.team.placeholder': { en: 'TEAM PHOTO PLACEHOLDER', fr: 'PHOTO D\'ÉQUIPE À VENIR' },
 
   // ── Life Section ──
@@ -260,9 +260,22 @@ const translations = {
   'waitlist.trade': { en: 'Type of trade', fr: 'Type de métier' },
   'waitlist.market': { en: 'Market', fr: 'Marché' },
   'waitlist.offer': { en: 'Which offer interests you?', fr: 'Quel forfait vous intéresse ?' },
+  'waitlist.frustrationQuestion': { en: 'Why? What\'s the most frustrating work or task you don\'t like right now in your business, or what are you in urgent need of help with?', fr: 'Pourquoi? Quelle est la tâche la plus frustrante que vous n\'aimez pas dans votre entreprise, ou de quoi avez-vous urgemment besoin d\'aide?' },
+  'waitlist.onlinePresence': { en: 'Current online presence (website, social)', fr: 'Présence en ligne actuelle (site web, réseaux sociaux)' },
+  'waitlist.jobVolume': { en: 'Weekly call/job volume', fr: 'Volume hebdomadaire d\'appels/travaux' },
+  'waitlist.revenueBand': { en: 'Annual revenue band', fr: 'Tranche de revenus annuels' },
+  'waitlist.next': { en: 'NEXT STEP', fr: 'ÉTAPE SUIVANTE' },
   'waitlist.submit': { en: 'APPLY FOR MY SPOT', fr: 'POSTULER POUR MA PLACE' },
   'waitlist.submitting': { en: 'SUBMITTING...', fr: 'ENVOI EN COURS...' },
   'waitlist.tagline': { en: 'BILINGUAL · OTTAWA-GATINEAU · MONTREAL · TORONTO', fr: 'BILINGUE · OTTAWA-GATINEAU · MONTRÉAL · TORONTO' },
+
+  // Revenue options
+  'revenue.placeholder': { en: 'Select revenue band', fr: 'Sélectionnez une tranche de revenus' },
+  'revenue.<99k': { en: '$99,000 and under', fr: '99 000 $ et moins' },
+  'revenue.100k-149k': { en: '$100,000 to $149,000', fr: '100 000 $ à 149 000 $' },
+  'revenue.150k-249k': { en: '$150,000 to $249,000', fr: '150 000 $ à 249 000 $' },
+  'revenue.250k-500k': { en: '$250,000 to $500,000', fr: '250 000 $ à 500 000 $' },
+  'revenue.500k+': { en: '$500,000+', fr: '500 000 $ et plus' },
 
   // Trade options
   'trade.placeholder': { en: 'Select a trade', fr: 'Sélectionnez un métier' },
@@ -297,6 +310,8 @@ const translations = {
   'validation.trade': { en: 'Please select your trade', fr: 'Veuillez sélectionner votre métier' },
   'validation.market': { en: 'Please select your market', fr: 'Veuillez sélectionner votre marché' },
   'validation.offer': { en: 'Please select an offer', fr: 'Veuillez sélectionner un forfait' },
+  'validation.frustrationQuestion': { en: 'Please answer this question', fr: 'Veuillez répondre à cette question' },
+  'validation.revenueBand': { en: 'Please select a revenue band', fr: 'Veuillez sélectionner une tranche de revenus' },
 
   // Success/Error
   'success.heading': { en: 'Application received.', fr: 'Demande reçue.' },

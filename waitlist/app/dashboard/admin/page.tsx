@@ -14,6 +14,7 @@ type User = {
 
 export default function AdminDashboard() {
   const [users, setUsers] = useState<User[]>([]);
+  const [waitlistLeads, setWaitlistLeads] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [formData, setFormData] = useState({
@@ -32,13 +33,24 @@ export default function AdminDashboard() {
       }
     } catch (err) {
       console.error(err);
-    } finally {
-      setLoading(false);
+    }
+  };
+
+  const fetchWaitlistLeads = async () => {
+    try {
+      const res = await fetch('/api/dashboard/contacts');
+      if (res.ok) {
+        const data = await res.json();
+        const waitlist = data.contacts.filter((c: any) => c.tags?.includes('src-website-waitlist'));
+        setWaitlistLeads(waitlist);
+      }
+    } catch (err) {
+      console.error(err);
     }
   };
 
   useEffect(() => {
-    fetchUsers();
+    Promise.all([fetchUsers(), fetchWaitlistLeads()]).finally(() => setLoading(false));
   }, []);
 
   const handleCreateUser = async (e: React.FormEvent) => {
@@ -109,7 +121,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* User List */}
-        <div className="lg:col-span-2 rounded-2xl bg-bg-surface border border-border shadow-sm overflow-hidden">
+        <div className="lg:col-span-2 rounded-2xl bg-bg-surface border border-border shadow-sm overflow-hidden h-fit">
           <div className="px-6 py-4 border-b border-border bg-bg-elevated">
             <h2 className="text-lg font-semibold text-text-primary">Registered Clients</h2>
           </div>
@@ -146,6 +158,93 @@ export default function AdminDashboard() {
               </tbody>
             </table>
           </div>
+        </div>
+      </div>
+
+      {/* Waitlist Prioritization Table */}
+      <div className="rounded-2xl bg-bg-surface border border-border shadow-sm overflow-hidden mt-8">
+        <div className="px-6 py-4 border-b border-border bg-bg-elevated flex justify-between items-center">
+          <div>
+            <h2 className="text-lg font-semibold text-text-primary">Waitlist Applicants (Prioritization View)</h2>
+            <p className="text-sm text-text-dimmed">Review leads based on urgency and completeness.</p>
+          </div>
+          <button onClick={() => { setLoading(true); fetchWaitlistLeads().finally(() => setLoading(false)); }} className="text-xs bg-accent text-white px-3 py-1.5 rounded-lg">
+            Refresh
+          </button>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-border text-sm text-text-dimmed">
+                <th className="px-6 py-3 font-medium">Applicant</th>
+                <th className="px-6 py-3 font-medium">Status</th>
+                <th className="px-6 py-3 font-medium">Urgency</th>
+                <th className="px-6 py-3 font-medium">Revenue / Volume</th>
+                <th className="px-6 py-3 font-medium">Frustration (Open Q)</th>
+              </tr>
+            </thead>
+            <tbody className="text-sm text-text-primary">
+              {waitlistLeads.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-8 text-center text-text-dimmed">No waitlist applications found.</td>
+                </tr>
+              ) : (
+                waitlistLeads.map((lead) => {
+                  const isPartial = lead.tags?.includes('stratus-partial-lead');
+                  
+                  // Extract custom fields safely
+                  const getField = (key: string) => lead.customFields?.find((f: any) => f.id === key || (f.name && f.name.toLowerCase() === key.toLowerCase()) || f.id.includes(key))?.value || 'N/A';
+                  
+                  // Handle cases where GHL custom fields are returned differently. Usually it's in customFields as an object.
+                  // Since we only know the 'key' we used during creation (e.g., 'revenue_band'), we'll search by that.
+                  // But wait, the API might not return the 'key', it returns 'id' and 'value'. Let's do a best effort or dump the fields.
+                  const revenueStr = lead.customFields?.find((f: any) => JSON.stringify(f).includes('revenue') || JSON.stringify(f).includes('Revenue'))?.value || 'N/A';
+                  const frustrationStr = lead.customFields?.find((f: any) => JSON.stringify(f).includes('frustration') || JSON.stringify(f).includes('Frustration'))?.value || 'N/A';
+                  const volumeStr = lead.customFields?.find((f: any) => JSON.stringify(f).includes('volume') || JSON.stringify(f).includes('Volume'))?.value || 'N/A';
+
+                  let urgency = 'Normal';
+                  if (revenueStr === '500k+' || revenueStr.includes('500') || (volumeStr !== 'N/A' && volumeStr.toLowerCase().includes('high'))) {
+                    urgency = 'High 🚨';
+                  }
+                  
+                  return (
+                    <tr key={lead.id} className={`border-b border-border/50 hover:bg-bg-elevated/50 transition-colors ${urgency.includes('High') ? 'bg-red-500/5' : ''}`}>
+                      <td className="px-6 py-4">
+                        <div className="font-medium">{lead.firstName} {lead.lastName}</div>
+                        <div className="text-text-dimmed text-xs">{lead.email}</div>
+                        <div className="text-text-dimmed text-xs">{lead.phone}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        {isPartial ? (
+                          <span className="px-2 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                            Partial (Page 1)
+                          </span>
+                        ) : (
+                          <span className="px-2 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                            Full Lead
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`px-2 py-1 rounded-full text-xs font-bold ${urgency.includes('High') ? 'text-red-500 bg-red-500/10' : 'text-text-dimmed'}`}>
+                          {urgency}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 max-w-[200px] truncate" title={`${revenueStr} / ${volumeStr}`}>
+                        <div className="text-xs font-medium">{revenueStr !== 'N/A' ? revenueStr : '-'}</div>
+                        <div className="text-xs text-text-dimmed mt-1">{volumeStr !== 'N/A' ? volumeStr : '-'}</div>
+                      </td>
+                      <td className="px-6 py-4 max-w-[300px]">
+                        <p className="text-xs truncate text-text-dimmed" title={frustrationStr}>
+                          {frustrationStr !== 'N/A' ? frustrationStr : '-'}
+                        </p>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

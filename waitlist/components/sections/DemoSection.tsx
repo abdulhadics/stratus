@@ -49,7 +49,7 @@ export function DemoSection() {
                 loading="lazy"
               />
             </div>
-            <p className="text-[12px] text-text-dimmed mt-3">
+            <p className="text-lg font-medium text-text-primary mt-3">
               {t('demo.caption.right')}
             </p>
           </div>

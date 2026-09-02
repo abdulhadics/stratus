@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { waitlistSchema } from '@/lib/validations';
+import { waitlistSchema, waitlistPage1Schema } from '@/lib/validations';
 
 // ─── Environment Variables ───
 const GHL_API_TOKEN = process.env.GHL_API_TOKEN;
@@ -106,7 +106,7 @@ export async function POST(request: Request) {
   }
 
   // 2. Parse and validate request
-  let body: unknown;
+  let body: any;
   try {
     body = await request.json();
   } catch {
@@ -116,6 +116,35 @@ export async function POST(request: Request) {
     );
   }
 
+  const step = body.step || 1;
+
+  if (step === 1) {
+    const validation = waitlistPage1Schema.safeParse(body);
+    if (!validation.success) {
+      return NextResponse.json(
+        { success: false, error: { code: 'VALIDATION_ERROR', message: 'Please check the submitted information.' } },
+        { status: 400 }
+      );
+    }
+    const { name, email, phone, language, honeypot } = validation.data;
+    if (honeypot && honeypot.length > 0) return NextResponse.json({ success: true, message: 'Application received.' }, { status: 200 });
+    
+    const tags = ['src-website-waitlist', `lang-${language}`, 'stratus-partial-lead'];
+    const nameParts = name.trim().split(/\s+/);
+    const firstName = nameParts[0];
+    const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+    
+    const contactPayload = { locationId: GHL_LOCATION_ID, firstName, ...(lastName && { lastName }), name, email, phone, tags };
+    const contactResult = await upsertContact(contactPayload);
+    
+    if (!contactResult.ok) {
+      console.error('[STRATUS API] GHL Partial Contact upsert failed:', contactResult.errorText);
+      return NextResponse.json({ success: false, error: { code: 'CRM_ERROR', message: 'Failed to save partial lead.' } }, { status: 500 });
+    }
+    return NextResponse.json({ success: true, message: 'Partial lead saved.' }, { status: 200 });
+  }
+
+  // Step 2 processing
   const validation = waitlistSchema.safeParse(body);
   if (!validation.success) {
     return NextResponse.json(
@@ -124,7 +153,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const { name, email, phone, businessName, tradeType, market, offer, language, isAvatarGate, initialQuestion, honeypot } = validation.data;
+  const { name, email, phone, businessName, tradeType, market, offer, language, isAvatarGate, frustrationQuestion, onlinePresence, jobVolume, revenueBand, honeypot } = validation.data;
 
   // 3. Reject honeypot submissions
   if (honeypot && honeypot.length > 0) {
@@ -134,12 +163,12 @@ export async function POST(request: Request) {
   // 4. Build tags
   const baseTags = [
     'src-website-waitlist',
+    'stratus-full-lead',
     `lang-${language}`,
     `market-${market}`,
     `trade-${tradeType}`,
     `offer-${offer}`,
     `package: ${offer}`,
-    `package:${offer}`,
   ];
 
   if (isAvatarGate) {
@@ -166,7 +195,10 @@ export async function POST(request: Request) {
       tags,
       customFields: [
         { key: 'business_name', field_value: businessName },
-        ...(initialQuestion ? [{ key: 'initial_typed_question', field_value: initialQuestion }] : []),
+        { key: 'frustration_question', field_value: frustrationQuestion },
+        ...(onlinePresence ? [{ key: 'online_presence', field_value: onlinePresence }] : []),
+        ...(jobVolume ? [{ key: 'job_volume', field_value: jobVolume }] : []),
+        { key: 'revenue_band', field_value: revenueBand },
       ],
     };
 

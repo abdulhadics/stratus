@@ -36,7 +36,8 @@ export async function GET(req: NextRequest) {
       phone: contact.phone || 'No phone',
       source: contact.source || 'Direct',
       dateAdded: contact.dateAdded ? new Date(contact.dateAdded).toLocaleDateString() : 'Unknown',
-      tags: contact.tags || []
+      tags: contact.tags || [],
+      customFields: contact.customFields || []
     }));
 
     return NextResponse.json({ success: true, contacts });
