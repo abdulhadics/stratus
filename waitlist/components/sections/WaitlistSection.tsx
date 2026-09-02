@@ -324,7 +324,7 @@ export function WaitlistSection({ preselectedOffer }: WaitlistSectionProps) {
                   <Select
                     name="revenueBand"
                     value={formData.revenueBand}
-                    onChange={(e) => updateField('revenueBand', e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => updateField('revenueBand', e.target.value)}
                   >
                     <option value="">{t('revenue.placeholder') as string}</option>
                     {REVENUE_OPTIONS.map((opt) => (

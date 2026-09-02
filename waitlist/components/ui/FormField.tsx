@@ -66,3 +66,20 @@ export function Select({
     </div>
   );
 }
+
+export function Textarea({
+  className,
+  ...props
+}: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  return (
+    <textarea
+      className={cn(
+        'w-full px-4 py-2.5 bg-bg-input border border-border rounded text-[14px] text-text-primary placeholder:text-text-dimmed outline-none transition-colors duration-200 resize-y min-h-[100px]',
+        'focus:border-accent focus:ring-1 focus:ring-accent/30',
+        'hover:border-border-strong',
+        className
+      )}
+      {...props}
+    />
+  );
+}
