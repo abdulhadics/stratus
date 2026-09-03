@@ -195,12 +195,22 @@ export default function AdminDashboard() {
                   // Extract custom fields safely
                   const getField = (key: string) => lead.customFields?.find((f: any) => f.id === key || (f.name && f.name.toLowerCase() === key.toLowerCase()) || f.id.includes(key))?.value || 'N/A';
                   
-                  // Handle cases where GHL custom fields are returned differently. Usually it's in customFields as an object.
-                  // Since we only know the 'key' we used during creation (e.g., 'revenue_band'), we'll search by that.
-                  // But wait, the API might not return the 'key', it returns 'id' and 'value'. Let's do a best effort or dump the fields.
-                  const revenueStr = lead.customFields?.find((f: any) => JSON.stringify(f).includes('revenue') || JSON.stringify(f).includes('Revenue'))?.value || 'N/A';
-                  const frustrationStr = lead.customFields?.find((f: any) => JSON.stringify(f).includes('frustration') || JSON.stringify(f).includes('Frustration'))?.value || 'N/A';
-                  const volumeStr = lead.customFields?.find((f: any) => JSON.stringify(f).includes('volume') || JSON.stringify(f).includes('Volume'))?.value || 'N/A';
+                  // Better heuristic extraction for GHL custom fields that only return ID and Value
+                  const revenueStr = lead.customFields?.find((f: any) => {
+                    const val = String(f?.value || '').toLowerCase();
+                    return val.includes('$') || val.includes('000') || val.includes('k');
+                  })?.value || 'N/A';
+                  
+                  const volumeStr = lead.customFields?.find((f: any) => {
+                    const val = String(f?.value || '').toLowerCase();
+                    return val.includes('call') || val.includes('week') || val.match(/\d+-\d+/);
+                  })?.value || 'N/A';
+                  
+                  const frustrationStr = lead.customFields?.find((f: any) => {
+                    const val = String(f?.value || '').toLowerCase();
+                    // Longest string that isn't URL or revenue or volume
+                    return val.length > 10 && !val.includes('$') && !val.includes('call') && !val.includes('http');
+                  })?.value || 'N/A';
 
                   let urgency = 'Normal';
                   if (revenueStr === '500k+' || revenueStr.includes('500') || (volumeStr !== 'N/A' && volumeStr.toLowerCase().includes('high'))) {

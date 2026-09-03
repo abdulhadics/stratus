@@ -10,15 +10,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pathname = usePathname();
   const { data: session } = useSession();
 
-  const navigation = [
-    { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Contacts', href: '/dashboard/contacts', icon: Users },
-    { name: 'Opportunities', href: '/dashboard/opportunities', icon: Briefcase },
-    { name: 'Settings', href: '/dashboard/settings', icon: Settings },
-  ];
+  const isAdminRoute = pathname.startsWith('/dashboard/admin');
 
-  if (session?.user?.role === 'ADMIN') {
+  const navigation = isAdminRoute 
+    ? [{ name: 'Admin Panel', href: '/dashboard/admin', icon: ShieldAlert }]
+    : [
+        { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
+        { name: 'Contacts', href: '/dashboard/contacts', icon: Users },
+        { name: 'Opportunities', href: '/dashboard/opportunities', icon: Briefcase },
+        { name: 'Settings', href: '/dashboard/settings', icon: Settings },
+      ];
+
+  if (session?.user?.role === 'ADMIN' && !isAdminRoute) {
     navigation.push({ name: 'Admin Panel', href: '/dashboard/admin', icon: ShieldAlert });
+  }
+
+  if (session?.user?.role === 'ADMIN' && isAdminRoute) {
+    navigation.push({ name: 'Back to Client Portal', href: '/dashboard', icon: LayoutDashboard });
   }
 
   return (

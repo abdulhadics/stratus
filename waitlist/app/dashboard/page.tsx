@@ -1,7 +1,12 @@
-import { Users, Briefcase, TrendingUp } from 'lucide-react';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { Users, Briefcase, TrendingUp, ShieldAlert } from 'lucide-react';
 import { AvatarChatWidget } from '@/components/ui/AvatarChatWidget';
+import Link from 'next/link';
 
-export default function DashboardOverview() {
+export default async function DashboardOverview() {
+  const session = await getServerSession(authOptions);
+  
   const stats = [
     { label: 'Total Contacts', value: '1,248', icon: Users, change: '+12%', positive: true },
     { label: 'Active Opportunities', value: '45', icon: Briefcase, change: '+5%', positive: true },
@@ -10,9 +15,17 @@ export default function DashboardOverview() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-text-primary mb-1">Overview</h1>
-        <p className="text-text-dimmed">Welcome back, U1. Here's what's happening today.</p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold text-text-primary mb-1">Overview</h1>
+          <p className="text-text-dimmed">Welcome back, {session?.user?.name || 'User'}. Here's what's happening today.</p>
+        </div>
+        {session?.user?.role === 'ADMIN' && (
+          <Link href="/dashboard/admin" className="flex items-center gap-2 bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 px-4 py-2 rounded-lg font-medium transition-colors">
+            <ShieldAlert className="w-5 h-5" />
+            Go to Admin Panel
+          </Link>
+        )}
       </div>
 
       {/* Stats Grid */}
