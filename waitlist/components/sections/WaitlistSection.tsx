@@ -151,15 +151,14 @@ export function WaitlistSection({ preselectedOffer }: WaitlistSectionProps) {
             <p className="text-body mb-8">{t('success.body')}</p>
             
             {calendarUrl && (
-              <div className="w-full h-[700px] bg-white rounded-xl shadow-lg border border-border overflow-hidden mb-8">
+              <div className="w-full h-[700px] bg-white rounded-xl shadow-lg border border-border mb-8">
                 <iframe 
                   src={calendarUrl}
-                  style={{ width: '100%', border: 'none', overflow: 'hidden' }}
-                  scrolling="no"
+                  style={{ width: '100%', height: '100%', border: 'none' }}
+                  scrolling="yes"
                   id="ms-booking-iframe"
                   title="Booking Calendar"
                 ></iframe>
-                <script src="https://link.msgsndr.com/js/form_embed.js" type="text/javascript"></script>
               </div>
             )}
             
