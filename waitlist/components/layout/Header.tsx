@@ -9,6 +9,7 @@ import { LanguageToggle } from '@/components/ui/LanguageToggle';
 import { Button } from '@/components/ui/Button';
 import { useTranslation } from '@/lib/i18n';
 import { Menu } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 
 const NAV_ITEMS = [
   { key: 'nav.promise' as const, href: '#the-promise' },
@@ -22,6 +23,7 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const { t } = useTranslation();
+  const { data: session } = useSession();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -75,14 +77,25 @@ export function Header() {
           <div className="flex items-center gap-2.5 sm:gap-4">
             <LanguageToggle />
             <ThemeToggle />
-            <Button
-              variant="secondary"
-              size="sm"
-              className="hidden sm:inline-flex border border-accent text-accent bg-transparent hover:bg-accent/10"
-              onClick={() => { window.location.href = '/login'; }}
-            >
-              Client Portal
-            </Button>
+            {session?.user?.role === 'ADMIN' ? (
+              <Button
+                variant="secondary"
+                size="sm"
+                className="hidden sm:inline-flex border border-amber-500 text-amber-500 bg-transparent hover:bg-amber-500/10"
+                onClick={() => { window.location.href = '/dashboard/admin'; }}
+              >
+                Admin Portal
+              </Button>
+            ) : (
+              <Button
+                variant="secondary"
+                size="sm"
+                className="hidden sm:inline-flex border border-accent text-accent bg-transparent hover:bg-accent/10"
+                onClick={() => { window.location.href = '/login'; }}
+              >
+                Client Portal
+              </Button>
+            )}
             <Button
               variant="primary"
               size="sm"
