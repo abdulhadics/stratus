@@ -141,6 +141,23 @@ export async function POST(request: Request) {
       console.error('[STRATUS API] GHL Partial Contact upsert failed:', contactResult.errorText);
       return NextResponse.json({ success: false, error: { code: 'CRM_ERROR', message: 'Failed to save partial lead.' } }, { status: 500 });
     }
+
+    const contactId = contactResult.contactId;
+    if (contactId) {
+      const oppRes = await ghlFetch('/opportunities/', {
+        locationId: GHL_LOCATION_ID,
+        contactId,
+        pipelineId: GHL_WAITLIST_PIPELINE_ID,
+        pipelineStageId: GHL_STAGE_APPLIED_ID,
+        name: `[Partial Lead] ${name}`,
+        status: 'open',
+      });
+
+      if (!oppRes.ok) {
+        console.warn('[STRATUS API] Partial lead opportunity failed:', await oppRes.text().catch(() => ''));
+      }
+    }
+
     return NextResponse.json({ success: true, message: 'Partial lead saved.' }, { status: 200 });
   }
 
