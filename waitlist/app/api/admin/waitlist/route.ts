@@ -5,18 +5,19 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    const GHL_API_TOKEN = process.env.GHL_DASHBOARD_API_TOKEN;
     
-    // Client Portal ONLY uses the user's specific location ID.
-    // If they have no location ID linked, they see 0 contacts.
-    const GHL_LOCATION_ID = session?.user?.ghlLocationId;
-
-    if (!GHL_API_TOKEN || !GHL_LOCATION_ID) {
-      // If a user hasn't linked a GHL account yet, just return empty data
-      return NextResponse.json({ success: true, contacts: [] });
+    // Only admins can access the waitlist
+    if (session?.user?.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // GoHighLevel API v2 uses a Bearer token and Version header
+    const GHL_API_TOKEN = process.env.GHL_DASHBOARD_API_TOKEN;
+    const GHL_LOCATION_ID = process.env.GHL_LOCATION_ID;
+
+    if (!GHL_API_TOKEN || !GHL_LOCATION_ID) {
+      return NextResponse.json({ error: 'Stratus internal GHL credentials not configured' }, { status: 500 });
+    }
+
     const response = await fetch(`https://services.leadconnectorhq.com/contacts/?locationId=${GHL_LOCATION_ID}&limit=100`, {
       method: 'GET',
       headers: {
@@ -28,13 +29,12 @@ export async function GET(req: NextRequest) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('GHL Fetch Error:', errorText);
-      return NextResponse.json({ error: 'Failed to fetch contacts from GHL' }, { status: response.status });
+      console.error('GHL Fetch Error (Admin Waitlist):', errorText);
+      return NextResponse.json({ error: 'Failed to fetch waitlist from GHL' }, { status: response.status });
     }
 
     const data = await response.json();
     
-    // Transform GHL data into a clean structure for the frontend
     const contacts = data.contacts.map((contact: any) => ({
       id: contact.id,
       firstName: contact.firstName || '',
@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ success: true, contacts });
 
   } catch (error: any) {
-    console.error('Contacts API Error:', error);
+    console.error('Admin Waitlist API Error:', error);
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
   }
 }

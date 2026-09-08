@@ -7,16 +7,11 @@ export async function GET(req: NextRequest) {
     const session = await getServerSession(authOptions);
     const GHL_API_TOKEN = process.env.GHL_DASHBOARD_API_TOKEN;
     
-    // Logic: ADMIN sees agency location. USER sees their own location.
-    const GHL_LOCATION_ID = session?.user?.role === 'ADMIN' 
-      ? process.env.GHL_LOCATION_ID 
-      : session?.user?.ghlLocationId;
+    // Client Portal ONLY uses the user's specific location ID.
+    const GHL_LOCATION_ID = session?.user?.ghlLocationId;
 
     if (!GHL_API_TOKEN || !GHL_LOCATION_ID) {
-      if (session?.user?.role !== 'ADMIN' && !session?.user?.ghlLocationId) {
-        return NextResponse.json({ success: true, pipelineName: 'No Account Linked', stages: [] });
-      }
-      return NextResponse.json({ error: 'GHL dashboard credentials not configured' }, { status: 500 });
+      return NextResponse.json({ success: true, pipelineName: 'No Account Linked', stages: [] });
     }
 
     const headers = {

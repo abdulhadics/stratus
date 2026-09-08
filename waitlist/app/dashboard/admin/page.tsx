@@ -38,7 +38,7 @@ export default function AdminDashboard() {
 
   const fetchWaitlistLeads = async () => {
     try {
-      const res = await fetch('/api/dashboard/contacts');
+      const res = await fetch('/api/admin/waitlist');
       if (res.ok) {
         const data = await res.json();
         const waitlist = data.contacts.filter((c: any) => c.tags?.includes('src-website-waitlist'));

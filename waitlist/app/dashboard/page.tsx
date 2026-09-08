@@ -10,10 +10,8 @@ async function getDashboardStats(session: any) {
   try {
     const GHL_API_TOKEN = process.env.GHL_DASHBOARD_API_TOKEN;
     
-    // Logic: ADMIN sees agency location. USER sees their own location.
-    const GHL_LOCATION_ID = session?.user?.role === 'ADMIN' 
-      ? process.env.GHL_LOCATION_ID 
-      : session?.user?.ghlLocationId;
+    // Client Portal ONLY uses the user's specific location ID.
+    const GHL_LOCATION_ID = session?.user?.ghlLocationId;
 
     if (!GHL_API_TOKEN || !GHL_LOCATION_ID) {
       return { totalContacts: 0, totalOpps: 0, pipelineValue: 0 };
