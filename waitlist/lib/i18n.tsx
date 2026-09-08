@@ -170,6 +170,7 @@ const translations = {
   'pricing.command.f5': { en: 'Priority support and reporting', fr: 'Support prioritaire et rapports' },
   'pricing.command.disclaimer': { en: 'Backed by our 30-Day Satisfaction Guarantee on your monthly fee', fr: 'Garanti par notre garantie de satisfaction de 30 jours sur votre tarif mensuel' },
 
+
   // ── Results Section ──
   'results.eyebrow': { en: 'WHY IT WORKS', fr: 'POURQUOI ÇA MARCHE' },
   'results.heading.1': { en: 'The results speak.', fr: 'Les résultats parlent.' },
@@ -298,7 +299,7 @@ const translations = {
   'offer.presence': { en: 'Presence', fr: 'Présence' },
   'offer.machine': { en: 'Machine', fr: 'Machine' },
   'offer.pipeline': { en: 'Machine', fr: 'Machine' },
-  'offer.command': { en: 'Command', fr: 'Command' },
+
   'offer.founding': { en: 'Founding', fr: 'Fondateur' },
   'offer.unsure': { en: 'Not sure yet', fr: 'Pas encore certain' },
 

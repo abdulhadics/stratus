@@ -185,7 +185,7 @@ export async function POST(request: Request) {
     `market-${market}`,
     `trade-${tradeType}`,
     `offer-${offer}`,
-    `package: ${offer}`,
+    `package: ${offer === 'command' ? 'machine founding' : offer}`,
   ];
 
   if (isAvatarGate) {

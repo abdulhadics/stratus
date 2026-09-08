@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Send, Lock, Phone } from 'lucide-react';
+import { Send } from 'lucide-react';
 
 type Message = {
   id: string;
@@ -12,33 +12,37 @@ type Message = {
 const INITIAL_MESSAGE: Message = {
   id: '1',
   role: 'assistant',
-  content: "Hi, this is Stratus. We are excited to meet you and explain to you how we are helping business owners! The best way to talk to the founder would be to apply and we're gonna book a consultation meeting to see if it's the best fit. I can answer up to 5 questions for you right now.",
+  content: "Hey — welcome to STRATUS. I'm here to help you understand how we get trade businesses running on autopilot. Whether it's missed calls, follow-ups, or just the daily chaos — ask me anything. I've got 15 answers for you, let's make 'em count.",
 };
 
 export function PublicTextChatWidget() {
   const [messages, setMessages] = useState<Message[]>([INITIAL_MESSAGE]);
   const [input, setInput] = useState('');
   const [userMessageCount, setUserMessageCount] = useState(0);
-  const [isVerified, setIsVerified] = useState(false);
-  const [phoneInput, setPhoneInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messagesEndRef.current) {
+      const container = messagesEndRef.current.parentElement;
+      if (container) {
+        container.scrollTo({
+          top: container.scrollHeight,
+          behavior: 'smooth'
+        });
+      }
+    }
   };
 
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
-  const handleSend = () => {
-    if (!input.trim()) return;
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!input.trim() || isLoading) return;
 
-    if (!isVerified && userMessageCount >= 5) {
-      return;
-    }
-
-    if (isVerified && userMessageCount >= 15) {
+    if (userMessageCount >= 15) {
       return;
     }
 
@@ -48,40 +52,46 @@ export function PublicTextChatWidget() {
       content: input.trim(),
     };
 
-    setMessages((prev) => [...prev, newUserMessage]);
+    const newMessages = [...messages, newUserMessage];
+    setMessages(newMessages);
     setInput('');
     const newCount = userMessageCount + 1;
     setUserMessageCount(newCount);
+    setIsLoading(true);
 
-    setTimeout(() => {
-      let aiResponse = "That's a great question about Stratus. We help automate and manage your CRM needs.";
-      
-      if (!isVerified && newCount === 5) {
-        aiResponse = "You've reached your limit of 5 questions. Please verify your phone number to continue our discussion.";
-      } else if (isVerified && newCount === 15) {
-        aiResponse = "You've reached the maximum message limit. Please apply to talk to our CEO/Founder for further discussion.";
+    let aiResponse = "";
+    
+    if (newCount === 15) {
+      aiResponse = "That's all 15 — appreciate you taking the time. If you're serious about getting your ops dialed in, book a free discovery call and let's talk through your setup. No pressure, just clarity.";
+    } else {
+      // Call OpenAI API
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messages: newMessages }),
+        });
+        const data = await res.json();
+        
+        if (res.ok && data.content) {
+          aiResponse = data.content;
+        } else {
+          aiResponse = "I'm having trouble connecting right now. Please try again later.";
+        }
+      } catch (err) {
+        console.error("Chat API Error:", err);
+        aiResponse = "I'm having trouble connecting right now. Please try again later.";
       }
-
-      setMessages((prev) => [
-        ...prev,
-        { id: Date.now().toString(), role: 'assistant', content: aiResponse },
-      ]);
-    }, 1000);
-  };
-
-  const handleVerify = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (phoneInput.trim().length > 7) {
-      setIsVerified(true);
-      setMessages((prev) => [
-        ...prev,
-        { id: 'verified', role: 'system', content: 'Phone verified successfully. You can now ask up to 10 more questions.' }
-      ]);
     }
+
+    setMessages((prev) => [
+      ...prev,
+      { id: Date.now().toString(), role: 'assistant', content: aiResponse },
+    ]);
+    setIsLoading(false);
   };
 
-  const needsVerification = !isVerified && userMessageCount >= 5;
-  const isHardStopped = isVerified && userMessageCount >= 15;
+  const isHardStopped = userMessageCount >= 15;
 
   return (
     <div className="flex flex-col h-full w-full bg-bg-surface border border-border rounded-xl overflow-hidden shadow-sm">
@@ -91,9 +101,7 @@ export function PublicTextChatWidget() {
           <h3 className="font-medium text-sm text-text-primary">Stratus Assistant</h3>
         </div>
         <div className="text-xs text-text-dimmed">
-          {!isHardStopped && (
-             isVerified ? `${15 - userMessageCount} left` : `${5 - userMessageCount} left`
-          )}
+          {!isHardStopped && `${15 - userMessageCount} left`}
         </div>
       </div>
 
@@ -120,51 +128,28 @@ export function PublicTextChatWidget() {
       </div>
 
       <div className="p-3 bg-bg-surface border-t border-border">
-        {needsVerification ? (
-          <form onSubmit={handleVerify} className="flex flex-col gap-2">
-            <div className="flex items-center gap-2 text-amber-500 mb-1">
-              <Lock size={16} />
-              <span className="text-xs font-medium">Verification Required</span>
-            </div>
-            <div className="flex gap-2">
-              <input
-                type="tel"
-                value={phoneInput}
-                onChange={(e) => setPhoneInput(e.target.value)}
-                placeholder="Enter phone number..."
-                className="flex-1 bg-bg-elevated border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent"
-                required
-              />
-              <button
-                type="submit"
-                className="bg-accent text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-accent/90"
-              >
-                Verify
-              </button>
-            </div>
-          </form>
-        ) : isHardStopped ? (
-          <div className="text-center p-3 text-sm text-text-dimmed bg-bg-elevated rounded-lg">
-            Chat ended. Please apply to speak with the founder.
+        {isHardStopped ? (
+          <div className="text-center p-3 text-sm text-text-dimmed bg-bg-elevated rounded-lg border border-border">
+            Chat ended. Book a free discovery call to keep the conversation going.
           </div>
         ) : (
-          <div className="flex items-center gap-2">
+          <form onSubmit={handleSubmit} className="flex items-center gap-2">
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="Ask a question..."
-              className="flex-1 bg-bg-elevated border border-border rounded-full px-4 py-2 text-sm focus:outline-none focus:border-accent"
+              placeholder={isLoading ? "Thinking..." : "Ask a question..."}
+              disabled={isLoading}
+              className="flex-1 bg-bg-elevated border border-border rounded-full px-4 py-2 text-sm focus:outline-none focus:border-accent disabled:opacity-50 transition-colors"
             />
             <button
-              onClick={handleSend}
-              disabled={!input.trim()}
-              className="w-9 h-9 rounded-full bg-accent flex items-center justify-center text-white hover:bg-accent/90 disabled:opacity-50 transition-colors"
+              type="submit"
+              disabled={!input.trim() || isLoading}
+              className="w-9 h-9 flex-shrink-0 rounded-full bg-accent flex items-center justify-center text-white hover:bg-accent/90 disabled:opacity-50 transition-colors"
             >
               <Send size={16} className="-ml-0.5" />
             </button>
-          </div>
+          </form>
         )}
       </div>
     </div>
