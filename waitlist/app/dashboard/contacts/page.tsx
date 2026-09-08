@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Search, Loader2 } from 'lucide-react';
 
 interface Contact {
@@ -12,6 +12,7 @@ interface Contact {
   source: string;
   dateAdded: string;
   tags: string[];
+  customFields?: { id: string; name?: string; value: string }[];
 }
 
 export default function ContactsPage() {
@@ -19,6 +20,16 @@ export default function ContactsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [expandedContact, setExpandedContact] = useState<string | null>(null);
+
+  // GHL Custom Field IDs
+  const REVENUE_FIELD_ID = 'reutlLeT0xTUvh2Elfvf';
+  const VOLUME_FIELD_ID = 'jBdzZMRHGHOpMYTqCcKw';
+  const FRUSTRATION_FIELD_ID = 'CUZAgurvt5GYgk8uGqPB';
+
+  const toggleExpand = (id: string) => {
+    setExpandedContact(expandedContact === id ? null : id);
+  };
 
   useEffect(() => {
     const fetchContacts = async () => {
@@ -104,44 +115,91 @@ export default function ContactsPage() {
               </thead>
               <tbody className="divide-y divide-border">
                 {filteredContacts.length > 0 ? (
-                  filteredContacts.map((contact) => (
-                    <tr key={contact.id} className="hover:bg-bg-elevated/50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center text-accent font-bold text-xs">
-                            {(contact.firstName?.[0] || '')}{(contact.lastName?.[0] || '')}
+                  filteredContacts.map((contact) => {
+                    const isExpanded = expandedContact === contact.id;
+                    
+                    // Extract fields safely
+                    const revenueStr = contact.customFields?.find((f) => f.id === REVENUE_FIELD_ID)?.value 
+                      || contact.customFields?.find((f) => {
+                           const val = String(f.value || '').toLowerCase();
+                           return val.length < 20 && (val.includes('$') || val.includes('000') || val.match(/<|>|\d+k/));
+                         })?.value || 'N/A';
+                    
+                    const volumeStr = contact.customFields?.find((f) => f.id === VOLUME_FIELD_ID)?.value 
+                      || contact.customFields?.find((f) => {
+                           const val = String(f.value || '').toLowerCase();
+                           return val.length < 20 && (val.includes('call') || val.includes('week') || val.match(/\d+-\d+/));
+                         })?.value || 'N/A';
+                    
+                    const frustrationStr = contact.customFields?.find((f) => f.id === FRUSTRATION_FIELD_ID)?.value 
+                      || contact.customFields?.find((f) => {
+                           const val = String(f.value || '').toLowerCase();
+                           return val.length > 50 && !val.includes('http');
+                         })?.value || 'N/A';
+
+                    return (
+                    <React.Fragment key={contact.id}>
+                      <tr 
+                        onClick={() => toggleExpand(contact.id)}
+                        className={`hover:bg-bg-elevated/50 transition-colors cursor-pointer ${isExpanded ? 'bg-bg-elevated/30' : ''}`}
+                      >
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center text-accent font-bold text-xs">
+                              {(contact.firstName?.[0] || '')}{(contact.lastName?.[0] || '')}
+                            </div>
+                            <div>
+                              <div className="font-medium text-text-primary">{contact.firstName} {contact.lastName}</div>
+                            </div>
                           </div>
-                          <div>
-                            <div className="font-medium text-text-primary">{contact.firstName} {contact.lastName}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-text-primary">{contact.email}</div>
+                          <div className="text-xs text-text-dimmed">{contact.phone}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-text-dimmed">
+                          {contact.source}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-text-dimmed">
+                          {contact.dateAdded}
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex gap-1 justify-end flex-wrap">
+                            {contact.tags.slice(0, 2).map((tag, i) => (
+                              <span key={i} className="px-2 py-0.5 rounded text-[10px] font-medium bg-bg-elevated border border-border text-text-dimmed uppercase tracking-wider">
+                                {tag}
+                              </span>
+                            ))}
+                            {contact.tags.length > 2 && (
+                              <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-bg-elevated border border-border text-text-dimmed">
+                                +{contact.tags.length - 2}
+                              </span>
+                            )}
                           </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-text-primary">{contact.email}</div>
-                        <div className="text-xs text-text-dimmed">{contact.phone}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-text-dimmed">
-                        {contact.source}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-text-dimmed">
-                        {contact.dateAdded}
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex gap-1 justify-end flex-wrap">
-                          {contact.tags.slice(0, 2).map((tag, i) => (
-                            <span key={i} className="px-2 py-0.5 rounded text-[10px] font-medium bg-bg-elevated border border-border text-text-dimmed uppercase tracking-wider">
-                              {tag}
-                            </span>
-                          ))}
-                          {contact.tags.length > 2 && (
-                            <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-bg-elevated border border-border text-text-dimmed">
-                              +{contact.tags.length - 2}
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))
+                        </td>
+                      </tr>
+                      {isExpanded && (
+                        <tr className="bg-bg-elevated/20 border-b border-border">
+                          <td colSpan={5} className="px-6 py-4">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 rounded-lg bg-bg-surface border border-border">
+                              <div>
+                                <h4 className="text-xs font-semibold text-text-dimmed uppercase mb-1">Revenue / Size</h4>
+                                <p className="text-sm text-text-primary font-medium">{revenueStr !== 'N/A' ? revenueStr : 'Not provided'}</p>
+                              </div>
+                              <div>
+                                <h4 className="text-xs font-semibold text-text-dimmed uppercase mb-1">Lead Volume</h4>
+                                <p className="text-sm text-text-primary font-medium">{volumeStr !== 'N/A' ? volumeStr : 'Not provided'}</p>
+                              </div>
+                              <div className="md:col-span-3">
+                                <h4 className="text-xs font-semibold text-text-dimmed uppercase mb-1">Biggest Frustration</h4>
+                                <p className="text-sm text-text-primary italic border-l-2 border-accent/50 pl-3 py-1">"{frustrationStr !== 'N/A' ? frustrationStr : 'Not provided'}"</p>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  )})
                 ) : (
                   <tr>
                     <td colSpan={5} className="px-6 py-12 text-center text-text-dimmed">

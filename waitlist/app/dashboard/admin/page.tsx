@@ -195,22 +195,29 @@ export default function AdminDashboard() {
                   // Extract custom fields safely
                   const getField = (key: string) => lead.customFields?.find((f: any) => f.id === key || (f.name && f.name.toLowerCase() === key.toLowerCase()) || f.id.includes(key))?.value || 'N/A';
                   
-                  // Better heuristic extraction for GHL custom fields that only return ID and Value
-                  const revenueStr = lead.customFields?.find((f: any) => {
-                    const val = String(f?.value || '').toLowerCase();
-                    return val.includes('$') || val.includes('000') || val.includes('k');
-                  })?.value || 'N/A';
+                  // GoHighLevel Custom Field IDs (from the specific snapshot)
+                  const REVENUE_FIELD_ID = 'reutlLeT0xTUvh2Elfvf';
+                  const VOLUME_FIELD_ID = 'jBdzZMRHGHOpMYTqCcKw';
+                  const FRUSTRATION_FIELD_ID = 'CUZAgurvt5GYgk8uGqPB';
                   
-                  const volumeStr = lead.customFields?.find((f: any) => {
-                    const val = String(f?.value || '').toLowerCase();
-                    return val.includes('call') || val.includes('week') || val.match(/\d+-\d+/);
-                  })?.value || 'N/A';
+                  // Extract fields using exact ID first, then fallback to strict heuristic
+                  const revenueStr = lead.customFields?.find((f: any) => f.id === REVENUE_FIELD_ID)?.value 
+                    || lead.customFields?.find((f: any) => {
+                         const val = String(f?.value || '').toLowerCase();
+                         return val.length < 20 && (val.includes('$') || val.includes('000') || val.match(/<|>|\d+k/));
+                       })?.value || 'N/A';
                   
-                  const frustrationStr = lead.customFields?.find((f: any) => {
-                    const val = String(f?.value || '').toLowerCase();
-                    // Longest string that isn't URL or revenue or volume
-                    return val.length > 10 && !val.includes('$') && !val.includes('call') && !val.includes('http');
-                  })?.value || 'N/A';
+                  const volumeStr = lead.customFields?.find((f: any) => f.id === VOLUME_FIELD_ID)?.value 
+                    || lead.customFields?.find((f: any) => {
+                         const val = String(f?.value || '').toLowerCase();
+                         return val.length < 20 && (val.includes('call') || val.includes('week') || val.match(/\d+-\d+/));
+                       })?.value || 'N/A';
+                  
+                  const frustrationStr = lead.customFields?.find((f: any) => f.id === FRUSTRATION_FIELD_ID)?.value 
+                    || lead.customFields?.find((f: any) => {
+                         const val = String(f?.value || '').toLowerCase();
+                         return val.length > 50 && !val.includes('http');
+                       })?.value || 'N/A';
 
                   let urgency = 'Normal';
                   if (revenueStr === '500k+' || revenueStr.includes('500') || (volumeStr !== 'N/A' && volumeStr.toLowerCase().includes('high'))) {
