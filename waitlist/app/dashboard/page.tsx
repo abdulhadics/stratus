@@ -4,13 +4,47 @@ import { Users, Briefcase, TrendingUp, ShieldAlert } from 'lucide-react';
 import { AvatarChatWidget } from '@/components/ui/AvatarChatWidget';
 import Link from 'next/link';
 
+import { DollarSign } from 'lucide-react';
+
+async function getDashboardStats() {
+  try {
+    const GHL_API_TOKEN = process.env.GHL_DASHBOARD_API_TOKEN;
+    const GHL_LOCATION_ID = process.env.GHL_LOCATION_ID;
+
+    if (!GHL_API_TOKEN || !GHL_LOCATION_ID) return null;
+
+    const headers = {
+      'Authorization': `Bearer ${GHL_API_TOKEN}`,
+      'Version': '2021-07-28',
+      'Accept': 'application/json'
+    };
+
+    // Fetch Contacts Total
+    const cRes = await fetch(`https://services.leadconnectorhq.com/contacts/?locationId=${GHL_LOCATION_ID}&limit=1`, { headers, next: { revalidate: 60 } });
+    const cData = await cRes.json();
+    const totalContacts = cData.meta?.total || 0;
+
+    // Fetch Opportunities Total & Value
+    const oRes = await fetch(`https://services.leadconnectorhq.com/opportunities/search?location_id=${GHL_LOCATION_ID}`, { headers, next: { revalidate: 60 } });
+    const oData = await oRes.json();
+    const totalOpps = oData.meta?.total || 0;
+    const pipelineValue = (oData.opportunities || []).reduce((sum: number, opp: any) => sum + (opp.monetaryValue || 0), 0);
+
+    return { totalContacts, totalOpps, pipelineValue };
+  } catch (err) {
+    console.error('Failed to fetch dashboard stats', err);
+    return null;
+  }
+}
+
 export default async function DashboardOverview() {
   const session = await getServerSession(authOptions);
+  const data = await getDashboardStats();
   
   const stats = [
-    { label: 'Total Contacts', value: '1,248', icon: Users, change: '+12%', positive: true },
-    { label: 'Active Opportunities', value: '45', icon: Briefcase, change: '+5%', positive: true },
-    { label: 'Conversion Rate', value: '24.8%', icon: TrendingUp, change: '-2%', positive: false },
+    { label: 'Total Contacts', value: data?.totalContacts || 0, icon: Users, change: 'Live', positive: true },
+    { label: 'Active Opportunities', value: data?.totalOpps || 0, icon: Briefcase, change: 'Live', positive: true },
+    { label: 'Pipeline Value', value: `$${(data?.pipelineValue || 0).toLocaleString()}`, icon: DollarSign, change: 'Live', positive: true },
   ];
 
   return (
