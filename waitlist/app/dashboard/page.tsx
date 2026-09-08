@@ -6,12 +6,18 @@ import Link from 'next/link';
 
 import { DollarSign } from 'lucide-react';
 
-async function getDashboardStats() {
+async function getDashboardStats(session: any) {
   try {
     const GHL_API_TOKEN = process.env.GHL_DASHBOARD_API_TOKEN;
-    const GHL_LOCATION_ID = process.env.GHL_LOCATION_ID;
+    
+    // Logic: ADMIN sees agency location. USER sees their own location.
+    const GHL_LOCATION_ID = session?.user?.role === 'ADMIN' 
+      ? process.env.GHL_LOCATION_ID 
+      : session?.user?.ghlLocationId;
 
-    if (!GHL_API_TOKEN || !GHL_LOCATION_ID) return null;
+    if (!GHL_API_TOKEN || !GHL_LOCATION_ID) {
+      return { totalContacts: 0, totalOpps: 0, pipelineValue: 0 };
+    }
 
     const headers = {
       'Authorization': `Bearer ${GHL_API_TOKEN}`,
@@ -39,7 +45,7 @@ async function getDashboardStats() {
 
 export default async function DashboardOverview() {
   const session = await getServerSession(authOptions);
-  const data = await getDashboardStats();
+  const data = await getDashboardStats(session);
   
   const stats = [
     { label: 'Total Contacts', value: data?.totalContacts || 0, icon: Users, change: 'Live', positive: true },

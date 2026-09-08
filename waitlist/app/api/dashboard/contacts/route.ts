@@ -1,11 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 export async function GET(req: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
     const GHL_API_TOKEN = process.env.GHL_DASHBOARD_API_TOKEN;
-    const GHL_LOCATION_ID = process.env.GHL_LOCATION_ID;
+    
+    // Logic: ADMIN sees agency location. USER sees their own location.
+    const GHL_LOCATION_ID = session?.user?.role === 'ADMIN' 
+      ? process.env.GHL_LOCATION_ID 
+      : session?.user?.ghlLocationId;
 
     if (!GHL_API_TOKEN || !GHL_LOCATION_ID) {
+      // If a normal user hasn't linked a GHL account yet, just return empty data (not an error, just no contacts)
+      if (session?.user?.role !== 'ADMIN' && !session?.user?.ghlLocationId) {
+        return NextResponse.json({ success: true, contacts: [] });
+      }
       return NextResponse.json({ error: 'GHL dashboard credentials not configured' }, { status: 500 });
     }
 
