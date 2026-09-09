@@ -104,7 +104,7 @@ export function AvatarChatWidget() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          sandbox: true, 
+          sandbox: false, 
           mode: 'FULL',
           question: userQuestion 
         }),
@@ -156,7 +156,7 @@ export function AvatarChatWidget() {
 
       room.on(RoomEvent.Disconnected, () => {
         setStep('ended');
-        addMessage('john', "The LiveAvatar session has ended. (Note: Sandbox sessions are limited to 1 minute). If you'd like to continue, please book a discovery call.");
+        addMessage('john', "The LiveAvatar session has ended. If you'd like to continue, please book a discovery call.");
       });
 
       await room.connect(url, token);
