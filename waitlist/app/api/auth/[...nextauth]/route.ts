@@ -53,10 +53,10 @@ export const authOptions: AuthOptions = {
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as string;
-        session.user.ghlLocationId = token.ghlLocationId as string;
-        session.user.ghlApiToken = token.ghlApiToken as string;
+        (session.user as any).id = token.id as string;
+        (session.user as any).role = token.role as string;
+        (session.user as any).ghlLocationId = token.ghlLocationId as string;
+        (session.user as any).ghlApiToken = token.ghlApiToken as string;
       }
       return session;
     }
