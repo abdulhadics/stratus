@@ -6,8 +6,8 @@ export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     // Client Portal ONLY uses the user's specific location ID and API Token.
-    const GHL_API_TOKEN = session?.user?.ghlApiToken;
-    const GHL_LOCATION_ID = session?.user?.ghlLocationId;
+    const GHL_API_TOKEN = (session?.user as any)?.ghlApiToken;
+    const GHL_LOCATION_ID = (session?.user as any)?.ghlLocationId;
 
     if (!GHL_API_TOKEN || !GHL_LOCATION_ID) {
       return NextResponse.json({ success: true, pipelineName: 'No Account Linked', stages: [] });
