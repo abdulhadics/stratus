@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { HeroSection } from '@/components/sections/HeroSection';
+import { VideoSection } from '@/components/sections/VideoSection';
 import { PromiseSection } from '@/components/sections/PromiseSection';
 import { SystemsSection } from '@/components/sections/SystemsSection';
 import { DemoSection } from '@/components/sections/DemoSection';
@@ -22,6 +23,7 @@ export default function Home() {
       <Header />
       <main>
         <HeroSection />
+        <VideoSection />
         <PromiseSection />
         <SystemsSection />
         <DemoSection />

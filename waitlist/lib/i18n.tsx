@@ -44,6 +44,10 @@ const translations = {
   'metric.bilingual.value': { en: '100%', fr: '100%' },
   'metric.bilingual.label': { en: 'BILINGUAL EN + FR', fr: 'BILINGUE EN + FR' },
 
+  // ── Video Section ──
+  'video.heading': { en: 'WHY WE BUILT STRATUS... AND WHO IT IS FOR', fr: 'POURQUOI NOUS AVONS CRÉÉ STRATUS... ET POUR QUI' },
+  'video.cta': { en: 'APPLY FOR 1 OF THE 10 FOUNDING SPOTS', fr: 'POSTULER POUR L\'UNE DES 10 PLACES FONDATRICES' },
+
   // ── Promise Section ──
   'promise.heading.1': { en: 'You shake hands, close deals, and', fr: 'Vous serrez des mains, concluez des ententes,' },
   'promise.heading.2': { en: 'deliver what you love.', fr: 'et livrez ce que vous aimez.' },
