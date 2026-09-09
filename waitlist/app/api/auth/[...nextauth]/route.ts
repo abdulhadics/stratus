@@ -36,6 +36,7 @@ export const authOptions: AuthOptions = {
           email: user.email,
           role: user.role,
           ghlLocationId: user.ghlLocationId,
+          ghlApiToken: user.ghlApiToken,
         };
       }
     })
@@ -46,6 +47,7 @@ export const authOptions: AuthOptions = {
         token.id = user.id;
         token.role = user.role;
         token.ghlLocationId = user.ghlLocationId;
+        token.ghlApiToken = user.ghlApiToken;
       }
       return token;
     },
@@ -54,6 +56,7 @@ export const authOptions: AuthOptions = {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
         session.user.ghlLocationId = token.ghlLocationId as string;
+        session.user.ghlApiToken = token.ghlApiToken as string;
       }
       return session;
     }

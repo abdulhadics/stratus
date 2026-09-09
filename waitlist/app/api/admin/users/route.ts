@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { email, name, password, role, ghlLocationId } = body;
+    const { email, name, password, role, ghlLocationId, ghlApiToken } = body;
 
     if (!email || !password) {
       return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
@@ -58,6 +58,7 @@ export async function POST(req: NextRequest) {
         passwordHash,
         role: role || 'USER',
         ghlLocationId: ghlLocationId || null,
+        ghlApiToken: ghlApiToken || null,
       },
       select: {
         id: true,

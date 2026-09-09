@@ -5,9 +5,8 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    const GHL_API_TOKEN = process.env.GHL_DASHBOARD_API_TOKEN;
-    
-    // Client Portal ONLY uses the user's specific location ID.
+    // Client Portal ONLY uses the user's specific location ID and API Token.
+    const GHL_API_TOKEN = session?.user?.ghlApiToken;
     const GHL_LOCATION_ID = session?.user?.ghlLocationId;
 
     if (!GHL_API_TOKEN || !GHL_LOCATION_ID) {

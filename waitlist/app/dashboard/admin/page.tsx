@@ -22,6 +22,7 @@ export default function AdminDashboard() {
     name: '',
     password: '',
     ghlLocationId: '',
+    ghlApiToken: '',
   });
 
   const fetchUsers = async () => {
@@ -67,7 +68,7 @@ export default function AdminDashboard() {
       });
 
       if (res.ok) {
-        setFormData({ email: '', name: '', password: '', ghlLocationId: '' });
+        setFormData({ email: '', name: '', password: '', ghlLocationId: '', ghlApiToken: '' });
         fetchUsers();
       } else {
         const data = await res.json();
@@ -112,6 +113,10 @@ export default function AdminDashboard() {
             <div>
               <label className="block text-sm font-medium text-text-primary mb-1">GHL Location ID</label>
               <input type="text" value={formData.ghlLocationId} onChange={(e) => setFormData({...formData, ghlLocationId: e.target.value})} className="w-full bg-bg-elevated border border-border rounded-lg px-3 py-2 text-sm focus:border-accent focus:outline-none" placeholder="e.g. jfoD7cKt3XJ0FObiU5i3" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-text-primary mb-1">GHL API Token (Access Token)</label>
+              <input type="text" value={formData.ghlApiToken} onChange={(e) => setFormData({...formData, ghlApiToken: e.target.value})} className="w-full bg-bg-elevated border border-border rounded-lg px-3 py-2 text-sm focus:border-accent focus:outline-none" placeholder="Paste specific location token" />
             </div>
             <button type="submit" disabled={isCreating} className="w-full flex items-center justify-center gap-2 bg-accent text-white py-2 rounded-lg font-medium hover:bg-accent/90 disabled:opacity-50">
               {isCreating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
