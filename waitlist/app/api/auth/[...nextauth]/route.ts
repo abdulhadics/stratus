@@ -45,9 +45,9 @@ export const authOptions: AuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = user.role;
-        token.ghlLocationId = user.ghlLocationId;
-        token.ghlApiToken = user.ghlApiToken;
+        token.role = (user as any).role;
+        token.ghlLocationId = (user as any).ghlLocationId;
+        token.ghlApiToken = (user as any).ghlApiToken;
       }
       return token;
     },
