@@ -15,7 +15,6 @@ model User {
   passwordHash    String
   role            String   @default("USER") // ADMIN or USER
   ghlLocationId   String?  // The specific GoHighLevel Location ID for this user
-  ghlApiToken     String?  // The specific GoHighLevel API Token for this user's location
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }

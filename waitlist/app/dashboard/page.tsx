@@ -8,8 +8,8 @@ import { DollarSign } from 'lucide-react';
 
 async function getDashboardStats(session: any) {
   try {
-    // Client Portal ONLY uses the user's specific location ID and API Token.
-    const GHL_API_TOKEN = session?.user?.ghlApiToken;
+    // Agency token from .env, Location ID from user's session
+    const GHL_API_TOKEN = process.env.GHL_DASHBOARD_API_TOKEN;
     const GHL_LOCATION_ID = session?.user?.ghlLocationId;
 
     if (!GHL_API_TOKEN || !GHL_LOCATION_ID) {
