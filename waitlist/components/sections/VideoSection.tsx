@@ -23,6 +23,8 @@ export function VideoSection() {
     if (isModalOpen) window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isModalOpen]);
+
+  return (
     <section className="relative py-16 sm:py-24 bg-bg-surface" id="video">
       <Container>
         <div className="flex flex-col items-center text-center">
@@ -41,17 +43,14 @@ export function VideoSection() {
               </div>
             </div>
             
-            {/* Muted background video as thumbnail (cropped to landscape) */}
-            <video 
-              className="w-full h-full object-cover opacity-80"
-              preload="metadata"
-              muted
-              playsInline
-              loop
-              autoPlay
-            >
-              <source src="/STRATUS-90sec.mp4" type="video/mp4" />
-            </video>
+            {/* Canva iframe as thumbnail (non-interactive, just shows the cover) */}
+            <div className="w-full h-full pointer-events-none opacity-80">
+              <div style={{ position: 'relative', width: '100%', height: '0', paddingTop: '177.7778%', paddingBottom: '0', overflow: 'hidden', willChange: 'transform', marginTop: '-38%' }}>
+                <iframe loading="lazy" style={{ position: 'absolute', width: '100%', height: '100%', top: '0', left: '0', border: 'none', padding: '0', margin: '0' }}
+                  src="https://www.canva.com/design/DAHUnJvegd4/DlSgj2-i4bw4yvs1JnFS4g/watch?embed" allowFullScreen allow="fullscreen">
+                </iframe>
+              </div>
+            </div>
           </div>
 
           <Button 
@@ -83,16 +82,13 @@ export function VideoSection() {
               if (e.target === e.currentTarget) setIsModalOpen(false);
             }}
           >
-            <video 
-              ref={videoRef}
-              controls 
-              autoPlay
-              className="max-w-full max-h-full rounded-lg shadow-2xl"
-              playsInline
-            >
-              <source src="/STRATUS-90sec.mp4" type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
+            <div className="w-full max-w-[500px] bg-black rounded-lg overflow-hidden shadow-2xl relative">
+              <div style={{ position: 'relative', width: '100%', height: '0', paddingTop: '177.7778%', paddingBottom: '0', overflow: 'hidden', willChange: 'transform' }}>
+                <iframe loading="lazy" style={{ position: 'absolute', width: '100%', height: '100%', top: '0', left: '0', border: 'none', padding: '0', margin: '0' }}
+                  src="https://www.canva.com/design/DAHUnJvegd4/DlSgj2-i4bw4yvs1JnFS4g/watch?embed" allowFullScreen allow="fullscreen">
+                </iframe>
+              </div>
+            </div>
           </div>
         </div>
       )}
