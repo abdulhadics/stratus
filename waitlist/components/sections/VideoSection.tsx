@@ -26,7 +26,7 @@ export function VideoSection() {
               preload="metadata"
               poster="/video-placeholder.jpg" // Optional poster
             >
-              <source src="REPLACE_WITH_HOSTED_MP4_LINK" type="video/mp4" />
+              <source src="https://dyhrhekvfsseavarjrab.supabase.co/storage/v1/object/public/videos/STRATUS-90sec%20(1)%20(1).mp4" type="video/mp4" />
               Your browser does not support the video tag.
             </video>
           </div>
