@@ -12,7 +12,7 @@ type Message = {
 const INITIAL_MESSAGE: Message = {
   id: '1',
   role: 'assistant',
-  content: "Hey — welcome to STRATUS. I'm here to help you understand how we get trade businesses running on autopilot. Whether it's missed calls, follow-ups, or just the daily chaos — ask me anything. I've got 15 answers for you, let's make 'em count.",
+  content: "Hi, I'm an AI assistant for STRATUS. Our founder, Adam Koubi, combined ten years in real estate and home services with a background in technology to build this. We run six systems in the background so tradespeople like you can focus on the work, not the admin. What's the biggest thing eating your time right now?",
 };
 
 export function PublicTextChatWidget() {
