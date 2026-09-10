@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Container } from '@/components/layout/Container';
 import { StratusLogo } from '@/components/ui/StratusLogo';
 import { useTranslation } from '@/lib/i18n';
+import { Shield, ShieldCheck } from 'lucide-react';
 
 const SYSTEMS = [
   {
@@ -69,8 +70,9 @@ export function SystemsSection() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   return (
-    <section className="py-12 sm:py-16">
-      <Container>
+    <>
+      <section className="py-12 sm:py-16">
+        <Container>
         {/* Honeycomb Diagram Container */}
         <div className="relative max-w-[650px] mx-auto">
           <svg
@@ -160,6 +162,47 @@ export function SystemsSection() {
           </svg>
         </div>
       </Container>
-    </section>
+      </section>
+
+      {/* Guarantees Section */}
+      <section className="py-16 bg-bg-secondary border-y border-border/50">
+        <Container>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 max-w-5xl mx-auto">
+            {/* 1. 30 Day Satisfaction Guarantee */}
+            <div className="bg-bg-primary border border-border/80 p-8 rounded-lg flex flex-col items-start shadow-sm hover:shadow-md transition-shadow">
+              <ShieldCheck className="text-emerald-500 mb-4" size={24} />
+              <h4 className="text-[16px] font-bold text-text-primary mb-3">
+                {t('guarantee.1.title' as any)}
+              </h4>
+              <p className="text-[13px] text-text-secondary leading-relaxed">
+                {t('guarantee.1.desc' as any)}
+              </p>
+            </div>
+
+            {/* 2. Founding Member Price Lock */}
+            <div className="bg-bg-primary border border-border/80 p-8 rounded-lg flex flex-col items-start shadow-sm hover:shadow-md transition-shadow">
+              <Shield className="text-blue-500 mb-4" size={24} />
+              <h4 className="text-[16px] font-bold text-text-primary mb-3">
+                {t('guarantee.2.title' as any)}
+              </h4>
+              <p className="text-[13px] text-text-secondary leading-relaxed">
+                {t('guarantee.2.desc' as any)}
+              </p>
+            </div>
+
+            {/* 3. Territory Exclusivity Guarantee */}
+            <div className="bg-bg-primary border border-border/80 p-8 rounded-lg flex flex-col items-start shadow-sm hover:shadow-md transition-shadow">
+              <Shield className="text-purple-500 mb-4" size={24} />
+              <h4 className="text-[16px] font-bold text-text-primary mb-3">
+                {t('guarantee.3.title' as any)}
+              </h4>
+              <p className="text-[13px] text-text-secondary leading-relaxed">
+                {t('guarantee.3.desc' as any)}
+              </p>
+            </div>
+          </div>
+        </Container>
+      </section>
+    </>
   );
 }
