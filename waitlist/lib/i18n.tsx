@@ -174,6 +174,17 @@ const translations = {
   'pricing.command.f5': { en: 'Priority support and reporting', fr: 'Support prioritaire et rapports' },
   'pricing.command.disclaimer': { en: 'Backed by our 30-Day Satisfaction Guarantee on your monthly fee', fr: 'Garanti par notre garantie de satisfaction de 30 jours sur votre tarif mensuel' },
 
+  // Guarantees
+  'guarantee.1.title': { en: '30 Day Satisfaction Guarantee', fr: 'Garantie de satisfaction de 30 jours' },
+  'guarantee.1.desc': { en: 'Backed by our 30 day satisfaction guarantee on your monthly fee.', fr: 'Garanti par notre garantie de satisfaction de 30 jours sur votre tarif mensuel.' },
+  
+  'guarantee.2.title': { en: 'The Founding Member Price Lock', fr: 'Verrouillage de prix membre fondateur' },
+  'guarantee.2.desc': { en: 'Your monthly rate is locked in forever. Even as we upgrade our AI and advance our technology behind the scenes... your price will never increase.', fr: 'Votre tarif mensuel est bloqué pour toujours. Même si nous améliorons notre IA et notre technologie... votre prix n\'augmentera jamais.' },
+  
+  'guarantee.3.title': { en: 'Territory Exclusivity Guarantee', fr: 'Garantie d\'exclusivité de territoire' },
+  'guarantee.3.desc': { en: 'We only work with one plumbing, one electrical, and one HVAC business per district. Once you\'re live, we do not sign another business in your trade in your district. Full stop.', fr: 'Nous ne travaillons qu\'avec une entreprise de plomberie, d\'électricité et de CVC par secteur. Une fois en ligne, nous ne signons aucune autre entreprise dans votre métier dans votre région.' },
+
+
 
   // ── Results Section ──
   'results.eyebrow': { en: 'WHY IT WORKS', fr: 'POURQUOI ÇA MARCHE' },

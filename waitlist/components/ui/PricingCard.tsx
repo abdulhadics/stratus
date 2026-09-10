@@ -17,6 +17,7 @@ interface PricingCardProps {
   spotsRemaining?: string;
   features: string[];
   disclaimer?: string;
+  disclaimers?: string[];
   ctaText: string;
   onCta: () => void;
   featured?: boolean;
@@ -38,6 +39,7 @@ export function PricingCard({
   spotsRemaining,
   features,
   disclaimer,
+  disclaimers,
   ctaText,
   onCta,
   featured = false,
@@ -132,6 +134,13 @@ export function PricingCard({
       {/* Disclaimer */}
       {disclaimer && (
         <p className="text-[11px] text-text-dimmed mb-6 italic">{disclaimer}</p>
+      )}
+      {disclaimers && disclaimers.length > 0 && (
+        <div className="space-y-3 mb-6">
+          {disclaimers.map((d, i) => (
+            <p key={i} className="text-[11px] text-text-dimmed italic leading-relaxed">{d}</p>
+          ))}
+        </div>
       )}
 
       {/* CTA */}

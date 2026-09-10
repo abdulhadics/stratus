@@ -3,6 +3,7 @@
 import { Container } from '@/components/layout/Container';
 import { SectionEyebrow } from '@/components/ui/SectionEyebrow';
 import { PricingCard } from '@/components/ui/PricingCard';
+import { Shield } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n';
 
 interface PricingSectionProps {
@@ -50,7 +51,11 @@ export function PricingSection({ onSelectOffer }: PricingSectionProps) {
               t('pricing.presence.f6'),
               t('pricing.presence.f7'),
             ]}
-            disclaimer={t('pricing.presence.disclaimer')}
+            disclaimers={[
+              t('guarantee.1.desc'),
+              t('guarantee.2.desc'),
+              t('guarantee.3.desc')
+            ]}
             ctaText={t('pricing.cta')}
             onCta={() => handleCta('presence')}
           />
@@ -75,7 +80,11 @@ export function PricingSection({ onSelectOffer }: PricingSectionProps) {
               t('pricing.machine.f2'),
               t('pricing.machine.f3'),
             ]}
-            disclaimer={t('pricing.machine.disclaimer')}
+            disclaimers={[
+              t('guarantee.1.desc'),
+              t('guarantee.2.desc'),
+              t('guarantee.3.desc')
+            ]}
             ctaText={t('pricing.cta')}
             onCta={() => handleCta('machine')}
             featured
@@ -100,10 +109,29 @@ export function PricingSection({ onSelectOffer }: PricingSectionProps) {
               t('pricing.command.f4'),
               t('pricing.command.f5'),
             ]}
-            disclaimer={t('pricing.command.disclaimer')}
+            disclaimers={[
+              t('guarantee.1.desc'),
+              t('guarantee.2.desc'),
+              t('guarantee.3.desc')
+            ]}
             ctaText={t('pricing.cta')}
             onCta={() => handleCta('command')}
           />
+        </div>
+
+        {/* Guarantees Block */}
+        <div className="mt-24 grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+          {[1, 2, 3].map((num) => (
+            <div key={num} className="bg-bg-primary border border-border p-8 rounded-lg flex flex-col items-start shadow-sm">
+              <Shield className="text-accent mb-4" size={24} />
+              <h4 className="text-[16px] font-bold text-text-primary mb-3">
+                {t(`guarantee.${num}.title` as any)}
+              </h4>
+              <p className="text-[13px] text-text-secondary leading-relaxed">
+                {t(`guarantee.${num}.desc` as any)}
+              </p>
+            </div>
+          ))}
         </div>
       </Container>
     </section>
