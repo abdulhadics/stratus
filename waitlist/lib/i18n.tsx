@@ -184,6 +184,10 @@ const translations = {
   'guarantee.3.title': { en: 'Territory Exclusivity Guarantee', fr: 'Garantie d\'exclusivité de territoire' },
   'guarantee.3.desc': { en: 'We only work with one plumbing, one electrical, and one HVAC business per district. Once you\'re live, we do not sign another business in your trade in your district. Full stop.', fr: 'Nous ne travaillons qu\'avec une entreprise de plomberie, d\'électricité et de CVC par secteur. Une fois en ligne, nous ne signons aucune autre entreprise dans votre métier dans votre région.' },
 
+  'guarantee.card.1': { en: 'Backed by our 30-Day Satisfaction Guarantee on your monthly fee', fr: 'Garanti par notre garantie de satisfaction de 30 jours sur votre tarif mensuel' },
+  'guarantee.card.2': { en: 'Backed by The Founding Member Price Lock. Your monthly rate is locked in forever. Even as we upgrade our AI and advance our technology behind the scenes... your price will never increase.', fr: 'Garanti par le verrouillage de prix membre fondateur. Votre tarif mensuel est bloqué pour toujours. Même si nous améliorons notre IA et notre technologie... votre prix n\'augmentera jamais.' },
+  'guarantee.card.3': { en: 'Territory Exclusivity Guarantee. We only work with one plumbing, one electrical, and one HVAC business per district. Once you\'re live, we do not sign another business in your trade in your district. Full stop.', fr: 'Garantie d\'exclusivité de territoire. Nous ne travaillons qu\'avec une entreprise de plomberie, d\'électricité et de CVC par secteur. Une fois en ligne, nous ne signons aucune autre entreprise dans votre métier dans votre région.' },
+
 
 
   // ── Results Section ──

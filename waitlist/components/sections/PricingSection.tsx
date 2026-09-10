@@ -52,9 +52,9 @@ export function PricingSection({ onSelectOffer }: PricingSectionProps) {
               t('pricing.presence.f7'),
             ]}
             disclaimers={[
-              t('guarantee.1.desc'),
-              t('guarantee.2.desc'),
-              t('guarantee.3.desc')
+              t('guarantee.card.1' as any),
+              t('guarantee.card.2' as any),
+              t('guarantee.card.3' as any)
             ]}
             ctaText={t('pricing.cta')}
             onCta={() => handleCta('presence')}
@@ -81,9 +81,9 @@ export function PricingSection({ onSelectOffer }: PricingSectionProps) {
               t('pricing.machine.f3'),
             ]}
             disclaimers={[
-              t('guarantee.1.desc'),
-              t('guarantee.2.desc'),
-              t('guarantee.3.desc')
+              t('guarantee.card.1' as any),
+              t('guarantee.card.2' as any),
+              t('guarantee.card.3' as any)
             ]}
             ctaText={t('pricing.cta')}
             onCta={() => handleCta('machine')}
@@ -110,9 +110,9 @@ export function PricingSection({ onSelectOffer }: PricingSectionProps) {
               t('pricing.command.f5'),
             ]}
             disclaimers={[
-              t('guarantee.1.desc'),
-              t('guarantee.2.desc'),
-              t('guarantee.3.desc')
+              t('guarantee.card.1' as any),
+              t('guarantee.card.2' as any),
+              t('guarantee.card.3' as any)
             ]}
             ctaText={t('pricing.cta')}
             onCta={() => handleCta('command')}
