@@ -146,7 +146,7 @@ export function AvatarChatWidget() {
           ref={videoRef}
           autoPlay
           playsInline
-          className={`absolute inset-0 w-full h-full object-cover ${status === 'live' ? 'block' : 'hidden'}`}
+          className={`absolute inset-0 w-full h-full object-contain ${status === 'live' ? 'block' : 'hidden'}`}
         />
         <audio ref={audioRef} autoPlay />
 
