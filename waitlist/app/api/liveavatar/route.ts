@@ -30,8 +30,8 @@ export async function POST(request: Request) {
         is_sandbox: body.sandbox === true,
         ...(body.mode === 'FULL' && {
           avatar_persona: {
-            ...(process.env.LIVEAVATAR_VOICE_ID ? { voice_id: process.env.LIVEAVATAR_VOICE_ID } : {}),
-            ...(body.voice_id ? { voice_id: body.voice_id } : {}),
+            ...(!body.sandbox && process.env.LIVEAVATAR_VOICE_ID ? { voice_id: process.env.LIVEAVATAR_VOICE_ID } : {}),
+            ...(!body.sandbox && body.voice_id ? { voice_id: body.voice_id } : {}),
             ...(body.context_id ? { context_id: body.context_id } : {}),
             language: body.language || 'en',
             prompt: `You are John, the AI assistant for STRATUS — a premium operations platform built specifically for trade business owners (HVAC, plumbing, electrical, roofing, etc.).
