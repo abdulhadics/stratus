@@ -15,19 +15,19 @@ export function AvatarChatWidget() {
   const roomRef = useRef<any>(null);
   const hasStarted = useRef(false);
 
-  const startLiveAvatar = useCallback(async () => {
-    if (hasStarted.current) return;
+  const startLiveAvatar = useCallback(async (useSandbox = false) => {
+    if (hasStarted.current && !useSandbox) return;
     hasStarted.current = true;
 
     setStatus('connecting');
-    setStatusText('Starting avatar session...');
+    setStatusText(useSandbox ? 'Falling back to sandbox mode...' : 'Starting avatar session...');
 
     try {
       const res = await fetch('/api/liveavatar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          sandbox: false, 
+          sandbox: useSandbox, 
           mode: 'FULL' 
         }),
       });
@@ -45,11 +45,25 @@ export function AvatarChatWidget() {
           if (parsed?.message) errMsg = parsed.message;
         } catch {}
         console.error('[STRATUS] LiveAvatar session failed:', errMsg);
+        
+        // Fallback to sandbox if full mode fails and we haven't tried sandbox yet
+        if (!useSandbox) {
+          console.log('[STRATUS] Retrying with sandbox mode...');
+          hasStarted.current = false;
+          return startLiveAvatar(true);
+        }
+
         setErrorMsg(errMsg);
         setStatus('error');
       }
     } catch (err) {
       console.error('[STRATUS] LiveAvatar connection error:', err);
+      // Fallback to sandbox on network error if not already tried
+      if (!useSandbox) {
+          console.log('[STRATUS] Retrying with sandbox mode...');
+          hasStarted.current = false;
+          return startLiveAvatar(true);
+      }
       setErrorMsg('Connection failed. Please try again.');
       setStatus('error');
     }
