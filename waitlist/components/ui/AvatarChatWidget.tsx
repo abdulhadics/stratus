@@ -2,14 +2,13 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/Button';
-import { AvatarGateModal } from '@/components/ui/AvatarGateModal';
 
 interface ChatMessage {
   role: 'john' | 'user';
   text: string;
 }
 
-type ChatStep = 'greeting' | 'question' | 'gate' | 'connecting' | 'live' | 'ended';
+type ChatStep = 'greeting' | 'question' | 'connecting' | 'live' | 'ended';
 
 export function AvatarChatWidget() {
   const [step, setStep] = useState<ChatStep>('greeting');
@@ -22,9 +21,8 @@ export function AvatarChatWidget() {
     },
   ]);
   const [inputValue, setInputValue] = useState('');
-  const [isGateOpen, setIsGateOpen] = useState(false);
-  const [isVerified, setIsVerified] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
   const [liveAvatarError, setLiveAvatarError] = useState('');
 
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -44,76 +42,39 @@ export function AvatarChatWidget() {
     }
   }, [step]);
 
-  // Check if already verified on mount
-  useEffect(() => {
-    const verified = localStorage.getItem('stratus_avatar_verified');
-    if (verified === 'true') {
-      setIsVerified(true);
-    }
-  }, []);
-
   const addMessage = useCallback((role: 'john' | 'user', text: string) => {
     setMessages((prev) => [...prev, { role, text }]);
   }, []);
 
-  const handleSendMessage = () => {
-    const text = inputValue.trim();
-    if (!text) return;
-    setInputValue('');
-
-    if (step === 'greeting') {
-      // User typed their name
-      setUserName(text);
-      addMessage('user', text);
-      setTimeout(() => {
-        addMessage('john', `Nice to meet you, ${text}. What would you like to know?`);
-        setStep('question');
-      }, 600);
-    } else if (step === 'question') {
-      // User typed their question — CAPTURE IT, DO NOT ANSWER
-      setUserQuestion(text);
-      addMessage('user', text);
-      setTimeout(() => {
-        addMessage(
-          'john',
-          "Great question. To give you a real answer and make sure I don't lose you, I just need to grab your name, phone, and email, then a quick code to confirm it's really you. Takes 30 seconds."
-        );
-        setStep('gate');
-        // Auto-open the gate modal after a brief pause
-        setTimeout(() => setIsGateOpen(true), 800);
-      }, 600);
-    }
+  const isSubstantiveQuestion = (text: string): boolean => {
+    const words = text.split(/\s+/).filter(w => w.length > 0);
+    const hasQuestionMark = text.includes('?');
+    const isLong = words.length >= 3;
+    const questionWords = ['how', 'what', 'why', 'when', 'where', 'who', 'can', 'do', 'does', 'is', 'are', 'will', 'would', 'could', 'should', 'tell', 'explain', 'help', 'need', 'want', 'looking', 'price', 'cost', 'much', 'missed', 'calls', 'leads', 'reviews', 'system'];
+    const hasQuestionWord = words.some(w => questionWords.includes(w.toLowerCase()));
+    return hasQuestionMark || isLong || hasQuestionWord;
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSendMessage();
-    }
-  };
-
-  const handleVerified = async () => {
-    setIsVerified(true);
-    setIsGateOpen(false);
+  // Directly start LiveAvatar session (no OTP gate)
+  const startLiveAvatar = async (question: string) => {
     setStep('connecting');
     setIsConnecting(true);
-    addMessage('john', 'Verified! Let me pull up your answer...');
+    addMessage('john', 'Great, let me connect you with John now...');
 
     try {
-      // Call LiveAvatar API to create session
       const res = await fetch('/api/liveavatar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           sandbox: false, 
           mode: 'FULL',
-          question: userQuestion 
+          question 
         }),
       });
 
       const data = await res.json();
 
       if (data.success && data.data?.livekit_url && data.data?.livekit_client_token) {
-        // Connect to LiveKit room for live avatar streaming
         await connectToLiveKit(data.data.livekit_url, data.data.livekit_client_token);
         setStep('live');
       } else {
@@ -124,17 +85,91 @@ export function AvatarChatWidget() {
         } catch {}
         console.error('[STRATUS] LiveAvatar session failed:', errMsg);
         setLiveAvatarError(errMsg);
-        // Fallback: show text response
-        addMessage('john', `I'd love to discuss "${userQuestion}" in detail. Let me connect you with our team for a proper walkthrough.`);
+        // Fallback to text-based AI chat
+        await fallbackToTextChat(question);
         setStep('ended');
       }
     } catch (err) {
       console.error('[STRATUS] LiveAvatar connection error:', err);
-      setLiveAvatarError('Connection failed. Please try again.');
-      addMessage('john', `I'd love to discuss "${userQuestion}" with you. Let me connect you with our team for a proper walkthrough.`);
+      setLiveAvatarError('Connection failed. Switching to text mode.');
+      await fallbackToTextChat(question);
       setStep('ended');
     } finally {
       setIsConnecting(false);
+    }
+  };
+
+  // Fallback: answer via Gemini text chat if LiveAvatar fails
+  const fallbackToTextChat = async (question: string) => {
+    try {
+      const conversationHistory = [
+        ...messages.map(m => ({
+          role: m.role === 'john' ? 'assistant' : 'user',
+          content: m.text
+        })),
+        { role: 'user', content: question }
+      ];
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: conversationHistory }),
+      });
+      const data = await res.json();
+      addMessage('john', data.content || `I'd love to discuss "${question}" in detail. Let me connect you with our team.`);
+    } catch {
+      addMessage('john', `I'd love to discuss "${question}" with you. Let me connect you with our team for a proper walkthrough.`);
+    }
+  };
+
+  const handleSendMessage = async () => {
+    const text = inputValue.trim();
+    if (!text || isTyping || isConnecting) return;
+    setInputValue('');
+
+    if (step === 'greeting') {
+      setUserName(text);
+      addMessage('user', text);
+      setTimeout(() => {
+        addMessage('john', `Nice to meet you, ${text}. What would you like to know?`);
+        setStep('question');
+      }, 600);
+    } else if (step === 'question') {
+      addMessage('user', text);
+
+      if (isSubstantiveQuestion(text)) {
+        // Real question — directly connect to LiveAvatar
+        setUserQuestion(text);
+        await startLiveAvatar(text);
+      } else {
+        // Short/vague input — respond naturally via AI and keep asking
+        setIsTyping(true);
+        try {
+          const conversationHistory = [
+            ...messages.map(m => ({
+              role: m.role === 'john' ? 'assistant' : 'user',
+              content: m.text
+            })),
+            { role: 'user', content: text }
+          ];
+          const res = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ messages: conversationHistory }),
+          });
+          const data = await res.json();
+          addMessage('john', data.content || "What's the biggest thing eating your time right now? That'll help me point you in the right direction.");
+        } catch {
+          addMessage('john', "What's the biggest challenge in your business right now? Missed calls, follow-ups, reviews?");
+        } finally {
+          setIsTyping(false);
+        }
+      }
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSendMessage();
     }
   };
 
@@ -156,7 +191,7 @@ export function AvatarChatWidget() {
 
       room.on(RoomEvent.Disconnected, () => {
         setStep('ended');
-        addMessage('john', "The LiveAvatar session has ended. If you'd like to continue, please book a discovery call.");
+        addMessage('john', "The session has ended. Feel free to ask another question anytime!");
       });
 
       await room.connect(url, token);
@@ -172,8 +207,11 @@ export function AvatarChatWidget() {
     }
   };
 
-  const scrollToBooking = () => {
-    document.querySelector('#waitlist')?.scrollIntoView({ behavior: 'smooth' });
+  const handleRestart = () => {
+    setStep('question');
+    setLiveAvatarError('');
+    setUserQuestion('');
+    addMessage('john', `What else would you like to know, ${userName || 'there'}?`);
   };
 
   const getPlaceholder = () => {
@@ -244,8 +282,8 @@ export function AvatarChatWidget() {
           </div>
         ))}
 
-        {/* Connecting indicator */}
-        {isConnecting && (
+        {/* Typing / Connecting indicator */}
+        {(isConnecting || isTyping) && (
           <div className="flex justify-start">
             <div className="bg-bg-surface text-text-secondary px-3.5 py-2.5 rounded-2xl rounded-bl-md border border-border text-[13px]">
               <span className="inline-flex gap-1">
@@ -285,7 +323,7 @@ export function AvatarChatWidget() {
               variant="primary"
               size="sm"
               onClick={handleSendMessage}
-              disabled={!inputValue.trim()}
+              disabled={!inputValue.trim() || isTyping || isConnecting}
               className="px-4"
             >
               →
@@ -294,42 +332,19 @@ export function AvatarChatWidget() {
         </div>
       )}
 
-      {/* Gate button (when gate step is active but modal not yet open) */}
-      {step === 'gate' && !isGateOpen && (
-        <div className="border-t border-border p-3 bg-bg-surface">
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => setIsGateOpen(true)}
-            className="w-full"
-          >
-            Verify & Get Your Answer →
-          </Button>
-        </div>
-      )}
-
-      {/* Post-conversation CTA */}
+      {/* Post-session: Ask another question */}
       {step === 'ended' && (
         <div className="border-t border-border p-3 bg-bg-surface">
           <Button
             variant="primary"
             size="sm"
-            onClick={scrollToBooking}
+            onClick={handleRestart}
             className="w-full"
           >
-            Book a Discovery Call →
+            Ask Another Question →
           </Button>
         </div>
       )}
-
-      {/* OTP Gate Modal */}
-      <AvatarGateModal
-        isOpen={isGateOpen}
-        onClose={() => setIsGateOpen(false)}
-        onVerified={handleVerified}
-        initialQuestion={userQuestion}
-        visitorName={userName}
-      />
     </div>
   );
 }
