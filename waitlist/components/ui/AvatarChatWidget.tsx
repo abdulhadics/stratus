@@ -3,17 +3,26 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/Button';
 
-type AvatarStatus = 'connecting' | 'live' | 'error' | 'ended';
+type AvatarStatus = 'idle' | 'connecting' | 'live' | 'error' | 'ended';
 
 export function AvatarChatWidget() {
-  const [status, setStatus] = useState<AvatarStatus>('connecting');
+  const [status, setStatus] = useState<AvatarStatus>('idle');
   const [errorMsg, setErrorMsg] = useState('');
-  const [statusText, setStatusText] = useState('Connecting to John...');
+  const [statusText, setStatusText] = useState('');
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const roomRef = useRef<any>(null);
   const hasStarted = useRef(false);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (roomRef.current) {
+        try { roomRef.current.disconnect(); } catch {}
+      }
+    };
+  }, []);
 
   const startLiveAvatar = useCallback(async (useSandbox = false) => {
     if (hasStarted.current && !useSandbox) return;
@@ -46,7 +55,6 @@ export function AvatarChatWidget() {
         } catch {}
         console.error('[STRATUS] LiveAvatar session failed:', errMsg);
         
-        // Fallback to sandbox if full mode fails and we haven't tried sandbox yet
         if (!useSandbox) {
           console.log('[STRATUS] Retrying with sandbox mode...');
           hasStarted.current = false;
@@ -58,7 +66,6 @@ export function AvatarChatWidget() {
       }
     } catch (err) {
       console.error('[STRATUS] LiveAvatar connection error:', err);
-      // Fallback to sandbox on network error if not already tried
       if (!useSandbox) {
           console.log('[STRATUS] Retrying with sandbox mode...');
           hasStarted.current = false;
@@ -91,23 +98,11 @@ export function AvatarChatWidget() {
 
     await room.connect(url, token);
 
-    // Enable user's microphone for voice conversation
     await room.localParticipant.setMicrophoneEnabled(true).catch((err) => {
       console.error('Microphone permission denied:', err);
       setErrorMsg('Microphone access is required to speak with John.');
     });
   };
-
-  // Start LiveAvatar on mount
-  useEffect(() => {
-    startLiveAvatar();
-    return () => {
-      // Cleanup: disconnect room on unmount
-      if (roomRef.current) {
-        try { roomRef.current.disconnect(); } catch {}
-      }
-    };
-  }, [startLiveAvatar]);
 
   const handleRetry = () => {
     hasStarted.current = false;
@@ -165,6 +160,22 @@ export function AvatarChatWidget() {
               Speak to John — he's listening
             </div>
           </>
+        )}
+
+        {/* Idle State */}
+        {status === 'idle' && (
+          <div className="flex flex-col items-center justify-center gap-6 z-10 p-8 text-center bg-bg-surface/80 rounded-2xl border border-accent/20 backdrop-blur-sm max-w-md w-full">
+            <div className="w-20 h-20 rounded-full bg-accent/20 border-2 border-accent/40 flex items-center justify-center shadow-[0_0_30px_rgba(var(--accent-rgb),0.3)]">
+              <span className="text-accent text-3xl font-bold">J</span>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-white mb-2">Speak with John</h3>
+              <p className="text-text-dimmed text-sm mb-6">Start a live voice conversation to get answers about STRATUS instantly.</p>
+              <Button variant="primary" size="lg" className="w-full font-bold tracking-wide" onClick={() => startLiveAvatar()}>
+                Start Conversation
+              </Button>
+            </div>
+          </div>
         )}
 
         {/* Connecting State */}
