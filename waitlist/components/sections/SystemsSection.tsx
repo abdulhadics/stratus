@@ -73,95 +73,93 @@ export function SystemsSection() {
     <>
       <section className="py-12 sm:py-16">
         <Container>
-        {/* Honeycomb Diagram Container */}
-        <div className="relative max-w-[650px] mx-auto">
-          <svg
-            viewBox="0 0 600 520"
-            className="w-full h-auto drop-shadow-2xl select-none"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            {/* Outer 6 Hexagons */}
-            {SYSTEMS.map((sys, i) => {
-              const isHovered = hoveredIndex === i;
-              return (
-                <g
-                  key={sys.num}
-                  className="cursor-pointer transition-all duration-300"
-                  onMouseEnter={() => setHoveredIndex(i)}
-                  onMouseLeave={() => setHoveredIndex(null)}
-                  onFocus={() => setHoveredIndex(i)}
-                  onBlur={() => setHoveredIndex(null)}
-                  tabIndex={0}
-                  role="button"
-                  aria-label={`System ${sys.num}: ${t(sys.titleKey as any)}`}
-                >
-                  {/* Hexagon Background Tile */}
-                  <path
-                    d={getHexPath(sys.cx, sys.cy, 98)}
-                    className={`transition-all duration-300 ${
-                      isHovered
-                        ? 'fill-accent/15 stroke-accent'
-                        : 'fill-bg-elevated/70 stroke-border hover:stroke-accent/60'
-                    }`}
-                    strokeWidth={isHovered ? '2' : '1'}
-                  />
-
-                  {/* Content inside Hexagon using foreignObject for text rendering */}
-                  <foreignObject
-                    x={sys.cx - 78}
-                    y={sys.cy - 70}
-                    width="156"
-                    height="140"
-                    className="pointer-events-none"
+          {/* Honeycomb Diagram Container */}
+          <div className="relative max-w-[650px] mx-auto">
+            <svg
+              viewBox="0 0 600 520"
+              className="w-full h-auto drop-shadow-2xl select-none"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              {/* Outer 6 Hexagons */}
+              {SYSTEMS.map((sys, i) => {
+                const isHovered = hoveredIndex === i;
+                return (
+                  <g
+                    key={sys.num}
+                    className="cursor-pointer transition-all duration-300"
+                    onMouseEnter={() => setHoveredIndex(i)}
+                    onMouseLeave={() => setHoveredIndex(null)}
+                    onFocus={() => setHoveredIndex(i)}
+                    onBlur={() => setHoveredIndex(null)}
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`System ${sys.num}: ${t(sys.titleKey as any)}`}
                   >
-                    <div className="w-full h-full flex flex-col items-center justify-center text-center px-2">
-                      <span className={`text-mono text-[11px] font-semibold mb-1 transition-colors ${
-                        isHovered ? 'text-accent' : 'text-accent/80'
-                      }`}>
-                        {sys.num}
-                      </span>
-                      <span className="text-[12px] font-semibold text-text-primary leading-tight mb-1">
-                        {t(sys.titleKey as any)}
-                      </span>
-                      <span className="text-[10px] text-text-secondary leading-snug">
-                        {t(sys.descKey as any)}
-                      </span>
-                    </div>
-                  </foreignObject>
-                </g>
-              );
-            })}
+                    {/* Hexagon Background Tile */}
+                    <path
+                      d={getHexPath(sys.cx, sys.cy, 98)}
+                      className={`transition-all duration-300 ${isHovered
+                          ? 'fill-accent/15 stroke-accent'
+                          : 'fill-bg-elevated/70 stroke-border hover:stroke-accent/60'
+                        }`}
+                      strokeWidth={isHovered ? '2' : '1'}
+                    />
 
-            {/* Center Hexagon (Blue Outline + Emblem) */}
-            <g>
-              <path
-                d={getHexPath(300, 260, 98)}
-                className="fill-accent/10 stroke-accent"
-                strokeWidth="2.5"
-              />
-              {/* Light Mode Center Emblem (Transparent background, larger size) */}
-              <image
-                href="/logolight-transparent.png"
-                x="235"
-                y="195"
-                width="130"
-                height="130"
-                className="logo-light-img pointer-events-none"
-              />
-              {/* Dark Mode Center Emblem */}
-              <image
-                href="/logolight-transparent.png"
-                x="235"
-                y="195"
-                width="130"
-                height="130"
-                className="logo-dark-img pointer-events-none filter brightness-125"
-              />
-            </g>
-          </svg>
-        </div>
-      </Container>
+                    {/* Content inside Hexagon using foreignObject for text rendering */}
+                    <foreignObject
+                      x={sys.cx - 78}
+                      y={sys.cy - 70}
+                      width="156"
+                      height="140"
+                      className="pointer-events-none"
+                    >
+                      <div className="w-full h-full flex flex-col items-center justify-center text-center px-2">
+                        <span className={`text-mono text-[11px] font-semibold mb-1 transition-colors ${isHovered ? 'text-accent' : 'text-accent/80'
+                          }`}>
+                          {sys.num}
+                        </span>
+                        <span className="text-[12px] font-semibold text-text-primary leading-tight mb-1">
+                          {t(sys.titleKey as any)}
+                        </span>
+                        <span className="text-[10px] text-text-secondary leading-snug">
+                          {t(sys.descKey as any)}
+                        </span>
+                      </div>
+                    </foreignObject>
+                  </g>
+                );
+              })}
+
+              {/* Center Hexagon (Blue Outline + Emblem) */}
+              <g>
+                <path
+                  d={getHexPath(300, 260, 98)}
+                  className="fill-accent/10 stroke-accent"
+                  strokeWidth="2.5"
+                />
+                {/* Light Mode Center Emblem (Transparent background, larger size) */}
+                <image
+                  href="/logolight-transparent.png"
+                  x="235"
+                  y="195"
+                  width="130"
+                  height="130"
+                  className="logo-light-img pointer-events-none"
+                />
+                {/* Dark Mode Center Emblem */}
+                <image
+                  href="/logolight-transparent.png"
+                  x="235"
+                  y="195"
+                  width="130"
+                  height="130"
+                  className="logo-dark-img pointer-events-none filter brightness-125"
+                />
+              </g>
+            </svg>
+          </div>
+        </Container>
       </section>
 
       {/* Guarantees Section */}

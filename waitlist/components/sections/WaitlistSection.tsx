@@ -140,7 +140,28 @@ export function WaitlistSection({ preselectedOffer }: WaitlistSectionProps) {
 
   // Step 3: Success & Calendar
   if (step === 3) {
-    const calendarUrl = process.env.NEXT_PUBLIC_GHL_CALENDAR_URL;
+    const calendarBaseUrl = process.env.NEXT_PUBLIC_GHL_CALENDAR_URL;
+    let calendarUrl = calendarBaseUrl;
+
+    if (calendarBaseUrl) {
+      const params = new URLSearchParams();
+      if (formData.name) {
+        const parts = formData.name.trim().split(/\s+/);
+        params.set('first_name', parts[0]);
+        if (parts.length > 1) {
+          params.set('last_name', parts.slice(1).join(' '));
+        }
+        params.set('name', formData.name.trim());
+      }
+      if (formData.email) params.set('email', formData.email.trim());
+      if (formData.phone) params.set('phone', formData.phone.trim());
+      if (formData.businessName) params.set('company_name', formData.businessName.trim());
+      
+      const query = params.toString();
+      if (query) {
+        calendarUrl = `${calendarBaseUrl}${calendarBaseUrl.includes('?') ? '&' : '?'}${query}`;
+      }
+    }
     
     return (
       <section id="waitlist" className="py-[var(--section-padding)] bg-bg-secondary">
