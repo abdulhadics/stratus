@@ -3,63 +3,24 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/Button';
 
-interface ChatMessage {
-  role: 'john' | 'user';
-  text: string;
-}
-
-type ChatStep = 'greeting' | 'question' | 'connecting' | 'live' | 'ended';
+type AvatarStatus = 'connecting' | 'live' | 'error' | 'ended';
 
 export function AvatarChatWidget() {
-  const [step, setStep] = useState<ChatStep>('greeting');
-  const [userName, setUserName] = useState('');
-  const [userQuestion, setUserQuestion] = useState('');
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      role: 'john',
-      text: "Hi, I'm John, an AI assistant for STRATUS. I can answer your questions, day or night. What's your name?",
-    },
-  ]);
-  const [inputValue, setInputValue] = useState('');
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [isTyping, setIsTyping] = useState(false);
-  const [liveAvatarError, setLiveAvatarError] = useState('');
+  const [status, setStatus] = useState<AvatarStatus>('connecting');
+  const [errorMsg, setErrorMsg] = useState('');
+  const [statusText, setStatusText] = useState('Connecting to John...');
 
-  const chatEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const roomRef = useRef<any>(null);
+  const hasStarted = useRef(false);
 
-  // Auto-scroll chat
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  const startLiveAvatar = useCallback(async () => {
+    if (hasStarted.current) return;
+    hasStarted.current = true;
 
-  // Focus input when step changes
-  useEffect(() => {
-    if (step === 'greeting' || step === 'question') {
-      setTimeout(() => inputRef.current?.focus(), 300);
-    }
-  }, [step]);
-
-  const addMessage = useCallback((role: 'john' | 'user', text: string) => {
-    setMessages((prev) => [...prev, { role, text }]);
-  }, []);
-
-  const isSubstantiveQuestion = (text: string): boolean => {
-    const words = text.split(/\s+/).filter(w => w.length > 0);
-    const hasQuestionMark = text.includes('?');
-    const isLong = words.length >= 3;
-    const questionWords = ['how', 'what', 'why', 'when', 'where', 'who', 'can', 'do', 'does', 'is', 'are', 'will', 'would', 'could', 'should', 'tell', 'explain', 'help', 'need', 'want', 'looking', 'price', 'cost', 'much', 'missed', 'calls', 'leads', 'reviews', 'system'];
-    const hasQuestionWord = words.some(w => questionWords.includes(w.toLowerCase()));
-    return hasQuestionMark || isLong || hasQuestionWord;
-  };
-
-  // Directly start LiveAvatar session (no OTP gate)
-  const startLiveAvatar = async (question: string) => {
-    setStep('connecting');
-    setIsConnecting(true);
-    addMessage('john', 'Great, let me connect you with John now...');
+    setStatus('connecting');
+    setStatusText('Starting avatar session...');
 
     try {
       const res = await fetch('/api/liveavatar', {
@@ -67,16 +28,16 @@ export function AvatarChatWidget() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           sandbox: false, 
-          mode: 'FULL',
-          question 
+          mode: 'FULL' 
         }),
       });
 
       const data = await res.json();
 
       if (data.success && data.data?.livekit_url && data.data?.livekit_client_token) {
+        setStatusText('Connecting to live stream...');
         await connectToLiveKit(data.data.livekit_url, data.data.livekit_client_token);
-        setStep('live');
+        setStatus('live');
       } else {
         let errMsg = data.error || 'Could not start avatar session.';
         try {
@@ -84,143 +45,61 @@ export function AvatarChatWidget() {
           if (parsed?.message) errMsg = parsed.message;
         } catch {}
         console.error('[STRATUS] LiveAvatar session failed:', errMsg);
-        setLiveAvatarError(errMsg);
-        // Fallback to text-based AI chat
-        await fallbackToTextChat(question);
-        setStep('ended');
+        setErrorMsg(errMsg);
+        setStatus('error');
       }
     } catch (err) {
       console.error('[STRATUS] LiveAvatar connection error:', err);
-      setLiveAvatarError('Connection failed. Switching to text mode.');
-      await fallbackToTextChat(question);
-      setStep('ended');
-    } finally {
-      setIsConnecting(false);
+      setErrorMsg('Connection failed. Please try again.');
+      setStatus('error');
     }
-  };
-
-  // Fallback: answer via Gemini text chat if LiveAvatar fails
-  const fallbackToTextChat = async (question: string) => {
-    try {
-      const conversationHistory = [
-        ...messages.map(m => ({
-          role: m.role === 'john' ? 'assistant' : 'user',
-          content: m.text
-        })),
-        { role: 'user', content: question }
-      ];
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: conversationHistory }),
-      });
-      const data = await res.json();
-      addMessage('john', data.content || `I'd love to discuss "${question}" in detail. Let me connect you with our team.`);
-    } catch {
-      addMessage('john', `I'd love to discuss "${question}" with you. Let me connect you with our team for a proper walkthrough.`);
-    }
-  };
-
-  const handleSendMessage = async () => {
-    const text = inputValue.trim();
-    if (!text || isTyping || isConnecting) return;
-    setInputValue('');
-
-    if (step === 'greeting') {
-      setUserName(text);
-      addMessage('user', text);
-      setTimeout(() => {
-        addMessage('john', `Nice to meet you, ${text}. What would you like to know?`);
-        setStep('question');
-      }, 600);
-    } else if (step === 'question') {
-      addMessage('user', text);
-
-      if (isSubstantiveQuestion(text)) {
-        // Real question — directly connect to LiveAvatar
-        setUserQuestion(text);
-        await startLiveAvatar(text);
-      } else {
-        // Short/vague input — respond naturally via AI and keep asking
-        setIsTyping(true);
-        try {
-          const conversationHistory = [
-            ...messages.map(m => ({
-              role: m.role === 'john' ? 'assistant' : 'user',
-              content: m.text
-            })),
-            { role: 'user', content: text }
-          ];
-          const res = await fetch('/api/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ messages: conversationHistory }),
-          });
-          const data = await res.json();
-          addMessage('john', data.content || "What's the biggest thing eating your time right now? That'll help me point you in the right direction.");
-        } catch {
-          addMessage('john', "What's the biggest challenge in your business right now? Missed calls, follow-ups, reviews?");
-        } finally {
-          setIsTyping(false);
-        }
-      }
-    }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSendMessage();
-    }
-  };
+  }, []);
 
   const connectToLiveKit = async (url: string, token: string) => {
-    try {
-      const { Room, RoomEvent, Track } = await import('livekit-client');
-      const room = new Room();
+    const { Room, RoomEvent, Track } = await import('livekit-client');
+    const room = new Room();
+    roomRef.current = room;
 
-      room.on(RoomEvent.TrackSubscribed, (track) => {
-        if (track.kind === Track.Kind.Video && videoRef.current) {
-          track.attach(videoRef.current);
-          videoRef.current.play().catch(console.error);
-        }
-        if (track.kind === Track.Kind.Audio && audioRef.current) {
-          track.attach(audioRef.current);
-          audioRef.current.play().catch(console.error);
-        }
-      });
+    room.on(RoomEvent.TrackSubscribed, (track) => {
+      if (track.kind === Track.Kind.Video && videoRef.current) {
+        track.attach(videoRef.current);
+        videoRef.current.play().catch(console.error);
+      }
+      if (track.kind === Track.Kind.Audio && audioRef.current) {
+        track.attach(audioRef.current);
+        audioRef.current.play().catch(console.error);
+      }
+    });
 
-      room.on(RoomEvent.Disconnected, () => {
-        setStep('ended');
-        addMessage('john', "The session has ended. Feel free to ask another question anytime!");
-      });
+    room.on(RoomEvent.Disconnected, () => {
+      setStatus('ended');
+    });
 
-      await room.connect(url, token);
+    await room.connect(url, token);
 
-      // Publish user's microphone
-      await room.localParticipant.setMicrophoneEnabled(true).catch((err) => {
-        console.error('Microphone permission denied or failed:', err);
-        addMessage('john', 'Microphone access is required to speak with the avatar.');
-      });
-    } catch (err) {
-      console.error('[STRATUS] LiveKit connection failed:', err);
-      throw err;
-    }
+    // Enable user's microphone for voice conversation
+    await room.localParticipant.setMicrophoneEnabled(true).catch((err) => {
+      console.error('Microphone permission denied:', err);
+      setErrorMsg('Microphone access is required to speak with John.');
+    });
   };
 
-  const handleRestart = () => {
-    setStep('question');
-    setLiveAvatarError('');
-    setUserQuestion('');
-    addMessage('john', `What else would you like to know, ${userName || 'there'}?`);
-  };
+  // Start LiveAvatar on mount
+  useEffect(() => {
+    startLiveAvatar();
+    return () => {
+      // Cleanup: disconnect room on unmount
+      if (roomRef.current) {
+        try { roomRef.current.disconnect(); } catch {}
+      }
+    };
+  }, [startLiveAvatar]);
 
-  const getPlaceholder = () => {
-    if (step === 'greeting') return 'Type your name...';
-    if (step === 'question') return 'Ask me anything about STRATUS...';
-    return '';
+  const handleRetry = () => {
+    hasStarted.current = false;
+    setErrorMsg('');
+    startLiveAvatar();
   };
-
-  const showInput = step === 'greeting' || step === 'question';
 
   return (
     <div className="flex flex-col h-full rounded-xl border border-accent/30 bg-bg-elevated overflow-hidden shadow-lg">
@@ -230,121 +109,96 @@ export function AvatarChatWidget() {
           <div className="w-9 h-9 rounded-full bg-accent/20 border border-accent/40 flex items-center justify-center">
             <span className="text-accent text-sm font-bold">J</span>
           </div>
-          <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-bg-surface" />
+          <span className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-bg-surface ${
+            status === 'live' ? 'bg-emerald-500' : status === 'connecting' ? 'bg-amber-500 animate-pulse' : 'bg-red-500'
+          }`} />
         </div>
         <div>
           <p className="text-sm font-semibold text-text-primary leading-tight">John</p>
-          <p className="text-[10px] text-text-dimmed leading-tight">AI Assistant · STRATUS</p>
+          <p className="text-[10px] text-text-dimmed leading-tight">
+            {status === 'live' ? 'Live · Speaking' : status === 'connecting' ? 'Connecting...' : status === 'error' ? 'Offline' : 'Session ended'}
+          </p>
         </div>
         <div className="ml-auto px-2 py-0.5 rounded-full bg-accent/10 text-accent text-[9px] font-mono uppercase tracking-wider border border-accent/20">
           AI Disclosure
         </div>
       </div>
 
-      {/* Live Avatar Video (always rendered to ensure refs exist for LiveKit, hidden via CSS) */}
-      <div className={`relative w-full flex-1 bg-black ${step === 'live' ? 'flex flex-col items-center justify-center' : 'hidden'}`}>
+      {/* Main Content Area */}
+      <div className="flex-1 relative bg-black flex items-center justify-center min-h-[400px]">
+        
+        {/* Video + Audio (always rendered) */}
         <video
           ref={videoRef}
           autoPlay
           playsInline
-          className="absolute inset-0 w-full h-full object-cover"
+          className={`absolute inset-0 w-full h-full object-cover ${status === 'live' ? 'block' : 'hidden'}`}
         />
         <audio ref={audioRef} autoPlay />
-        
-        {/* Overlays */}
-        <div className="absolute top-4 right-4 px-2 py-1 rounded bg-emerald-500/90 text-white text-[10px] font-bold tracking-widest uppercase shadow-lg shadow-emerald-500/20 z-10 flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
-          LIVE
-        </div>
 
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-bg-surface/90 border border-border backdrop-blur-md shadow-xl z-10 text-xs text-text-primary flex items-center gap-2">
-           <svg className="w-3 h-3 text-emerald-500 animate-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.87 3.13 7 7 7v3h4v-3c3.87 0 7-3.13 7-7h-2z"/></svg>
-           Avatar is listening... Speak now!
-        </div>
-      </div>
-
-      {/* Chat Messages */}
-      <div className={`flex-1 overflow-y-auto p-4 space-y-3 min-h-[200px] max-h-[320px] ${step === 'live' ? 'hidden' : 'block'}`}>
-        {messages.map((msg, i) => (
-          <div
-            key={i}
-            className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}
-          >
-            <div
-              className={`max-w-[85%] px-3.5 py-2.5 rounded-2xl text-[13px] leading-relaxed ${
-                msg.role === 'user'
-                  ? 'bg-accent text-white rounded-br-md'
-                  : 'bg-bg-surface text-text-primary rounded-bl-md border border-border'
-              }`}
-            >
-              {msg.text}
+        {/* Live Overlays */}
+        {status === 'live' && (
+          <>
+            <div className="absolute top-4 right-4 px-2 py-1 rounded bg-emerald-500/90 text-white text-[10px] font-bold tracking-widest uppercase shadow-lg shadow-emerald-500/20 z-10 flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+              LIVE
             </div>
-          </div>
-        ))}
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-bg-surface/90 border border-border backdrop-blur-md shadow-xl z-10 text-xs text-text-primary flex items-center gap-2">
+              <svg className="w-3 h-3 text-emerald-500 animate-pulse" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.87 3.13 7 7 7v3h4v-3c3.87 0 7-3.13 7-7h-2z"/>
+              </svg>
+              Speak to John — he's listening
+            </div>
+          </>
+        )}
 
-        {/* Typing / Connecting indicator */}
-        {(isConnecting || isTyping) && (
-          <div className="flex justify-start">
-            <div className="bg-bg-surface text-text-secondary px-3.5 py-2.5 rounded-2xl rounded-bl-md border border-border text-[13px]">
-              <span className="inline-flex gap-1">
+        {/* Connecting State */}
+        {status === 'connecting' && (
+          <div className="flex flex-col items-center gap-4 z-10">
+            <div className="w-16 h-16 rounded-full bg-accent/20 border-2 border-accent/40 flex items-center justify-center">
+              <span className="text-accent text-2xl font-bold">J</span>
+            </div>
+            <div className="flex flex-col items-center gap-2">
+              <span className="inline-flex gap-1 text-white text-lg">
                 <span className="animate-bounce" style={{ animationDelay: '0ms' }}>●</span>
                 <span className="animate-bounce" style={{ animationDelay: '150ms' }}>●</span>
                 <span className="animate-bounce" style={{ animationDelay: '300ms' }}>●</span>
               </span>
+              <p className="text-text-dimmed text-sm">{statusText}</p>
             </div>
           </div>
         )}
 
-        {/* Error message */}
-        {liveAvatarError && (
-          <div className="bg-error-muted border border-error/20 rounded-lg p-2 text-[11px] text-error text-center">
-            {liveAvatarError}
+        {/* Error State */}
+        {status === 'error' && (
+          <div className="flex flex-col items-center gap-4 z-10 px-6 text-center">
+            <div className="w-16 h-16 rounded-full bg-red-500/20 border-2 border-red-500/40 flex items-center justify-center">
+              <span className="text-red-400 text-2xl">⚠</span>
+            </div>
+            <div className="flex flex-col items-center gap-2">
+              <p className="text-white text-sm font-medium">Could not connect to John</p>
+              <p className="text-text-dimmed text-xs max-w-sm">{errorMsg}</p>
+            </div>
+            <Button variant="primary" size="sm" onClick={handleRetry} className="mt-2">
+              Try Again
+            </Button>
           </div>
         )}
 
-        <div ref={chatEndRef} />
-      </div>
-
-      {/* Input area */}
-      {showInput && (
-        <div className="border-t border-border p-3 bg-bg-surface">
-          <div className="flex gap-2">
-            <input
-              ref={inputRef}
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyPress}
-              placeholder={getPlaceholder()}
-              className="flex-1 px-3 py-2 bg-bg-primary border border-border rounded-lg text-sm text-text-primary placeholder-text-dimmed focus:border-accent focus:outline-none transition-colors"
-              autoComplete="off"
-            />
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={handleSendMessage}
-              disabled={!inputValue.trim() || isTyping || isConnecting}
-              className="px-4"
-            >
-              →
+        {/* Ended State */}
+        {status === 'ended' && (
+          <div className="flex flex-col items-center gap-4 z-10 px-6 text-center">
+            <div className="w-16 h-16 rounded-full bg-accent/20 border-2 border-accent/40 flex items-center justify-center">
+              <span className="text-accent text-2xl font-bold">J</span>
+            </div>
+            <p className="text-white text-sm font-medium">Session ended</p>
+            <Button variant="primary" size="sm" onClick={handleRetry} className="mt-2">
+              Start New Session
             </Button>
           </div>
-        </div>
-      )}
-
-      {/* Post-session: Ask another question */}
-      {step === 'ended' && (
-        <div className="border-t border-border p-3 bg-bg-surface">
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={handleRestart}
-            className="w-full"
-          >
-            Ask Another Question →
-          </Button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
