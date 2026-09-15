@@ -47,6 +47,33 @@ export async function POST(req: Request) {
       },
     });
 
+    // Push the password to GHL Custom Field "Portal Password" (ID: kdaODn5oGg1dgmfHt18p)
+    if (contact_id && process.env.GHL_API_TOKEN) {
+      try {
+        await fetch(`https://services.leadconnectorhq.com/contacts/${contact_id}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${process.env.GHL_API_TOKEN}`,
+            'Version': '2021-07-28',
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            customFields: [
+              {
+                id: 'kdaODn5oGg1dgmfHt18p',
+                key: 'contact.portal_password',
+                field_value: plainPassword
+              }
+            ]
+          })
+        });
+        console.log(`[GHL] Successfully updated portal_password for contact ${contact_id}`);
+      } catch (ghlErr) {
+        console.error('[GHL] Failed to update contact custom field:', ghlErr);
+      }
+    }
+
     // Return the generated credentials so GHL or Zapier can send the email
     return NextResponse.json({
       success: true,
