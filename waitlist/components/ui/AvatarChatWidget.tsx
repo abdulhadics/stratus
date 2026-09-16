@@ -40,10 +40,13 @@ export function AvatarChatWidget() {
       const payload = {
         event_id: Math.random().toString(36).substring(2, 11),
         event_type: eventType,
+        session_id: roomRef.current.name || undefined,
+        source_event_id: null,
         ...extra,
       };
       const data = new TextEncoder().encode(JSON.stringify(payload));
-      roomRef.current.localParticipant.publishData(data, { topic: 'agent-control' });
+      // reliable: true ensures command is delivered even with packet loss
+      roomRef.current.localParticipant.publishData(data, { topic: 'agent-control', reliable: true });
       console.log('[STRATUS LIVEAVATAR] Sent command:', eventType, extra);
     } catch (e) {
       console.error('[STRATUS LIVEAVATAR] Error sending command:', e);
@@ -128,21 +131,34 @@ export function AvatarChatWidget() {
       });
     }
 
-    // Activate Avatar listening & send initial greeting
-    setTimeout(() => {
-      // 1. Tell avatar backend to start listening to the microphone
-      sendCommand('avatar.start_listening');
-      setIsListening(true);
+    // The opening_text from the Context will auto-play when the agent joins.
+    // We also send avatar.start_listening so the mic is active for voice conversation.
+    // Wait for the agent participant to join before sending commands.
+    let agentJoined = false;
+    const { RoomEvent: RE } = await import('livekit-client');
+    room.on(RE.ParticipantConnected, (participant: any) => {
+      const identity = participant.identity || '';
+      console.log('[STRATUS LIVEAVATAR] Participant joined:', identity);
+      // The LiveAvatar agent identity typically contains 'agent' or 'heygen'
+      if (!agentJoined && (identity.toLowerCase().includes('agent') || identity.toLowerCase().includes('heygen') || identity.toLowerCase().includes('avatar'))) {
+        agentJoined = true;
+        // Give the agent a moment to initialize, then start listening
+        setTimeout(() => {
+          sendCommand('avatar.start_listening');
+          setIsListening(true);
+          console.log('[STRATUS LIVEAVATAR] Avatar agent joined - listening started');
+        }, 800);
+      }
+    });
 
-      // 2. Trigger John to speak greeting out loud
-      sendCommand('avatar.speak_text', {
-        text: "Hi, I'm John from STRATUS. How can I help you streamline your business operations today?"
-      });
-      setTranscription({
-        role: 'john',
-        text: "Hi, I'm John from STRATUS. How can I help you streamline your business operations today?"
-      });
-    }, 1200);
+    // Fallback: if agent doesn't trigger ParticipantConnected within 4s, start anyway
+    setTimeout(() => {
+      if (!agentJoined) {
+        console.log('[STRATUS LIVEAVATAR] Fallback: starting listening after timeout');
+        sendCommand('avatar.start_listening');
+        setIsListening(true);
+      }
+    }, 4000);
   };
 
   const startLiveAvatar = useCallback(async (useSandbox = false) => {

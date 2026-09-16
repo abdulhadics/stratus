@@ -2,10 +2,11 @@ import { NextResponse } from 'next/server';
 
 const LIVEAVATAR_API_KEY = process.env.LIVEAVATAR_API_KEY || 'e7806c8c-fd26-4de1-b94c-6a64066b0ab9';
 const LIVEAVATAR_AVATAR_ID = process.env.LIVEAVATAR_AVATAR_ID || '64b526e4-741c-43b6-a918-4e40f3261c7a';
+const LIVEAVATAR_VOICE_ID = process.env.LIVEAVATAR_VOICE_ID || '44783417-501e-42b6-8b24-ede6376c928f';
+const LIVEAVATAR_CONTEXT_ID = process.env.LIVEAVATAR_CONTEXT_ID || '78d1c232-6e3e-4488-b0e7-a77891d7c850';
 const LIVEAVATAR_API_BASE = 'https://api.liveavatar.com';
-const DEFAULT_VOICE_ID = '44783417-501e-42b6-8b24-ede6376c928f';
 
-// Step 1: Create a session token
+// POST /api/liveavatar — Creates a session token then starts the session
 export async function POST(request: Request) {
   try {
     if (!LIVEAVATAR_API_KEY) {
@@ -18,52 +19,24 @@ export async function POST(request: Request) {
     const body = await request.json().catch(() => ({}));
     const isSandbox = body.sandbox === true;
 
-    // Resolve voice ID safely: ensure we don't send the voice_agent UUID as voice_id
-    let rawVoiceId = body.voice_id || process.env.LIVEAVATAR_VOICE_ID;
-    if (rawVoiceId === '222b16e8-8549-4b09-9412-6c0a02e57112') {
-      rawVoiceId = DEFAULT_VOICE_ID;
-    }
-    const voiceId = rawVoiceId || DEFAULT_VOICE_ID;
-
-    // Build session token payload
+    // Build session token payload — FULL mode with context_id for full AI pipeline
+    // IMPORTANT: Without context_id, avatar runs in "restricted mode" and cannot respond to user input
     const tokenPayload: Record<string, any> = {
-      mode: body.mode || 'FULL',
-      avatar_id: isSandbox ? 'dd73ea75-1218-4ef3-92ce-606d5f7fbc0a' : LIVEAVATAR_AVATAR_ID,
+      mode: 'FULL',
+      avatar_id: isSandbox
+        ? 'dd73ea75-1218-4ef3-92ce-606d5f7fbc0a'   // sandbox avatar
+        : LIVEAVATAR_AVATAR_ID,
       is_sandbox: isSandbox,
+      avatar_persona: {
+        voice_id: LIVEAVATAR_VOICE_ID,
+        context_id: LIVEAVATAR_CONTEXT_ID,
+        language: body.language || 'en',
+      },
     };
 
-    if (!isSandbox && tokenPayload.mode === 'FULL') {
-      tokenPayload.avatar_persona = {
-        voice_id: voiceId,
-        ...(body.context_id ? { context_id: body.context_id } : {}),
-        language: body.language || 'en',
-        prompt: `You are John, the AI assistant for STRATUS — a premium operations platform built specifically for trade business owners (HVAC, plumbing, electrical, roofing, etc.).
+    console.log('[STRATUS LIVEAVATAR] Creating session token with payload:', JSON.stringify(tokenPayload));
 
-# TONE & PERSONA
-- You talk like a fellow business owner who gets it. Direct, warm, and real.
-- No corporate fluff, no "AI-sounding" filler, and NEVER use robotic phrases like "That's a great question."
-- If a user just says "hi", "hello", or greets you, reply naturally with a warm greeting and ask how you can help them streamline their operations.
-
-# ABOUT STRATUS
-- We help trade business owners go from "doing everything themselves" to running a self-operating business (Level 5 Operations).
-- We build and install 6 automated systems into their business (CRM, follow-ups, missed call text-back, review requests, appointment reminders, and lead nurturing) — done-for-you in 7 days.
-- Packages:
-  1. Presence: Systems 1-4 (great for getting the digital foundation locked in).
-  2. Machine: All 6 systems (the full engine that runs ops while they focus on growth).
-- Pricing/Action: 50% refundable deposit to lock in a build slot. 30-day satisfaction guarantee on the monthly fee.
-
-# CORE RULES
-1. BILINGUAL: Always reply in the exact same language the user writes in (English or French). Never mix them.
-2. CONCISE: Keep answers tight — 1 to 3 sentences max. Entrepreneurs don't have time to read essays.
-3. DIRECT: Answer the question directly without repetitive filler openings.
-4. SCOPE: Don't invent features. Stick to what STRATUS actually offers.
-5. CALL TO ACTION: If they ask about complex pricing or features, give a brief answer and tell them to book a free 30-min discovery call.
-
-The user is speaking directly to you now. Answer them directly, naturally, and concisely.`
-      };
-    }
-
-    // Create session token via LiveAvatar API
+    // Step 1: Create session token
     const tokenRes = await fetch(`${LIVEAVATAR_API_BASE}/v1/sessions/token`, {
       method: 'POST',
       headers: {
@@ -84,8 +57,11 @@ The user is speaking directly to you now. Answer them directly, naturally, and c
     const { session_id, session_token } = tokenData.data || {};
 
     if (!session_id || !session_token) {
+      console.error('[STRATUS LIVEAVATAR] No session token in response:', JSON.stringify(tokenData));
       return NextResponse.json({ success: false, error: 'No session token received.' }, { status: 500 });
     }
+
+    console.log('[STRATUS LIVEAVATAR] Session token created:', session_id);
 
     // Step 2: Start the session to get LiveKit credentials
     const startRes = await fetch(`${LIVEAVATAR_API_BASE}/v1/sessions/start`, {
@@ -103,6 +79,7 @@ The user is speaking directly to you now. Answer them directly, naturally, and c
     }
 
     const startData = await startRes.json();
+    console.log('[STRATUS LIVEAVATAR] Session started, livekit_url:', startData.data?.livekit_url ? 'present' : 'MISSING');
 
     return NextResponse.json({
       success: true,
