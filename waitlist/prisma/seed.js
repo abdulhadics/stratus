@@ -17,6 +17,24 @@ async function main() {
     },
   });
 
+  const adamPassword = await bcrypt.hash('AdamStratus123', 10);
+
+  const adamUser = await prisma.user.upsert({
+    where: { email: 'adam@adamkoubi.com' },
+    update: {
+      name: 'Adam',
+      passwordHash: adamPassword,
+      role: 'ADMIN',
+    },
+    create: {
+      email: 'adam@adamkoubi.com',
+      name: 'Adam',
+      passwordHash: adamPassword,
+      role: 'ADMIN',
+      ghlLocationId: 'jfoD7cKt3XJ0FObiU5i3',
+    },
+  });
+
   const entrepreneurPassword = await bcrypt.hash('password123', 10);
 
   const entrepreneurUser = await prisma.user.upsert({
@@ -31,7 +49,7 @@ async function main() {
     },
   });
 
-  console.log('Database seeded:', { adminUser, entrepreneurUser });
+  console.log('Database seeded:', { adminUser, adamUser, entrepreneurUser });
 }
 
 main()
