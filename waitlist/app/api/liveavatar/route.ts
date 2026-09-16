@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 const LIVEAVATAR_API_KEY = process.env.LIVEAVATAR_API_KEY || 'e7806c8c-fd26-4de1-b94c-6a64066b0ab9';
 const LIVEAVATAR_AVATAR_ID = process.env.LIVEAVATAR_AVATAR_ID || '64b526e4-741c-43b6-a918-4e40f3261c7a';
 const LIVEAVATAR_API_BASE = 'https://api.liveavatar.com';
+const DEFAULT_VOICE_ID = '44783417-501e-42b6-8b24-ede6376c928f';
 
 // Step 1: Create a session token
 export async function POST(request: Request) {
@@ -15,26 +16,28 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json().catch(() => ({}));
+    const isSandbox = body.sandbox === true;
 
-    // Create session token via LiveAvatar API
-    const tokenRes = await fetch(`${LIVEAVATAR_API_BASE}/v1/sessions/token`, {
-      method: 'POST',
-      headers: {
-        'X-API-KEY': LIVEAVATAR_API_KEY,
-        'accept': 'application/json',
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify({
-        mode: body.mode || 'LITE',
-        avatar_id: body.sandbox === true ? 'dd73ea75-1218-4ef3-92ce-606d5f7fbc0a' : LIVEAVATAR_AVATAR_ID,
-        is_sandbox: body.sandbox === true,
-        ...(body.mode === 'FULL' && {
-          avatar_persona: {
-            ...(!body.sandbox && process.env.LIVEAVATAR_VOICE_ID ? { voice_id: process.env.LIVEAVATAR_VOICE_ID } : {}),
-            ...(!body.sandbox && body.voice_id ? { voice_id: body.voice_id } : {}),
-            ...(body.context_id ? { context_id: body.context_id } : {}),
-            language: body.language || 'en',
-            prompt: `You are John, the AI assistant for STRATUS — a premium operations platform built specifically for trade business owners (HVAC, plumbing, electrical, roofing, etc.).
+    // Resolve voice ID safely: ensure we don't send the voice_agent UUID as voice_id
+    let rawVoiceId = body.voice_id || process.env.LIVEAVATAR_VOICE_ID;
+    if (rawVoiceId === '222b16e8-8549-4b09-9412-6c0a02e57112') {
+      rawVoiceId = DEFAULT_VOICE_ID;
+    }
+    const voiceId = rawVoiceId || DEFAULT_VOICE_ID;
+
+    // Build session token payload
+    const tokenPayload: Record<string, any> = {
+      mode: body.mode || 'FULL',
+      avatar_id: isSandbox ? 'dd73ea75-1218-4ef3-92ce-606d5f7fbc0a' : LIVEAVATAR_AVATAR_ID,
+      is_sandbox: isSandbox,
+    };
+
+    if (!isSandbox && tokenPayload.mode === 'FULL') {
+      tokenPayload.avatar_persona = {
+        voice_id: voiceId,
+        ...(body.context_id ? { context_id: body.context_id } : {}),
+        language: body.language || 'en',
+        prompt: `You are John, the AI assistant for STRATUS — a premium operations platform built specifically for trade business owners (HVAC, plumbing, electrical, roofing, etc.).
 
 # TONE & PERSONA
 - You talk like a fellow business owner who gets it. Direct, warm, and real.
@@ -56,10 +59,19 @@ export async function POST(request: Request) {
 4. SCOPE: Don't invent features. Stick to what STRATUS actually offers.
 5. CALL TO ACTION: If they ask about complex pricing or features, give a brief answer and tell them to book a free 30-min discovery call.
 
-The user just asked you: "${body.question || 'Hello'}". Answer their question directly and concisely.`
-          },
-        }),
-      }),
+The user is speaking directly to you now. Answer them directly, naturally, and concisely.`
+      };
+    }
+
+    // Create session token via LiveAvatar API
+    const tokenRes = await fetch(`${LIVEAVATAR_API_BASE}/v1/sessions/token`, {
+      method: 'POST',
+      headers: {
+        'X-API-KEY': LIVEAVATAR_API_KEY,
+        'accept': 'application/json',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify(tokenPayload),
     });
 
     if (!tokenRes.ok) {

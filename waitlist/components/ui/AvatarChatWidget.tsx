@@ -88,6 +88,7 @@ export function AvatarChatWidget() {
       }
       if (track.kind === Track.Kind.Audio && audioRef.current) {
         track.attach(audioRef.current);
+        audioRef.current.muted = false;
         audioRef.current.play().catch(console.error);
       }
     });
@@ -97,6 +98,7 @@ export function AvatarChatWidget() {
     });
 
     await room.connect(url, token);
+    await room.startAudio().catch(console.error);
 
     await room.localParticipant.setMicrophoneEnabled(true).catch((err) => {
       console.error('Microphone permission denied:', err);
