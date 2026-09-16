@@ -1,15 +1,22 @@
 import { NextResponse } from 'next/server';
 
-const LIVEAVATAR_API_KEY = process.env.LIVEAVATAR_API_KEY || 'e7806c8c-fd26-4de1-b94c-6a64066b0ab9';
-const LIVEAVATAR_AVATAR_ID = process.env.LIVEAVATAR_AVATAR_ID || '64b526e4-741c-43b6-a918-4e40f3261c7a';
-const LIVEAVATAR_VOICE_ID = process.env.LIVEAVATAR_VOICE_ID || '44783417-501e-42b6-8b24-ede6376c928f';
-const LIVEAVATAR_CONTEXT_ID = process.env.LIVEAVATAR_CONTEXT_ID || '78d1c232-6e3e-4488-b0e7-a77891d7c850';
+const clean = (val?: string) => (val ? val.trim().replace(/^['"]|['"]$/g, '') : '');
+
+const DEFAULT_API_KEY = 'e7806c8c-fd26-4de1-b94c-6a64066b0ab9';
+const DEFAULT_AVATAR_ID = '64b526e4-741c-43b6-a918-4e40f3261c7a';
+const DEFAULT_VOICE_ID = '44783417-501e-42b6-8b24-ede6376c928f';
+const DEFAULT_CONTEXT_ID = '78d1c232-6e3e-4488-b0e7-a77891d7c850';
 const LIVEAVATAR_API_BASE = 'https://api.liveavatar.com';
 
 // POST /api/liveavatar — Creates a session token then starts the session
 export async function POST(request: Request) {
   try {
-    if (!LIVEAVATAR_API_KEY) {
+    const apiKey = clean(process.env.LIVEAVATAR_API_KEY) || DEFAULT_API_KEY;
+    const avatarId = clean(process.env.LIVEAVATAR_AVATAR_ID) || DEFAULT_AVATAR_ID;
+    const voiceId = clean(process.env.LIVEAVATAR_VOICE_ID) || DEFAULT_VOICE_ID;
+    const contextId = clean(process.env.LIVEAVATAR_CONTEXT_ID) || DEFAULT_CONTEXT_ID;
+
+    if (!apiKey) {
       return NextResponse.json(
         { success: false, error: 'LiveAvatar API key not configured.' },
         { status: 400 }
@@ -25,11 +32,11 @@ export async function POST(request: Request) {
       mode: 'FULL',
       avatar_id: isSandbox
         ? 'dd73ea75-1218-4ef3-92ce-606d5f7fbc0a'   // sandbox avatar
-        : LIVEAVATAR_AVATAR_ID,
+        : avatarId,
       is_sandbox: isSandbox,
       avatar_persona: {
-        voice_id: LIVEAVATAR_VOICE_ID,
-        context_id: LIVEAVATAR_CONTEXT_ID,
+        voice_id: voiceId,
+        context_id: contextId,
         language: body.language || 'en',
       },
     };
@@ -40,7 +47,7 @@ export async function POST(request: Request) {
     const tokenRes = await fetch(`${LIVEAVATAR_API_BASE}/v1/sessions/token`, {
       method: 'POST',
       headers: {
-        'X-API-KEY': LIVEAVATAR_API_KEY,
+        'X-API-KEY': apiKey,
         'accept': 'application/json',
         'content-type': 'application/json',
       },
