@@ -105,3 +105,40 @@ export async function POST(request: Request) {
     );
   }
 }
+
+// DELETE /api/liveavatar?session_id=... — Stops an active session on LiveAvatar to release credits
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const sessionId = searchParams.get('session_id');
+    const apiKey = clean(process.env.LIVEAVATAR_API_KEY) || DEFAULT_API_KEY;
+
+    if (!sessionId) {
+      return NextResponse.json({ success: false, error: 'Missing session_id' }, { status: 400 });
+    }
+
+    console.log('[STRATUS LIVEAVATAR] Stopping session:', sessionId);
+
+    const res = await fetch(`${LIVEAVATAR_API_BASE}/v1/sessions/stop`, {
+      method: 'POST',
+      headers: {
+        'X-API-KEY': apiKey,
+        'accept': 'application/json',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({ session_id: sessionId }),
+    });
+
+    const data = await res.json().catch(() => ({}));
+    console.log('[STRATUS LIVEAVATAR] Session stop response:', res.status, data);
+
+    return NextResponse.json({ success: true, data });
+  } catch (err) {
+    console.error('[STRATUS LIVEAVATAR] Error stopping session:', err);
+    return NextResponse.json(
+      { success: false, error: err instanceof Error ? err.message : 'Failed to stop session' },
+      { status: 500 }
+    );
+  }
+}
+

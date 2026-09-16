@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/Button';
-import { Send, Mic, Volume2, Square, Sparkles } from 'lucide-react';
+import { Send, Mic, Volume2, Square, Sparkles, PhoneOff } from 'lucide-react';
 
 type AvatarStatus = 'idle' | 'connecting' | 'live' | 'error' | 'ended';
 
@@ -10,6 +10,8 @@ interface Transcription {
   role: 'john' | 'user';
   text: string;
 }
+
+const FAREWELL_REGEX = /\b(bye|goodbye|bye-bye|byebye|see you|see ya|cya|take care|have a good day|have a great day|talk later|talk to you later|exit|quit|end call|hang up)\b/i;
 
 export function AvatarChatWidget() {
   const [status, setStatus] = useState<AvatarStatus>('idle');
@@ -23,11 +25,59 @@ export function AvatarChatWidget() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const roomRef = useRef<any>(null);
+  const sessionIdRef = useRef<string | null>(null);
+  const shouldEndSessionRef = useRef(false);
+  const endTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const hasStarted = useRef(false);
+
+  // Stop & disconnect session cleanly
+  const endSession = useCallback(async () => {
+    if (endTimeoutRef.current) {
+      clearTimeout(endTimeoutRef.current);
+      endTimeoutRef.current = null;
+    }
+    shouldEndSessionRef.current = false;
+
+    const currentSessionId = sessionIdRef.current;
+    sessionIdRef.current = null;
+
+    if (roomRef.current) {
+      try {
+        roomRef.current.localParticipant?.tracks?.forEach((publication: any) => {
+          try { publication.track?.stop(); } catch {}
+        });
+        roomRef.current.disconnect();
+      } catch (e) {
+        console.error('[STRATUS LIVEAVATAR] Disconnect error:', e);
+      }
+      roomRef.current = null;
+    }
+
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+
+    hasStarted.current = false;
+    setIsSpeaking(false);
+    setIsListening(false);
+    setStatus('ended');
+
+    // Notify backend to stop session on LiveAvatar to release credits
+    if (currentSessionId) {
+      try {
+        fetch(`/api/liveavatar?session_id=${currentSessionId}`, {
+          method: 'DELETE',
+        }).catch(() => {});
+      } catch {}
+    }
+  }, []);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
+      if (endTimeoutRef.current) {
+        clearTimeout(endTimeoutRef.current);
+      }
       if (roomRef.current) {
         try { roomRef.current.disconnect(); } catch {}
       }
@@ -90,14 +140,36 @@ export function AvatarChatWidget() {
           setIsSpeaking(true);
         } else if (data.event_type === 'avatar.speak_ended') {
           setIsSpeaking(false);
+          // If a farewell was initiated, gracefully end session after John finishes his goodbye sentence
+          if (shouldEndSessionRef.current) {
+            console.log('[STRATUS LIVEAVATAR] Avatar finished goodbye speech. Ending session in 1.5s...');
+            setTimeout(() => {
+              endSession();
+            }, 1500);
+          }
         } else if (data.event_type === 'user.speak_started') {
           setIsListening(true);
         } else if (data.event_type === 'user.speak_ended') {
           setIsListening(false);
         } else if (data.event_type === 'avatar.transcription' && data.text) {
           setTranscription({ role: 'john', text: data.text });
+          // If John says goodbye, queue session termination
+          if (FAREWELL_REGEX.test(data.text)) {
+            console.log('[STRATUS LIVEAVATAR] Avatar farewell detected in transcription');
+            shouldEndSessionRef.current = true;
+          }
         } else if (data.event_type === 'user.transcription' && data.text) {
           setTranscription({ role: 'user', text: data.text });
+          // If user says goodbye via mic, queue session termination
+          if (FAREWELL_REGEX.test(data.text)) {
+            console.log('[STRATUS LIVEAVATAR] User farewell detected in voice transcription:', data.text);
+            shouldEndSessionRef.current = true;
+            // Safety timeout: if avatar never speaks or speak_ended is missed, end after 8s
+            if (endTimeoutRef.current) clearTimeout(endTimeoutRef.current);
+            endTimeoutRef.current = setTimeout(() => {
+              endSession();
+            }, 8000);
+          }
         }
       } catch (e) {
         console.error('[STRATUS LIVEAVATAR] Error parsing agent response event:', e);
@@ -139,10 +211,8 @@ export function AvatarChatWidget() {
     room.on(RE.ParticipantConnected, (participant: any) => {
       const identity = participant.identity || '';
       console.log('[STRATUS LIVEAVATAR] Participant joined:', identity);
-      // The LiveAvatar agent identity typically contains 'agent' or 'heygen'
       if (!agentJoined && (identity.toLowerCase().includes('agent') || identity.toLowerCase().includes('heygen') || identity.toLowerCase().includes('avatar'))) {
         agentJoined = true;
-        // Give the agent a moment to initialize, then start listening
         setTimeout(() => {
           sendCommand('avatar.start_listening');
           setIsListening(true);
@@ -181,6 +251,7 @@ export function AvatarChatWidget() {
       const data = await res.json();
 
       if (data.success && data.data?.livekit_url && data.data?.livekit_client_token) {
+        sessionIdRef.current = data.data.session_id || null;
         setStatusText('Connecting to live stream...');
         await connectToLiveKit(data.data.livekit_url, data.data.livekit_client_token);
         setStatus('live');
@@ -219,6 +290,16 @@ export function AvatarChatWidget() {
 
     setInputText('');
     setTranscription({ role: 'user', text });
+
+    // Detect typed farewell
+    if (FAREWELL_REGEX.test(text)) {
+      console.log('[STRATUS LIVEAVATAR] User typed farewell:', text);
+      shouldEndSessionRef.current = true;
+      if (endTimeoutRef.current) clearTimeout(endTimeoutRef.current);
+      endTimeoutRef.current = setTimeout(() => {
+        endSession();
+      }, 8000);
+    }
 
     // Send speak_response command so John's AI processes and speaks the answer
     sendCommand('avatar.speak_response', { text });
@@ -263,13 +344,21 @@ export function AvatarChatWidget() {
             {isSpeaking && (
               <button 
                 onClick={handleInterrupt}
-                className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs border border-red-500/30 transition-colors"
-                title="Stop John from speaking"
+                className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-white/5 hover:bg-white/10 text-text-dimmed hover:text-white text-xs border border-white/10 transition-colors"
+                title="Interrupt John while speaking"
               >
                 <Square className="w-3 h-3 fill-current" />
-                Stop
+                Interrupt
               </button>
             )}
+            <button
+              onClick={endSession}
+              className="flex items-center gap-1.5 px-3 py-1 rounded-md bg-red-500/15 hover:bg-red-500/25 text-red-400 text-xs font-medium border border-red-500/30 transition-colors"
+              title="End conversation and close session"
+            >
+              <PhoneOff className="w-3.5 h-3.5" />
+              End Call
+            </button>
             <div className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-mono uppercase tracking-wider border border-emerald-500/20 flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
               LIVE
