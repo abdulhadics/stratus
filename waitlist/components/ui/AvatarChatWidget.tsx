@@ -368,13 +368,13 @@ export function AvatarChatWidget() {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 relative bg-black flex items-center justify-center min-h-[350px]">
+      <div className="flex-1 relative flex items-center justify-center min-h-[350px]">
         {/* Video + Audio */}
         <video
           ref={videoRef}
           autoPlay
           playsInline
-          className={`absolute inset-0 w-full h-full object-contain ${status === 'live' ? 'block' : 'hidden'}`}
+          className={`absolute inset-0 w-full h-full object-contain bg-transparent ${status === 'live' ? 'block' : 'hidden'}`}
         />
         <audio ref={audioRef} autoPlay />
 
