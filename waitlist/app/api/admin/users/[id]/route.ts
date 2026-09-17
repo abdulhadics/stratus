@@ -5,13 +5,14 @@ import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 
 // PUT /api/admin/users/[id] — Edit user (name, email, ghlLocationId, role, password)
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
   if (!session || (session.user as any).role !== 'ADMIN') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
   }
 
   try {
+    const { id } = await params;
     const { name, email, ghlLocationId, role, password } = await req.json();
 
     const updateData: any = {};
@@ -22,7 +23,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     if (password) updateData.passwordHash = await bcrypt.hash(password, 10);
 
     const updated = await prisma.user.update({
-      where: { id: params.id },
+      where: { id },
       data: updateData,
       select: { id: true, email: true, name: true, role: true, ghlLocationId: true, createdAt: true },
     });
@@ -34,14 +35,15 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 }
 
 // DELETE /api/admin/users/[id] — Delete user
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
   if (!session || (session.user as any).role !== 'ADMIN') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
   }
 
   try {
-    await prisma.user.delete({ where: { id: params.id } });
+    const { id } = await params;
+    await prisma.user.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to delete user' }, { status: 500 });
