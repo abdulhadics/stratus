@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/Button';
-import { Send, Mic, Volume2, Square, Sparkles, PhoneOff } from 'lucide-react';
+import { Send, Mic, MicOff, Volume2, Square, Sparkles, PhoneOff, MessageSquare } from 'lucide-react';
 
 type AvatarStatus = 'idle' | 'connecting' | 'live' | 'error' | 'ended';
 
@@ -19,6 +19,8 @@ export function AvatarChatWidget() {
   const [statusText, setStatusText] = useState('');
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [isMicMuted, setIsMicMuted] = useState(false);
+  const [showTextInput, setShowTextInput] = useState(false);
   const [transcription, setTranscription] = useState<Transcription | null>(null);
   const [inputText, setInputText] = useState('');
 
@@ -60,6 +62,8 @@ export function AvatarChatWidget() {
     hasStarted.current = false;
     setIsSpeaking(false);
     setIsListening(false);
+    setIsMicMuted(false);
+    setShowTextInput(false);
     setStatus('ended');
 
     // Notify backend to stop session on LiveAvatar to release credits
@@ -102,6 +106,24 @@ export function AvatarChatWidget() {
       console.error('[STRATUS LIVEAVATAR] Error sending command:', e);
     }
   }, []);
+
+  const toggleMic = useCallback(async () => {
+    if (!roomRef.current) return;
+    try {
+      const nextMute = !isMicMuted;
+      await roomRef.current.localParticipant.setMicrophoneEnabled(!nextMute);
+      setIsMicMuted(nextMute);
+      if (nextMute) {
+        sendCommand('avatar.stop_listening');
+        setIsListening(false);
+      } else {
+        sendCommand('avatar.start_listening');
+        setIsListening(true);
+      }
+    } catch (e) {
+      console.error('[STRATUS LIVEAVATAR] Error toggling mic:', e);
+    }
+  }, [isMicMuted, sendCommand]);
 
   const connectToLiveKit = async (url: string, token: string) => {
     const { Room, RoomEvent, Track } = await import('livekit-client');
@@ -396,16 +418,33 @@ export function AvatarChatWidget() {
 
         {/* Idle State */}
         {status === 'idle' && (
-          <div className="flex flex-col items-center justify-center gap-6 z-10 p-8 text-center bg-bg-surface/90 rounded-2xl border border-accent/20 backdrop-blur-sm max-w-md w-full mx-4 shadow-2xl">
-            <div className="w-20 h-20 rounded-full bg-accent/20 border-2 border-accent/40 flex items-center justify-center shadow-[0_0_30px_rgba(var(--accent-rgb),0.3)]">
-              <span className="text-accent text-3xl font-bold">J</span>
+          <div className="flex flex-col items-center justify-center gap-6 z-10 p-8 text-center bg-bg-surface/95 rounded-2xl border border-accent/25 backdrop-blur-md max-w-md w-full mx-4 shadow-2xl">
+            <div className="relative">
+              <div className="w-20 h-20 rounded-full bg-accent/20 border-2 border-accent/40 flex items-center justify-center shadow-[0_0_35px_rgba(var(--accent-rgb),0.35)]">
+                <span className="text-accent text-3xl font-bold">J</span>
+              </div>
+              <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 border-2 border-bg-surface flex items-center justify-center shadow">
+                <Mic className="w-3.5 h-3.5 text-white" />
+              </span>
             </div>
-            <div>
+            <div className="w-full">
               <h3 className="text-xl font-bold text-white mb-2">Speak with John</h3>
-              <p className="text-text-dimmed text-sm mb-6">Interactive voice avatar with full knowledge of STRATUS systems & operations.</p>
-              <Button variant="primary" size="lg" className="w-full font-bold tracking-wide" onClick={() => startLiveAvatar()}>
-                Start Conversation
-              </Button>
+              <p className="text-text-dimmed text-xs sm:text-sm mb-6 leading-relaxed">
+                Interactive voice assistant with full knowledge of STRATUS operations. Click the button below to start talking directly.
+              </p>
+              <button
+                onClick={() => startLiveAvatar()}
+                className="w-full py-4 px-6 rounded-xl bg-accent hover:bg-accent/90 text-accent-contrast font-bold text-base tracking-wide shadow-xl shadow-accent/25 transition-all transform active:scale-95 flex items-center justify-center gap-3 cursor-pointer"
+              >
+                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+                  <Mic className="w-5 h-5 text-white animate-pulse" />
+                </div>
+                <span>Click to Discuss with Avatar</span>
+              </button>
+              <p className="text-[11px] text-text-dimmed mt-3 flex items-center justify-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                Live 2-way voice conversation via microphone
+              </p>
             </div>
           </div>
         )}
@@ -457,63 +496,112 @@ export function AvatarChatWidget() {
         )}
       </div>
 
-      {/* Live Interactive Footer (Mic status, Quick Prompts, Text input) */}
+      {/* Live Interactive Footer (Prominent Mic Bar, Quick Prompts, Text input) */}
       {status === 'live' && (
-        <div className="border-t border-border bg-bg-surface p-3 flex flex-col gap-2">
+        <div className="border-t border-border bg-bg-surface p-4 flex flex-col gap-3">
+          {/* Main Discussion & Microphone Action Area */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-bg-elevated/70 border border-border/80 rounded-xl p-3">
+            {/* Big Microphone Discussion Button */}
+            <button
+              onClick={toggleMic}
+              className={`flex-1 w-full sm:w-auto flex items-center justify-center gap-3.5 px-6 py-3.5 rounded-xl font-bold text-sm transition-all shadow-md cursor-pointer ${
+                !isMicMuted
+                  ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-500/20 ring-4 ring-emerald-500/15'
+                  : 'bg-red-500/15 hover:bg-red-500/25 text-red-300 border border-red-500/30'
+              }`}
+              title={!isMicMuted ? "Click to mute microphone" : "Click to unmute microphone"}
+            >
+              <div className="relative flex items-center justify-center shrink-0">
+                {!isMicMuted ? (
+                  <>
+                    <span className="absolute w-8 h-8 rounded-full bg-emerald-300/40 animate-ping" />
+                    <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center relative z-10">
+                      <Mic className="w-5 h-5 text-white" />
+                    </div>
+                  </>
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center">
+                    <MicOff className="w-5 h-5 text-red-400" />
+                  </div>
+                )}
+              </div>
+              <div className="flex flex-col text-left">
+                <span className="text-sm font-bold leading-tight">
+                  {!isMicMuted ? 'Microphone Live — Speak Now' : 'Microphone Muted'}
+                </span>
+                <span className="text-[11px] opacity-85 leading-normal">
+                  {!isMicMuted ? 'John is listening • Click to pause/mute' : 'Click here to speak to John'}
+                </span>
+              </div>
+              {!isMicMuted && (
+                <div className="hidden sm:flex items-center gap-1 ml-auto h-4 px-2 py-0.5 rounded bg-emerald-600/50">
+                  <span className="w-1 bg-white rounded-full animate-[pulse_0.8s_ease-in-out_infinite] h-2" />
+                  <span className="w-1 bg-white rounded-full animate-[pulse_0.5s_ease-in-out_infinite] h-4" />
+                  <span className="w-1 bg-white rounded-full animate-[pulse_0.9s_ease-in-out_infinite] h-3" />
+                  <span className="w-1 bg-white rounded-full animate-[pulse_0.7s_ease-in-out_infinite] h-2" />
+                </div>
+              )}
+            </button>
+
+            {/* Toggle Text Input Option */}
+            <button
+              onClick={() => setShowTextInput(!showTextInput)}
+              className="shrink-0 flex items-center gap-2 px-3.5 py-3 rounded-xl border border-border bg-bg-surface hover:bg-bg-elevated text-text-secondary hover:text-text-primary text-xs font-medium transition-colors cursor-pointer"
+            >
+              <MessageSquare className="w-4 h-4 text-accent" />
+              <span>{showTextInput ? 'Hide Text Input' : 'Type a Question'}</span>
+            </button>
+          </div>
+
           {/* Quick Prompts */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
             <span className="text-text-dimmed text-[11px] flex items-center gap-1 flex-shrink-0">
-              <Sparkles className="w-3 h-3 text-accent" /> Try asking:
+              <Sparkles className="w-3.5 h-3.5 text-accent" /> Try asking:
             </span>
             <button
               onClick={() => handleSendMessage("What are the 6 systems in STRATUS?")}
-              className="px-2.5 py-1 rounded-full bg-bg-elevated hover:bg-accent/10 hover:border-accent/30 border border-border text-text-secondary hover:text-accent transition-colors flex-shrink-0 text-xs"
+              className="px-3 py-1.5 rounded-full bg-bg-elevated hover:bg-accent/10 hover:border-accent/30 border border-border text-text-secondary hover:text-accent transition-colors flex-shrink-0 text-xs"
             >
               "What are the 6 systems?"
             </button>
             <button
               onClick={() => handleSendMessage("Explain the pricing and guarantee.")}
-              className="px-2.5 py-1 rounded-full bg-bg-elevated hover:bg-accent/10 hover:border-accent/30 border border-border text-text-secondary hover:text-accent transition-colors flex-shrink-0 text-xs"
+              className="px-3 py-1.5 rounded-full bg-bg-elevated hover:bg-accent/10 hover:border-accent/30 border border-border text-text-secondary hover:text-accent transition-colors flex-shrink-0 text-xs"
             >
               "Explain pricing & guarantee"
             </button>
             <button
               onClick={() => handleSendMessage("How fast can you install this in my business?")}
-              className="px-2.5 py-1 rounded-full bg-bg-elevated hover:bg-accent/10 hover:border-accent/30 border border-border text-text-secondary hover:text-accent transition-colors flex-shrink-0 text-xs"
+              className="px-3 py-1.5 rounded-full bg-bg-elevated hover:bg-accent/10 hover:border-accent/30 border border-border text-text-secondary hover:text-accent transition-colors flex-shrink-0 text-xs"
             >
               "How fast is setup?"
             </button>
           </div>
 
-          {/* Text input form (Both voice AND text supported) */}
-          <form 
-            onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }} 
-            className="flex items-center gap-2"
-          >
-            <div className="relative flex-1">
+          {/* Text input form (Collapsible fallback) */}
+          {showTextInput && (
+            <form 
+              onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }} 
+              className="flex items-center gap-2 pt-1 animate-fade-in"
+            >
               <input
                 type="text"
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
-                placeholder="Speak into your mic or type a question for John..."
-                className="w-full bg-bg-elevated border border-border rounded-lg pl-3 pr-9 py-2 text-xs sm:text-sm text-text-primary placeholder:text-text-dimmed focus:outline-none focus:border-accent transition-colors"
+                placeholder="Type a question for John..."
+                className="flex-1 bg-bg-elevated border border-border rounded-lg px-3 py-2 text-xs sm:text-sm text-text-primary placeholder:text-text-dimmed focus:outline-none focus:border-accent transition-colors"
+                autoFocus
               />
-              <div 
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center"
-                title={isListening ? 'Mic is listening' : 'Mic ready'}
+              <button
+                type="submit"
+                disabled={!inputText.trim()}
+                className="p-2.5 rounded-lg bg-accent text-white hover:bg-accent/90 disabled:opacity-40 transition-opacity cursor-pointer"
+                title="Send text to John"
               >
-                <Mic className={`w-4 h-4 ${isListening ? 'text-emerald-400 animate-pulse' : 'text-text-dimmed'}`} />
-              </div>
-            </div>
-            <button
-              type="submit"
-              disabled={!inputText.trim()}
-              className="p-2 rounded-lg bg-accent text-white hover:bg-accent/90 disabled:opacity-40 transition-opacity"
-              title="Send text to John"
-            >
-              <Send className="w-4 h-4" />
-            </button>
-          </form>
+                <Send className="w-4 h-4" />
+              </button>
+            </form>
+          )}
         </div>
       )}
     </div>
