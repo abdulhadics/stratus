@@ -15,7 +15,7 @@ function generatePassword() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { email, first_name, last_name, contact_id } = body;
+    const { email, first_name, last_name, contact_id, location_id } = body;
 
     if (!email) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 });
@@ -44,6 +44,7 @@ export async function POST(req: Request) {
         email,
         name: fullName,
         passwordHash,
+        ...(location_id ? { ghlLocationId: location_id } : {}),
       },
     });
 
