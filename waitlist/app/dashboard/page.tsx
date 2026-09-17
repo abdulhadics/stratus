@@ -86,7 +86,7 @@ export default async function DashboardOverview() {
       </div>
 
       {/* Avatar Chat Widget */}
-      <div className="rounded-2xl bg-bg-surface border border-border shadow-sm overflow-hidden h-[600px] flex flex-col">
+      <div className="max-w-4xl mx-auto w-full rounded-2xl bg-bg-surface border border-border shadow-sm overflow-hidden h-[600px] flex flex-col">
         <div className="px-6 py-4 border-b border-border">
           <h2 className="text-lg font-semibold text-text-primary">Stratus Support Avatar</h2>
           <p className="text-sm text-text-dimmed">Ask technical questions or calculate costs.</p>
