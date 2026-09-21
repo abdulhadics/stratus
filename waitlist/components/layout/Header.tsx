@@ -123,6 +123,7 @@ export function Header() {
         onClose={() => setMobileOpen(false)}
         navItems={NAV_ITEMS}
         onNavigate={handleNavClick}
+        isAdmin={session?.user?.role === 'ADMIN'}
       />
 
       {/* Spacer for fixed header */}

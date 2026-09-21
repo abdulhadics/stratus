@@ -12,10 +12,10 @@ interface MobileNavigationProps {
   isOpen: boolean;
   onClose: () => void;
   navItems: Array<{ key: 'nav.promise' | 'nav.life' | 'nav.howItWorks' | 'nav.packages' | 'nav.faq'; href: string }>;
-  onNavigate: (href: string) => void;
+  isAdmin?: boolean;
 }
 
-export function MobileNavigation({ isOpen, onClose, navItems, onNavigate }: MobileNavigationProps) {
+export function MobileNavigation({ isOpen, onClose, navItems, onNavigate, isAdmin }: MobileNavigationProps) {
   const { t } = useTranslation();
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -88,7 +88,10 @@ export function MobileNavigation({ isOpen, onClose, navItems, onNavigate }: Mobi
           {navItems.map((item) => (
             <button
               key={item.key}
-              onClick={() => onNavigate(item.href)}
+              onClick={() => {
+                onNavigate(item.href);
+                onClose();
+              }}
               className="text-mono text-[13px] text-text-secondary hover:text-text-primary transition-colors"
             >
               {t(item.key)}
@@ -97,16 +100,40 @@ export function MobileNavigation({ isOpen, onClose, navItems, onNavigate }: Mobi
         </nav>
 
         {/* Bottom controls */}
-        <div className="px-8 pb-10 space-y-6">
-          <div className="flex items-center justify-between">
+        <div className="px-8 pb-10 space-y-4">
+          <div className="flex items-center justify-between mb-2">
             <LanguageToggle />
             <ThemeToggle />
           </div>
+          
+          {isAdmin ? (
+            <Button
+              variant="secondary"
+              size="lg"
+              className="w-full border border-amber-500 text-amber-500 bg-transparent hover:bg-amber-500/10"
+              onClick={() => { window.location.href = '/dashboard/admin'; }}
+            >
+              Admin Portal
+            </Button>
+          ) : (
+            <Button
+              variant="secondary"
+              size="lg"
+              className="w-full border border-accent text-accent bg-transparent hover:bg-accent/10"
+              onClick={() => { window.location.href = '/login'; }}
+            >
+              Client Portal
+            </Button>
+          )}
+
           <Button
             variant="primary"
             size="lg"
             className="w-full"
-            onClick={() => onNavigate('#waitlist')}
+            onClick={() => {
+              onNavigate('#waitlist');
+              onClose();
+            }}
           >
             {t('nav.joinWaitlist')} →
           </Button>
