@@ -1,14 +1,21 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
-import { LayoutDashboard, Users, LogOut, Settings, Briefcase, ShieldAlert } from 'lucide-react';
+import { LayoutDashboard, Users, LogOut, Settings, Briefcase, ShieldAlert, Menu, X } from 'lucide-react';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
 
   const isAdminRoute = pathname.startsWith('/dashboard/admin');
 
@@ -29,9 +36,54 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     navigation.push({ name: 'Back to Client Portal', href: '/dashboard', icon: LayoutDashboard });
   }
 
+  const NavLinks = () => (
+    <>
+      {navigation.map((item) => {
+        const isActive = pathname === item.href;
+        return (
+          <Link
+            key={item.name}
+            href={item.href}
+            className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+              isActive 
+                ? 'bg-accent/10 text-accent font-medium' 
+                : 'text-text-dimmed hover:bg-bg-elevated hover:text-text-primary'
+            }`}
+          >
+            <item.icon className={`w-5 h-5 ${isActive ? 'text-accent' : 'text-text-dimmed'}`} />
+            {item.name}
+          </Link>
+        );
+      })}
+    </>
+  );
+
+  const UserFooter = () => (
+    <div className="p-4 border-t border-border space-y-2">
+      <div className="flex items-center gap-3 px-3 py-2">
+        <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center text-accent font-bold text-sm">
+          {session?.user?.name?.[0] || session?.user?.email?.[0]?.toUpperCase() || 'U'}
+        </div>
+        <div className="flex-1 overflow-hidden">
+          <p className="text-sm font-medium text-text-primary truncate">{session?.user?.name || 'User'}</p>
+          <p className="text-xs text-text-dimmed truncate">{session?.user?.email}</p>
+        </div>
+      </div>
+      <button
+        onClick={() => {
+          import('next-auth/react').then(({ signOut }) => signOut({ callbackUrl: '/' }));
+        }}
+        className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-text-dimmed hover:bg-red-500/10 hover:text-red-400 transition-colors"
+      >
+        <LogOut className="w-5 h-5" />
+        <span className="text-sm font-medium">Log out</span>
+      </button>
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-bg-main flex">
-      {/* Sidebar */}
+    <div className="min-h-screen bg-bg-main flex relative">
+      {/* Desktop Sidebar */}
       <div className="w-64 bg-bg-surface border-r border-border hidden md:flex flex-col">
         <div className="h-16 flex items-center px-6 border-b border-border">
           <Image
@@ -42,53 +94,46 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             className="h-8 w-auto"
           />
         </div>
-        
         <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-          {navigation.map((item) => {
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
-                  isActive 
-                    ? 'bg-accent/10 text-accent font-medium' 
-                    : 'text-text-dimmed hover:bg-bg-elevated hover:text-text-primary'
-                }`}
-              >
-                <item.icon className={`w-5 h-5 ${isActive ? 'text-accent' : 'text-text-dimmed'}`} />
-                {item.name}
-              </Link>
-            );
-          })}
+          <NavLinks />
         </nav>
-
-        <div className="p-4 border-t border-border space-y-2">
-          <div className="flex items-center gap-3 px-3 py-2">
-            <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center text-accent font-bold text-sm">
-              {session?.user?.name?.[0] || session?.user?.email?.[0]?.toUpperCase() || 'U'}
-            </div>
-            <div className="flex-1 overflow-hidden">
-              <p className="text-sm font-medium text-text-primary truncate">{session?.user?.name || 'User'}</p>
-              <p className="text-xs text-text-dimmed truncate">{session?.user?.email}</p>
-            </div>
-          </div>
-          <button
-            onClick={() => {
-              import('next-auth/react').then(({ signOut }) => signOut({ callbackUrl: '/' }));
-            }}
-            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-text-dimmed hover:bg-red-500/10 hover:text-red-400 transition-colors"
-          >
-            <LogOut className="w-5 h-5" />
-            <span className="text-sm font-medium">Log out</span>
-          </button>
-        </div>
+        <UserFooter />
       </div>
+
+      {/* Mobile Sidebar Overlay */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-40 md:hidden flex">
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+          {/* Sidebar */}
+          <div className="relative flex flex-col w-64 max-w-sm h-full bg-bg-surface border-r border-border shadow-2xl z-50 animate-fade-in-up" style={{ animationDuration: '0.2s' }}>
+            <div className="h-16 flex items-center justify-between px-4 border-b border-border">
+              <Image
+                src="/logolight-transparent.png"
+                alt="STRATUS Logo"
+                width={100}
+                height={32}
+                className="h-8 w-auto"
+              />
+              <button onClick={() => setMobileMenuOpen(false)} className="p-2 text-text-dimmed hover:text-text-primary rounded-lg hover:bg-bg-elevated">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+              <NavLinks />
+            </nav>
+            <UserFooter />
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Mobile Header */}
-        <div className="md:hidden h-16 bg-bg-surface border-b border-border flex items-center justify-between px-4">
+        <div className="md:hidden h-16 bg-bg-surface border-b border-border flex items-center justify-between px-4 sticky top-0 z-30 shadow-sm">
           <Image
             src="/logolight-transparent.png"
             alt="STRATUS Logo"
@@ -96,11 +141,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             height={32}
             className="h-8 w-auto"
           />
-          <button className="p-2 text-text-dimmed hover:text-text-primary">
-            {/* Mobile menu icon could go here */}
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
+          <button 
+            onClick={() => setMobileMenuOpen(true)}
+            className="p-2 text-text-dimmed hover:text-text-primary rounded-lg hover:bg-bg-elevated"
+          >
+            <Menu className="w-6 h-6" />
           </button>
         </div>
 
