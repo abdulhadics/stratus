@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+ 
+export const maxDuration = 30;
 
 const SYSTEM_PROMPT = `ROLE AND IDENTITY
 You are an AI assistant for STRATUS, disclosed clearly as AI, not a human team member. You
@@ -117,30 +119,51 @@ export async function POST(req: Request) {
       parts: [{ text: msg.content }],
     }));
 
-    // Call Gemini API via fetch
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        systemInstruction: {
-          parts: [{ text: SYSTEM_PROMPT }]
-        },
-        contents: formattedMessages,
-        generationConfig: {
-          maxOutputTokens: 250,
-          temperature: 0.6
-        }
-      })
-    });
+    // Active models list with fallback
+    const CANDIDATE_MODELS = [
+      'gemini-flash-lite-latest',
+      'gemini-3.1-flash-lite',
+      'gemini-3.8-flash'
+    ];
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('[STRATUS CHAT API] Gemini API error:', response.status, errorText);
-      throw new Error('Gemini API returned an error');
+    let aiMessage = '';
+    let lastError = '';
+
+    for (const model of CANDIDATE_MODELS) {
+      try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            systemInstruction: {
+              parts: [{ text: SYSTEM_PROMPT }]
+            },
+            contents: formattedMessages,
+            generationConfig: {
+              maxOutputTokens: 250,
+              temperature: 0.6
+            }
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          aiMessage = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (aiMessage) break;
+        } else {
+          lastError = await response.text();
+          console.warn(`[STRATUS CHAT API] Model ${model} failed (${response.status}):`, lastError);
+        }
+      } catch (err: any) {
+        lastError = err?.message || 'Network error';
+        console.warn(`[STRATUS CHAT API] Error with ${model}:`, lastError);
+      }
     }
 
-    const data = await response.json();
-    const aiMessage = data.candidates?.[0]?.content?.parts?.[0]?.text || "I'm sorry, I couldn't process that. Please book a call with our team.";
+    if (!aiMessage) {
+      console.error('[STRATUS CHAT API] All Gemini models failed. Last error:', lastError);
+      throw new Error('Gemini API returned an error');
+    }
 
     return NextResponse.json({ content: aiMessage });
   } catch (error) {
