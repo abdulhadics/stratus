@@ -69,7 +69,15 @@ export function PublicTextChatWidget() {
         const res = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ messages: newMessages }),
+          // Gemini requires conversation to start with 'user' role.
+          // Filter out system messages and strip any leading assistant messages.
+          body: JSON.stringify({
+            messages: newMessages.filter(m => m.role !== 'system').filter((m, i, arr) => {
+              // Drop leading assistant messages (before first user message)
+              const firstUserIdx = arr.findIndex(x => x.role === 'user');
+              return i >= firstUserIdx;
+            })
+          }),
         });
         const data = await res.json();
         
