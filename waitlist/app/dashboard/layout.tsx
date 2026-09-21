@@ -63,7 +63,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           })}
         </nav>
 
-        <div className="p-4 border-t border-border">
+        <div className="p-4 border-t border-border space-y-2">
           <div className="flex items-center gap-3 px-3 py-2">
             <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center text-accent font-bold text-sm">
               {session?.user?.name?.[0] || session?.user?.email?.[0]?.toUpperCase() || 'U'}
@@ -73,6 +73,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <p className="text-xs text-text-dimmed truncate">{session?.user?.email}</p>
             </div>
           </div>
+          <button
+            onClick={() => {
+              import('next-auth/react').then(({ signOut }) => signOut({ callbackUrl: '/' }));
+            }}
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-text-dimmed hover:bg-red-500/10 hover:text-red-400 transition-colors"
+          >
+            <LogOut className="w-5 h-5" />
+            <span className="text-sm font-medium">Log out</span>
+          </button>
         </div>
       </div>
 
