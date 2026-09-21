@@ -12,6 +12,7 @@ interface MobileNavigationProps {
   isOpen: boolean;
   onClose: () => void;
   navItems: Array<{ key: 'nav.promise' | 'nav.life' | 'nav.howItWorks' | 'nav.packages' | 'nav.faq'; href: string }>;
+  onNavigate: (href: string) => void;
   isAdmin?: boolean;
 }
 
