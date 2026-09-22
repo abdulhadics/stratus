@@ -108,8 +108,8 @@ export async function POST(req: Request) {
           finalLocationId = createLocData.location.id;
           console.log(`[GHL] Successfully created new sub-account: ${finalLocationId}`);
 
-          // 4. Create GHL User for this location with the UNIFIED PASSWORD
-          console.log('[GHL] Attempting to create GHL User for the new location...');
+          // 4. Create GHL User for this NEW location with the UNIFIED PASSWORD
+          console.log(`[GHL] Creating GHL User for NEW location ${finalLocationId}...`);
           const createUserRes = await fetch('https://services.leadconnectorhq.com/users/', {
             method: 'POST',
             headers: {
@@ -126,15 +126,15 @@ export async function POST(req: Request) {
               password: plainPassword,
               type: 'account',
               role: 'admin',
-              locationIds: [finalLocationId]
+              locationIds: [finalLocationId]  // ONLY the new sub-account, never the template
             })
           });
 
+          const createUserData = await createUserRes.json();
           if (createUserRes.ok) {
-            console.log(`[GHL] Successfully created GHL User for ${email}`);
+            console.log(`[GHL] ✅ Successfully created GHL User for ${email} in location ${finalLocationId}. User ID: ${createUserData?.id}`);
           } else {
-            const createUserData = await createUserRes.json();
-            console.error('[GHL] Failed to create GHL User (Might already exist):', createUserData);
+            console.error(`[GHL] ❌ Failed to create GHL User for ${email}. Status: ${createUserRes.status}. Error:`, JSON.stringify(createUserData));
           }
 
         } else {
