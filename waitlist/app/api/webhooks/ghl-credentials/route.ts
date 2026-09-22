@@ -79,7 +79,8 @@ export async function POST(req: Request) {
               state: 'TBD',
               country: 'US',
               postalCode: '00000',
-              website: 'https://example.com'
+              website: 'https://example.com',
+              snapshotId: 'zG8duzg1BrVnLLt4ifkg' // Adam Koubi Template (STRATUS HVAC)
             })
           });
 
