@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+﻿import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 
@@ -21,90 +21,121 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 });
     }
 
-    // If no location_id is provided, but we have the Agency API key, auto-create the sub-account
-    let finalLocationId = location_id;
-    if (!finalLocationId && process.env.GHL_AGENCY_API_KEY) {
-      console.log('[GHL] No location_id provided, attempting to create new sub-account...');
-      try {
-        const createLocRes = await fetch('https://services.leadconnectorhq.com/locations/', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${process.env.GHL_AGENCY_API_KEY}`,
-            'Version': '2021-07-28',
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify({
-            companyId: '6YsBZwcOnaDr0Etgu53x',
-            name: body.company_name || `${first_name} ${last_name} Business`,
-            phone: body.phone || '+10000000000',
-            email: email,
-            firstName: first_name,
-            lastName: last_name,
-            timezone: 'US/Eastern',
-            address: 'TBD',
-            city: 'TBD',
-            state: 'TBD',
-            country: 'US',
-            postalCode: '00000',
-            website: 'https://example.com'
-          })
-        });
+    // Generate a unified password right away
+    const plainPassword = generatePassword();
+    const passwordHash = await bcrypt.hash(plainPassword, 10);
+    const fullName = [first_name, last_name].filter(Boolean).join(' ') || 'Stratus Client';
 
-        const createLocData = await createLocRes.json();
-        if (createLocRes.ok && createLocData.location && createLocData.location.id) {
-          finalLocationId = createLocData.location.id;
-          console.log(`[GHL] Successfully created new sub-account with Location ID: ${finalLocationId}`);
-        } else {
-          console.error('[GHL] Failed to create sub-account via Agency API:', createLocData);
-        }
-      } catch (agencyErr) {
-        console.error('[GHL] Agency API request failed:', agencyErr);
-      }
-    }
-
-    // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
+    // 1. Check uniqueness: Is this user already in our DB?
+    let existingUser = await prisma.user.findUnique({
       where: { email },
     });
 
+    let finalLocationId = location_id;
+
+    // 2. If user exists and ALREADY has a location, skip creating a new one (prevents duplicate locations)
+    if (existingUser && existingUser.ghlLocationId) {
+      finalLocationId = existingUser.ghlLocationId;
+      console.log(\[GHL] User \ already exists and has location \. Skipping location creation.\);
+    } else {
+      // 3. Create GHL Location if needed
+      if (!finalLocationId && process.env.GHL_AGENCY_API_KEY) {
+        console.log('[GHL] Creating new sub-account...');
+        try {
+          const createLocRes = await fetch('https://services.leadconnectorhq.com/locations/', {
+            method: 'POST',
+            headers: {
+              'Authorization': \Bearer \\,
+              'Version': '2021-07-28',
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+              companyId: '6YsBZwcOnaDr0Etgu53x',
+              name: body.company_name || \\ \ Business\,
+              phone: body.phone || '+10000000000',
+              email: email,
+              firstName: first_name,
+              lastName: last_name,
+              timezone: 'US/Eastern',
+              address: 'TBD',
+              city: 'TBD',
+              state: 'TBD',
+              country: 'US',
+              postalCode: '00000',
+              website: 'https://example.com'
+            })
+          });
+
+          const createLocData = await createLocRes.json();
+          if (createLocRes.ok && createLocData.location && createLocData.location.id) {
+            finalLocationId = createLocData.location.id;
+            console.log(\[GHL] Successfully created new sub-account: \\);
+
+            // 4. Create GHL User for this location with the UNIFIED PASSWORD
+            console.log('[GHL] Attempting to create GHL User for the new location...');
+            const createUserRes = await fetch('https://services.leadconnectorhq.com/users/', {
+              method: 'POST',
+              headers: {
+                'Authorization': \Bearer \\,
+                'Version': '2021-07-28',
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+              },
+              body: JSON.stringify({
+                companyId: '6YsBZwcOnaDr0Etgu53x',
+                firstName: first_name || 'Stratus',
+                lastName: last_name || 'Client',
+                email: email,
+                password: plainPassword,
+                type: 'account',
+                role: 'admin',
+                locationIds: [finalLocationId]
+              })
+            });
+
+            if (createUserRes.ok) {
+              console.log(\[GHL] Successfully created GHL User for \\);
+            } else {
+              const createUserData = await createUserRes.json();
+              console.error('[GHL] Failed to create GHL User (Might already exist):', createUserData);
+            }
+
+          } else {
+            console.error('[GHL] Failed to create sub-account:', createLocData);
+          }
+        } catch (agencyErr) {
+          console.error('[GHL] Agency API request failed:', agencyErr);
+        }
+      }
+    }
+
+    // 5. Update or Create Stratus Portal User
     if (existingUser) {
-      // If user exists but didn't have a location, update it
       if (finalLocationId && !existingUser.ghlLocationId) {
         await prisma.user.update({
           where: { email },
           data: { ghlLocationId: finalLocationId }
         });
       }
-      return NextResponse.json({ 
-        message: 'User already exists', 
-        email: existingUser.email,
-        location_id: finalLocationId
-      }, { status: 200 });
+    } else {
+      await prisma.user.create({
+        data: {
+          email,
+          name: fullName,
+          passwordHash,
+          ...(finalLocationId ? { ghlLocationId: finalLocationId } : {}),
+        },
+      });
     }
 
-    // Generate password and hash
-    const plainPassword = generatePassword();
-    const passwordHash = await bcrypt.hash(plainPassword, 10);
-    const fullName = [first_name, last_name].filter(Boolean).join(' ') || 'Stratus Client';
-
-    // Create user in DB
-    const newUser = await prisma.user.create({
-      data: {
-        email,
-        name: fullName,
-        passwordHash,
-        ...(finalLocationId ? { ghlLocationId: finalLocationId } : {}),
-      },
-    });
-
-    // Push the password to GHL Custom Field "Portal Password" (ID: kdaODn5oGg1dgmfHt18p)
+    // 6. Push the unified password back to the GHL Custom Field "Portal Password" (Internal Account)
     if (contact_id && process.env.GHL_API_TOKEN) {
       try {
-        await fetch(`https://services.leadconnectorhq.com/contacts/${contact_id}`, {
+        await fetch(\https://services.leadconnectorhq.com/contacts/\\, {
           method: 'PUT',
           headers: {
-            'Authorization': `Bearer ${process.env.GHL_API_TOKEN}`,
+            'Authorization': \Bearer \\,
             'Version': '2021-07-28',
             'Content-Type': 'application/json',
             'Accept': 'application/json'
@@ -119,18 +150,17 @@ export async function POST(req: Request) {
             ]
           })
         });
-        console.log(`[GHL] Successfully updated portal_password for contact ${contact_id}`);
+        console.log(\[GHL] Successfully updated portal_password for contact \\);
       } catch (ghlErr) {
         console.error('[GHL] Failed to update contact custom field:', ghlErr);
       }
     }
 
-    // Return the generated credentials so GHL or Zapier can send the email
     return NextResponse.json({
       success: true,
       message: 'Credentials generated successfully',
       data: {
-        email: newUser.email,
+        email: email,
         password: plainPassword,
         login_url: 'https://stratussystems.co/login',
         location_id: finalLocationId
