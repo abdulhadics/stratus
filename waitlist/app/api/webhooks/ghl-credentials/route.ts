@@ -26,26 +26,34 @@ export async function POST(req: Request) {
     if (!finalLocationId && process.env.GHL_AGENCY_API_KEY) {
       console.log('[GHL] No location_id provided, attempting to create new sub-account...');
       try {
-        const createLocRes = await fetch('https://rest.gohighlevel.com/v1/locations/', {
+        const createLocRes = await fetch('https://services.leadconnectorhq.com/locations/', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${process.env.GHL_AGENCY_API_KEY}`,
-            'Content-Type': 'application/json'
+            'Version': '2021-07-28',
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
           },
           body: JSON.stringify({
+            companyId: '6YsBZwcOnaDr0Etgu53x',
             name: body.company_name || `${first_name} ${last_name} Business`,
-            phone: body.phone || '0000000000',
+            phone: body.phone || '+10000000000',
             email: email,
             firstName: first_name,
             lastName: last_name,
-            // Depending on GHL plan, timezone might be required. Providing a default.
-            timezone: 'US/Eastern'
+            timezone: 'US/Eastern',
+            address: 'TBD',
+            city: 'TBD',
+            state: 'TBD',
+            country: 'US',
+            postalCode: '00000',
+            website: 'https://example.com'
           })
         });
 
         const createLocData = await createLocRes.json();
-        if (createLocRes.ok && createLocData.id) {
-          finalLocationId = createLocData.id;
+        if (createLocRes.ok && createLocData.location && createLocData.location.id) {
+          finalLocationId = createLocData.location.id;
           console.log(`[GHL] Successfully created new sub-account with Location ID: ${finalLocationId}`);
         } else {
           console.error('[GHL] Failed to create sub-account via Agency API:', createLocData);
