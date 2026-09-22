@@ -36,7 +36,7 @@ export async function POST(req: Request) {
     // 2. If user exists and ALREADY has a location, skip creating a new one (prevents duplicate locations)
     if (existingUser && existingUser.ghlLocationId) {
       finalLocationId = existingUser.ghlLocationId;
-      console.log(\[GHL] User \ already exists and has location \. Skipping location creation.\);
+      console.log(`[GHL] User ${email} already exists and has location ${finalLocationId}. Skipping location creation.`);
     } else {
       // 3. Create GHL Location if needed
       if (!finalLocationId && process.env.GHL_AGENCY_API_KEY) {
@@ -45,14 +45,14 @@ export async function POST(req: Request) {
           const createLocRes = await fetch('https://services.leadconnectorhq.com/locations/', {
             method: 'POST',
             headers: {
-              'Authorization': \Bearer \\,
+              'Authorization': `Bearer ${process.env.GHL_AGENCY_API_KEY}`,
               'Version': '2021-07-28',
               'Content-Type': 'application/json',
               'Accept': 'application/json'
             },
             body: JSON.stringify({
               companyId: '6YsBZwcOnaDr0Etgu53x',
-              name: body.company_name || \\ \ Business\,
+              name: body.company_name || `${first_name} ${last_name} Business`,
               phone: body.phone || '+10000000000',
               email: email,
               firstName: first_name,
@@ -70,14 +70,14 @@ export async function POST(req: Request) {
           const createLocData = await createLocRes.json();
           if (createLocRes.ok && createLocData.location && createLocData.location.id) {
             finalLocationId = createLocData.location.id;
-            console.log(\[GHL] Successfully created new sub-account: \\);
+            console.log(`[GHL] Successfully created new sub-account: ${finalLocationId}`);
 
             // 4. Create GHL User for this location with the UNIFIED PASSWORD
             console.log('[GHL] Attempting to create GHL User for the new location...');
             const createUserRes = await fetch('https://services.leadconnectorhq.com/users/', {
               method: 'POST',
               headers: {
-                'Authorization': \Bearer \\,
+                'Authorization': `Bearer ${process.env.GHL_AGENCY_API_KEY}`,
                 'Version': '2021-07-28',
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
@@ -95,7 +95,7 @@ export async function POST(req: Request) {
             });
 
             if (createUserRes.ok) {
-              console.log(\[GHL] Successfully created GHL User for \\);
+              console.log(`[GHL] Successfully created GHL User for ${email}`);
             } else {
               const createUserData = await createUserRes.json();
               console.error('[GHL] Failed to create GHL User (Might already exist):', createUserData);
@@ -132,10 +132,10 @@ export async function POST(req: Request) {
     // 6. Push the unified password back to the GHL Custom Field "Portal Password" (Internal Account)
     if (contact_id && process.env.GHL_API_TOKEN) {
       try {
-        await fetch(\https://services.leadconnectorhq.com/contacts/\\, {
+        await fetch(`https://services.leadconnectorhq.com/contacts/${contact_id}`, {
           method: 'PUT',
           headers: {
-            'Authorization': \Bearer \\,
+            'Authorization': `Bearer ${process.env.GHL_API_TOKEN}`,
             'Version': '2021-07-28',
             'Content-Type': 'application/json',
             'Accept': 'application/json'
@@ -150,7 +150,7 @@ export async function POST(req: Request) {
             ]
           })
         });
-        console.log(\[GHL] Successfully updated portal_password for contact \\);
+        console.log(`[GHL] Successfully updated portal_password for contact ${contact_id}`);
       } catch (ghlErr) {
         console.error('[GHL] Failed to update contact custom field:', ghlErr);
       }
