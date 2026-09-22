@@ -39,26 +39,78 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 });
     }
 
-    // Generate a unified password right away
-    const plainPassword = generatePassword();
-    const passwordHash = await bcrypt.hash(plainPassword, 10);
-    const fullName = [firstName, lastName].filter(Boolean).join(' ') || 'Stratus Client';
-
     // 1. Check uniqueness: Is this user already in our DB?
     let existingUser = await prisma.user.findUnique({
       where: { email },
     });
 
-    // 2. If user exists and ALREADY has a location, skip creating a new one (prevents duplicate locations)
-    if (existingUser && existingUser.ghlLocationId) {
-      finalLocationId = existingUser.ghlLocationId;
-      console.log(`[GHL] User ${email} already exists and has location ${finalLocationId}. Skipping location creation.`);
-    } else {
-      // 3. Create GHL Location if needed
-      if (!finalLocationId && process.env.GHL_AGENCY_API_KEY) {
-        console.log('[GHL] Creating new sub-account...');
-        try {
-          const createLocRes = await fetch('https://services.leadconnectorhq.com/locations/', {
+    if (existingUser) {
+      console.log(`[GHL] User ${email} already exists. Skipping password generation and account creation.`);
+      
+      // Update location ID if missing
+      if (finalLocationId && !existingUser.ghlLocationId) {
+        await prisma.user.update({
+          where: { email },
+          data: { ghlLocationId: finalLocationId }
+        });
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: 'User already exists. No new credentials generated.',
+        data: {
+          email: email,
+          login_url: 'https://stratussystems.co/login',
+          location_id: finalLocationId || existingUser.ghlLocationId
+        }
+      });
+    }
+
+    // --- NEW USER CREATION FLOW ---
+
+    // Generate a unified password for the new user
+    const plainPassword = generatePassword();
+    const passwordHash = await bcrypt.hash(plainPassword, 10);
+    const fullName = [firstName, lastName].filter(Boolean).join(' ') || 'Stratus Client';
+
+    // 3. Create GHL Location if needed
+    if (!finalLocationId && process.env.GHL_AGENCY_API_KEY) {
+      console.log('[GHL] Creating new sub-account...');
+      try {
+        const createLocRes = await fetch('https://services.leadconnectorhq.com/locations/', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${process.env.GHL_AGENCY_API_KEY}`,
+            'Version': '2021-07-28',
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            companyId: '6YsBZwcOnaDr0Etgu53x',
+            name: companyName || `${firstName} ${lastName} Business`,
+            phone: phone || '+10000000000',
+            email: email,
+            firstName: firstName,
+            lastName: lastName,
+            timezone: 'US/Eastern',
+            address: 'TBD',
+            city: 'TBD',
+            state: 'TBD',
+            country: 'US',
+            postalCode: '00000',
+            website: 'https://example.com',
+            snapshotId: 'zG8duzg1BrVnLLt4ifkg' // Adam Koubi Template (STRATUS HVAC)
+          })
+        });
+
+        const createLocData = await createLocRes.json();
+        if (createLocRes.ok && createLocData.location && createLocData.location.id) {
+          finalLocationId = createLocData.location.id;
+          console.log(`[GHL] Successfully created new sub-account: ${finalLocationId}`);
+
+          // 4. Create GHL User for this location with the UNIFIED PASSWORD
+          console.log('[GHL] Attempting to create GHL User for the new location...');
+          const createUserRes = await fetch('https://services.leadconnectorhq.com/users/', {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${process.env.GHL_AGENCY_API_KEY}`,
@@ -68,83 +120,40 @@ export async function POST(req: Request) {
             },
             body: JSON.stringify({
               companyId: '6YsBZwcOnaDr0Etgu53x',
-              name: companyName || `${firstName} ${lastName} Business`,
-              phone: phone || '+10000000000',
+              firstName: firstName || 'Stratus',
+              lastName: lastName || 'Client',
               email: email,
-              firstName: firstName,
-              lastName: lastName,
-              timezone: 'US/Eastern',
-              address: 'TBD',
-              city: 'TBD',
-              state: 'TBD',
-              country: 'US',
-              postalCode: '00000',
-              website: 'https://example.com',
-              snapshotId: 'zG8duzg1BrVnLLt4ifkg' // Adam Koubi Template (STRATUS HVAC)
+              password: plainPassword,
+              type: 'account',
+              role: 'admin',
+              locationIds: [finalLocationId]
             })
           });
 
-          const createLocData = await createLocRes.json();
-          if (createLocRes.ok && createLocData.location && createLocData.location.id) {
-            finalLocationId = createLocData.location.id;
-            console.log(`[GHL] Successfully created new sub-account: ${finalLocationId}`);
-
-            // 4. Create GHL User for this location with the UNIFIED PASSWORD
-            console.log('[GHL] Attempting to create GHL User for the new location...');
-            const createUserRes = await fetch('https://services.leadconnectorhq.com/users/', {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${process.env.GHL_AGENCY_API_KEY}`,
-                'Version': '2021-07-28',
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-              },
-              body: JSON.stringify({
-                companyId: '6YsBZwcOnaDr0Etgu53x',
-                firstName: firstName || 'Stratus',
-                lastName: lastName || 'Client',
-                email: email,
-                password: plainPassword,
-                type: 'account',
-                role: 'admin',
-                locationIds: [finalLocationId]
-              })
-            });
-
-            if (createUserRes.ok) {
-              console.log(`[GHL] Successfully created GHL User for ${email}`);
-            } else {
-              const createUserData = await createUserRes.json();
-              console.error('[GHL] Failed to create GHL User (Might already exist):', createUserData);
-            }
-
+          if (createUserRes.ok) {
+            console.log(`[GHL] Successfully created GHL User for ${email}`);
           } else {
-            console.error('[GHL] Failed to create sub-account:', createLocData);
+            const createUserData = await createUserRes.json();
+            console.error('[GHL] Failed to create GHL User (Might already exist):', createUserData);
           }
-        } catch (agencyErr) {
-          console.error('[GHL] Agency API request failed:', agencyErr);
+
+        } else {
+          console.error('[GHL] Failed to create sub-account:', createLocData);
         }
+      } catch (agencyErr) {
+        console.error('[GHL] Agency API request failed:', agencyErr);
       }
     }
 
-    // 5. Update or Create Stratus Portal User
-    if (existingUser) {
-      if (finalLocationId && !existingUser.ghlLocationId) {
-        await prisma.user.update({
-          where: { email },
-          data: { ghlLocationId: finalLocationId }
-        });
-      }
-    } else {
-      await prisma.user.create({
-        data: {
-          email,
-          name: fullName,
-          passwordHash,
-          ...(finalLocationId ? { ghlLocationId: finalLocationId } : {}),
-        },
-      });
-    }
+    // 5. Create Stratus Portal User
+    await prisma.user.create({
+      data: {
+        email,
+        name: fullName,
+        passwordHash,
+        ...(finalLocationId ? { ghlLocationId: finalLocationId } : {}),
+      },
+    });
 
     // 6. Push the unified password back to the GHL Custom Field "Portal Password" (Internal Account)
     if (contactId && process.env.GHL_API_TOKEN) {
