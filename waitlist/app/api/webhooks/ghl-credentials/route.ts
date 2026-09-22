@@ -2,14 +2,26 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 
-// Helper to generate a random password
+// Helper to generate a random password that meets GHL requirements
 function generatePassword() {
-  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+  const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const lower = 'abcdefghijklmnopqrstuvwxyz';
+  const nums = '0123456789';
+  const specials = '!@#$%^&*';
+  const all = upper + lower + nums + specials;
+  
   let password = '';
-  for (let i = 0; i < 12; i++) {
-    password += chars.charAt(Math.floor(Math.random() * chars.length));
+  password += upper.charAt(Math.floor(Math.random() * upper.length));
+  password += lower.charAt(Math.floor(Math.random() * lower.length));
+  password += nums.charAt(Math.floor(Math.random() * nums.length));
+  password += specials.charAt(Math.floor(Math.random() * specials.length));
+  
+  for (let i = 0; i < 8; i++) {
+    password += all.charAt(Math.floor(Math.random() * all.length));
   }
-  return password;
+  
+  // Shuffle the password
+  return password.split('').sort(() => 0.5 - Math.random()).join('');
 }
 
 export async function POST(req: Request) {
