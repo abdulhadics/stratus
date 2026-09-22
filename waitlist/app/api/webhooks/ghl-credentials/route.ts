@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 
@@ -15,7 +15,13 @@ function generatePassword() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { email, first_name, last_name, contact_id, location_id } = body;
+    const email = body.email;
+    const firstName = body.first_name || body.firstName;
+    const lastName = body.last_name || body.lastName;
+    const contactId = body.contact_id || body.contactId || body.id;
+    let finalLocationId = body.location_id || body.locationId;
+    const phone = body.phone;
+    const companyName = body.company_name || body.companyName;
 
     if (!email) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 });
@@ -24,14 +30,12 @@ export async function POST(req: Request) {
     // Generate a unified password right away
     const plainPassword = generatePassword();
     const passwordHash = await bcrypt.hash(plainPassword, 10);
-    const fullName = [first_name, last_name].filter(Boolean).join(' ') || 'Stratus Client';
+    const fullName = [firstName, lastName].filter(Boolean).join(' ') || 'Stratus Client';
 
     // 1. Check uniqueness: Is this user already in our DB?
     let existingUser = await prisma.user.findUnique({
       where: { email },
     });
-
-    let finalLocationId = location_id;
 
     // 2. If user exists and ALREADY has a location, skip creating a new one (prevents duplicate locations)
     if (existingUser && existingUser.ghlLocationId) {
@@ -52,11 +56,11 @@ export async function POST(req: Request) {
             },
             body: JSON.stringify({
               companyId: '6YsBZwcOnaDr0Etgu53x',
-              name: body.company_name || `${first_name} ${last_name} Business`,
-              phone: body.phone || '+10000000000',
+              name: companyName || `${firstName} ${lastName} Business`,
+              phone: phone || '+10000000000',
               email: email,
-              firstName: first_name,
-              lastName: last_name,
+              firstName: firstName,
+              lastName: lastName,
               timezone: 'US/Eastern',
               address: 'TBD',
               city: 'TBD',
@@ -84,8 +88,8 @@ export async function POST(req: Request) {
               },
               body: JSON.stringify({
                 companyId: '6YsBZwcOnaDr0Etgu53x',
-                firstName: first_name || 'Stratus',
-                lastName: last_name || 'Client',
+                firstName: firstName || 'Stratus',
+                lastName: lastName || 'Client',
                 email: email,
                 password: plainPassword,
                 type: 'account',
@@ -130,9 +134,9 @@ export async function POST(req: Request) {
     }
 
     // 6. Push the unified password back to the GHL Custom Field "Portal Password" (Internal Account)
-    if (contact_id && process.env.GHL_API_TOKEN) {
+    if (contactId && process.env.GHL_API_TOKEN) {
       try {
-        await fetch(`https://services.leadconnectorhq.com/contacts/${contact_id}`, {
+        await fetch(`https://services.leadconnectorhq.com/contacts/${contactId}`, {
           method: 'PUT',
           headers: {
             'Authorization': `Bearer ${process.env.GHL_API_TOKEN}`,
@@ -150,7 +154,7 @@ export async function POST(req: Request) {
             ]
           })
         });
-        console.log(`[GHL] Successfully updated portal_password for contact ${contact_id}`);
+        console.log(`[GHL] Successfully updated portal_password for contact ${contactId}`);
       } catch (ghlErr) {
         console.error('[GHL] Failed to update contact custom field:', ghlErr);
       }
