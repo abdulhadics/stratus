@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
-import { LayoutDashboard, Users, LogOut, Settings, Briefcase, ShieldAlert, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Users, LogOut, Settings, Briefcase, ShieldAlert, Menu, X, MessageSquare, Calendar } from 'lucide-react';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -23,8 +23,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     ? [{ name: 'Admin Panel', href: '/dashboard/admin', icon: ShieldAlert }]
     : [
         { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
-        { name: 'Contacts', href: '/dashboard/contacts', icon: Users },
+        { name: 'Conversations', href: '/dashboard/conversations', icon: MessageSquare },
         { name: 'Opportunities', href: '/dashboard/opportunities', icon: Briefcase },
+        { name: 'Appointments', href: '/dashboard/appointments', icon: Calendar },
+        { name: 'Contacts', href: '/dashboard/contacts', icon: Users },
         { name: 'Settings', href: '/dashboard/settings', icon: Settings },
       ];
 
