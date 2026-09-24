@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { MessageSquare, Loader2, User, Clock, Phone, Mail } from 'lucide-react';
 
 export default function ConversationsPage() {
-  const [conversations, setConversations] = null || useState<any[]>([]);
+  const [conversations, setConversations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
