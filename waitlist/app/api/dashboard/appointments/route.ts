@@ -18,20 +18,48 @@ export async function GET(req: NextRequest) {
       'Accept': 'application/json'
     };
 
-    // Fetch upcoming events from today onwards
-    const startTime = new Date().getTime();
-    
-    const res = await fetch(`https://services.leadconnectorhq.com/calendars/events?locationId=${GHL_LOCATION_ID}&startTime=${startTime}`, { 
+    // First, fetch calendars for the location
+    const calsRes = await fetch(`https://services.leadconnectorhq.com/calendars/?locationId=${GHL_LOCATION_ID}`, { 
       headers,
       next: { revalidate: 30 }
     });
     
-    if (!res.ok) {
-      throw new Error(`Failed to fetch appointments: ${await res.text()}`);
+    if (!calsRes.ok) {
+      throw new Error(`Failed to fetch calendars: ${await calsRes.text()}`);
     }
     
-    const data = await res.json();
-    return NextResponse.json({ success: true, events: data.events || [] });
+    const calsData = await calsRes.json();
+    const calendars = calsData.calendars || [];
+    
+    if (calendars.length === 0) {
+      return NextResponse.json({ success: true, events: [] });
+    }
+
+    // Fetch upcoming events from today to 30 days ahead
+    const startTime = Date.now().toString();
+    const endTime = (Date.now() + 30 * 24 * 60 * 60 * 1000).toString();
+    
+    let allEvents: any[] = [];
+    
+    // Fetch events for all calendars
+    for (const cal of calendars) {
+      const eventsRes = await fetch(`https://services.leadconnectorhq.com/calendars/events?locationId=${GHL_LOCATION_ID}&calendarId=${cal.id}&startTime=${startTime}&endTime=${endTime}`, { 
+        headers,
+        next: { revalidate: 30 }
+      });
+      
+      if (eventsRes.ok) {
+        const eventsData = await eventsRes.json();
+        if (eventsData.events) {
+          allEvents = [...allEvents, ...eventsData.events];
+        }
+      }
+    }
+    
+    // Sort events by start time
+    allEvents.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
+    
+    return NextResponse.json({ success: true, events: allEvents });
 
   } catch (error: any) {
     console.error('Appointments API Error:', error);
