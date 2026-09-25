@@ -428,13 +428,13 @@ export function AvatarChatWidget() {
               </span>
             </div>
             <div className="w-full">
-              <h3 className="text-xl font-bold text-white mb-2">Speak with John</h3>
+              <h3 className="text-xl font-bold text-text-primary mb-2">Speak with John</h3>
               <p className="text-text-dimmed text-xs sm:text-sm mb-6 leading-relaxed">
                 Interactive voice assistant with full knowledge of STRATUS operations. Click the button below to start talking directly.
               </p>
               <button
                 onClick={() => startLiveAvatar()}
-                className="w-full py-4 px-6 rounded-xl bg-accent hover:bg-accent/90 text-accent-contrast font-bold text-base tracking-wide shadow-xl shadow-accent/25 transition-all transform active:scale-95 flex items-center justify-center gap-3 cursor-pointer"
+                className="w-full py-4 px-6 rounded-xl bg-accent hover:bg-accent/90 text-white font-bold text-base tracking-wide shadow-xl shadow-accent/25 transition-all transform active:scale-95 flex items-center justify-center gap-3 cursor-pointer"
               >
                 <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center shrink-0">
                   <Mic className="w-5 h-5 text-white animate-pulse" />
@@ -456,7 +456,7 @@ export function AvatarChatWidget() {
               <span className="text-accent text-2xl font-bold">J</span>
             </div>
             <div className="flex flex-col items-center gap-2">
-              <span className="inline-flex gap-1 text-white text-lg">
+              <span className="inline-flex gap-1 text-text-primary text-lg">
                 <span className="animate-bounce" style={{ animationDelay: '0ms' }}>●</span>
                 <span className="animate-bounce" style={{ animationDelay: '150ms' }}>●</span>
                 <span className="animate-bounce" style={{ animationDelay: '300ms' }}>●</span>
@@ -473,7 +473,7 @@ export function AvatarChatWidget() {
               <span className="text-red-400 text-2xl">⚠</span>
             </div>
             <div className="flex flex-col items-center gap-2">
-              <p className="text-white text-sm font-medium">Could not connect to John</p>
+              <p className="text-text-primary text-sm font-medium">Could not connect to John</p>
               <p className="text-text-dimmed text-xs max-w-sm">{errorMsg}</p>
             </div>
             <Button variant="primary" size="sm" onClick={handleRetry} className="mt-2">
@@ -488,7 +488,7 @@ export function AvatarChatWidget() {
             <div className="w-16 h-16 rounded-full bg-accent/20 border-2 border-accent/40 flex items-center justify-center">
               <span className="text-accent text-2xl font-bold">J</span>
             </div>
-            <p className="text-white text-sm font-medium">Session ended</p>
+            <p className="text-text-primary text-sm font-medium">Session ended</p>
             <Button variant="primary" size="sm" onClick={handleRetry} className="mt-2">
               Start New Session
             </Button>

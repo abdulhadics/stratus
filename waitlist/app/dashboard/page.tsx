@@ -1,14 +1,11 @@
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { Users, Briefcase, TrendingUp, ShieldAlert } from 'lucide-react';
+import { Users, Briefcase, TrendingUp, ShieldAlert, Sparkles, DollarSign } from 'lucide-react';
 import { AvatarChatWidget } from '@/components/ui/AvatarChatWidget';
 import Link from 'next/link';
 
-import { DollarSign } from 'lucide-react';
-
 async function getDashboardStats(session: any) {
   try {
-    // Agency token from .env, Location ID from user's session
     const GHL_API_TOKEN = process.env.GHL_DASHBOARD_API_TOKEN;
     const GHL_LOCATION_ID = session?.user?.ghlLocationId;
 
@@ -22,12 +19,10 @@ async function getDashboardStats(session: any) {
       'Accept': 'application/json'
     };
 
-    // Fetch Contacts Total
     const cRes = await fetch(`https://services.leadconnectorhq.com/contacts/?locationId=${GHL_LOCATION_ID}&limit=1`, { headers, next: { revalidate: 60 } });
     const cData = await cRes.json();
     const totalContacts = cData.meta?.total || 0;
 
-    // Fetch Opportunities Total & Value
     const oRes = await fetch(`https://services.leadconnectorhq.com/opportunities/search?location_id=${GHL_LOCATION_ID}`, { headers, next: { revalidate: 60 } });
     const oData = await oRes.json();
     const totalOpps = oData.meta?.total || 0;
@@ -45,53 +40,69 @@ export default async function DashboardOverview() {
   const data = await getDashboardStats(session);
   
   const stats = [
-    { label: 'Total Contacts', value: data?.totalContacts || 0, icon: Users, change: 'Live', positive: true },
-    { label: 'Active Opportunities', value: data?.totalOpps || 0, icon: Briefcase, change: 'Live', positive: true },
-    { label: 'Pipeline Value', value: `$${(data?.pipelineValue || 0).toLocaleString()}`, icon: DollarSign, change: 'Live', positive: true },
+    { label: 'Total Contacts', value: data?.totalContacts || 0, icon: Users, change: 'Live Sync', color: 'from-blue-500 to-accent' },
+    { label: 'Active Opportunities', value: data?.totalOpps || 0, icon: Briefcase, change: 'Live Sync', color: 'from-accent to-purple-500' },
+    { label: 'Pipeline Value', value: `$${(data?.pipelineValue || 0).toLocaleString()}`, icon: DollarSign, change: 'Live Sync', color: 'from-emerald-400 to-emerald-600' },
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="space-y-8 max-w-7xl mx-auto relative z-10 animate-fade-in">
+      {/* Header section with gradient text */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 relative">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary mb-1">Overview</h1>
-          <p className="text-text-dimmed">Welcome back, {session?.user?.name || 'User'}. Here's what's happening today.</p>
+          <h1 className="text-4xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-text-primary via-blue-600 to-accent dark:from-white dark:via-blue-100 dark:to-accent mb-2">
+            Welcome back, {session?.user?.name?.split(' ')[0] || 'Entrepreneur'}.
+          </h1>
+          <p className="text-text-secondary text-lg">Here is what is happening with your operations today.</p>
         </div>
+        
         {session?.user?.role === 'ADMIN' && (
-          <Link href="/dashboard/admin" className="flex items-center gap-2 bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 px-4 py-2 rounded-lg font-medium transition-colors">
-            <ShieldAlert className="w-5 h-5" />
+          <Link href="/dashboard/admin" className="group flex items-center gap-2 bg-amber-500/10 text-amber-600 dark:text-amber-500 hover:bg-amber-500/20 px-5 py-2.5 rounded-xl font-semibold transition-all duration-300 border border-amber-500/20 hover:border-amber-500/40 hover:shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+            <ShieldAlert className="w-5 h-5 group-hover:scale-110 transition-transform" />
             Go to Admin Panel
           </Link>
         )}
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {stats.map((stat, i) => (
-          <div key={i} className="p-6 rounded-2xl bg-bg-surface border border-border shadow-sm">
-            <div className="flex justify-between items-start mb-4">
-              <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center">
-                <stat.icon className="w-5 h-5 text-accent" />
+          <div key={i} className="relative group p-6 rounded-2xl bg-bg-surface/90 backdrop-blur-xl border border-border shadow-sm dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] overflow-hidden animate-fade-in-up" style={{ animationDelay: `${i * 100}ms` }}>
+            {/* Hover Gradient Overlay */}
+            <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500`} />
+            
+            <div className="flex justify-between items-start mb-6 relative z-10">
+              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center shadow-[0_0_15px_rgba(63,131,248,0.3)]`}>
+                <stat.icon className="w-6 h-6 text-white" />
               </div>
-              <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-                stat.positive ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'
-              }`}>
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse" />
                 {stat.change}
               </span>
             </div>
-            <h3 className="text-3xl font-bold text-text-primary mb-1">{stat.value}</h3>
-            <p className="text-sm text-text-dimmed">{stat.label}</p>
+            
+            <div className="relative z-10">
+              <h3 className="text-4xl font-bold text-text-primary mb-1 tracking-tight">{stat.value}</h3>
+              <p className="text-xs font-semibold text-text-dimmed uppercase tracking-wider">{stat.label}</p>
+            </div>
           </div>
         ))}
       </div>
 
-      {/* Avatar Chat Widget */}
-      <div className="max-w-4xl mx-auto w-full rounded-2xl bg-bg-surface border border-border shadow-sm overflow-hidden h-[600px] flex flex-col">
-        <div className="px-6 py-4 border-b border-border">
-          <h2 className="text-lg font-semibold text-text-primary">Stratus Support Avatar</h2>
-          <p className="text-sm text-text-dimmed">Ask technical questions or calculate costs.</p>
+      {/* Avatar Chat Widget Container */}
+      <div className="mt-8 rounded-2xl bg-bg-surface/90 backdrop-blur-xl border border-border shadow-sm dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] overflow-hidden h-[600px] flex flex-col relative group">
+        <div className="absolute inset-0 bg-gradient-to-b from-accent/5 to-transparent pointer-events-none" />
+        
+        <div className="px-6 py-5 border-b border-border bg-bg-elevated/40 flex items-center justify-between relative z-10">
+          <div>
+            <h2 className="text-lg font-semibold text-text-primary flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-accent" /> AI Operations Assistant
+            </h2>
+            <p className="text-sm text-text-secondary mt-1">Ask questions about your data or calculate job costs instantly.</p>
+          </div>
         </div>
-        <div className="flex-1 w-full bg-bg-secondary relative">
+        
+        <div className="flex-1 w-full bg-bg-primary/40 relative z-10">
           <AvatarChatWidget />
         </div>
       </div>

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
+import { StratusLogo, StratusWordmark } from '@/components/ui/StratusLogo';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
@@ -40,14 +40,9 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-bg-main p-4">
       <div className="w-full max-w-md p-8 rounded-2xl bg-bg-surface border border-border shadow-xl">
-        <div className="flex justify-center mb-8">
-          <Image
-            src="/logolight-transparent.png"
-            alt="STRATUS Logo"
-            width={120}
-            height={40}
-            className="h-10 w-auto"
-          />
+        <div className="flex flex-col items-center justify-center gap-3 mb-8">
+          <StratusLogo size={64} />
+          <StratusWordmark fontSize="text-[26px]" />
         </div>
         
         <div className="text-center mb-8">

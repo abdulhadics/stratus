@@ -4,7 +4,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 
-// PUT /api/admin/users/[id] — Edit user (name, email, ghlLocationId, role, password)
+// PUT /api/admin/users/[id] — Edit user (name, email, ghlLocationId, ghlApiToken, role, password)
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
   if (!session || (session.user as any).role !== 'ADMIN') {
@@ -13,19 +13,20 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
   try {
     const { id } = await params;
-    const { name, email, ghlLocationId, role, password } = await req.json();
+    const { name, email, ghlLocationId, ghlApiToken, role, password } = await req.json();
 
     const updateData: any = {};
     if (name !== undefined) updateData.name = name;
     if (email !== undefined) updateData.email = email;
     if (ghlLocationId !== undefined) updateData.ghlLocationId = ghlLocationId || null;
+    if (ghlApiToken !== undefined) updateData.ghlApiToken = ghlApiToken || null;
     if (role !== undefined) updateData.role = role;
     if (password) updateData.passwordHash = await bcrypt.hash(password, 10);
 
     const updated = await prisma.user.update({
       where: { id },
       data: updateData,
-      select: { id: true, email: true, name: true, role: true, ghlLocationId: true, createdAt: true },
+      select: { id: true, email: true, name: true, role: true, ghlLocationId: true, ghlApiToken: true, createdAt: true },
     });
 
     return NextResponse.json(updated);

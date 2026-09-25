@@ -5,7 +5,8 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    const GHL_API_TOKEN = process.env.GHL_DASHBOARD_API_TOKEN;
+    // Use user's own sub-account token, fallback to env default (for admin)
+    const GHL_API_TOKEN = (session?.user as any)?.ghlApiToken || process.env.GHL_DASHBOARD_API_TOKEN;
     const GHL_LOCATION_ID = (session?.user as any)?.ghlLocationId;
 
     if (!GHL_API_TOKEN || !GHL_LOCATION_ID) {

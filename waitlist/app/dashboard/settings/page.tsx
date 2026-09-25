@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { KeyRound, LogOut, Globe, ShieldCheck, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { KeyRound, LogOut, Globe, ShieldCheck, Loader2, CheckCircle2, AlertCircle, Sun } from 'lucide-react';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
 export default function SettingsPage() {
   const { data: session } = useSession();
@@ -51,7 +52,25 @@ export default function SettingsPage() {
     <div className="space-y-6 max-w-2xl mx-auto">
       <div>
         <h1 className="text-2xl font-bold text-text-primary mb-1">Settings</h1>
-        <p className="text-sm text-text-dimmed">Manage your account preferences.</p>
+        <p className="text-sm text-text-dimmed">Manage your account preferences and display theme.</p>
+      </div>
+
+      {/* Appearance / Theme Preference Card */}
+      <div className="rounded-2xl bg-bg-surface border border-border shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-border bg-bg-elevated flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Sun className="w-5 h-5 text-accent" />
+            <h2 className="text-base font-semibold text-text-primary">Appearance</h2>
+          </div>
+          <span className="text-xs text-text-dimmed">Light & Dark Modes</span>
+        </div>
+        <div className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <p className="text-sm font-medium text-text-primary">Theme Mode</p>
+            <p className="text-xs text-text-dimmed mt-0.5">Select your preferred color theme across the portal.</p>
+          </div>
+          <ThemeToggle variant="segmented" />
+        </div>
       </div>
 
       {/* Account Info Card */}

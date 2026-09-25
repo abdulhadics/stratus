@@ -1,19 +1,21 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* ─── STRATUS Design System ─── */
 
 /* Light palette (default) */
 :root,
 .light {
-  --bg-primary: #FFFFFF;
-  --bg-secondary: #F8F9FA;
+  --bg-primary: #F8FAFC;
+  --bg-secondary: #FFFFFF;
   --bg-elevated: #FFFFFF;
-  --bg-surface: #F1F5F9;
-  --bg-input: #FFFFFF;
+  --bg-surface: #FFFFFF;
+  --bg-input: #F1F5F9;
 
   --text-primary: #0F172A;
   --text-secondary: #475569;
-  --text-dimmed: #94A3B8;
+  --text-dimmed: #64748B;
   --text-inverse: #FFFFFF;
 
   --accent: #2563EB;
