@@ -1,33 +1,42 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Calendar, Loader2, Clock, MapPin, User, FileText } from 'lucide-react';
+import Link from 'next/link';
+import { Calendar, Loader2, Clock, MapPin, User, FileText, ArrowLeft, RefreshCw } from 'lucide-react';
 
 export default function AppointmentsPage() {
   const [events, setEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    const fetchAppointments = async () => {
-      try {
-        const res = await fetch('/api/dashboard/appointments');
-        const json = await res.json();
-        
-        if (json.success) {
-          setEvents(json.events);
-        } else {
-          setError(json.error || 'Failed to load appointments');
-        }
-      } catch (err) {
-        setError('A network error occurred.');
-      } finally {
-        setLoading(false);
+  const fetchAppointments = async () => {
+    try {
+      setError('');
+      const res = await fetch('/api/dashboard/appointments');
+      const json = await res.json();
+      
+      if (json.success) {
+        setEvents(json.events || []);
+      } else {
+        setError(json.error || 'Failed to load appointments');
       }
-    };
+    } catch (err) {
+      setError('A network error occurred.');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
+  useEffect(() => {
     fetchAppointments();
   }, []);
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchAppointments();
+  };
 
   if (loading) {
     return (
@@ -54,10 +63,36 @@ export default function AppointmentsPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
-      <div>
-        <h1 className="text-2xl font-bold text-text-primary mb-1">Upcoming Appointments</h1>
-        <p className="text-sm text-text-dimmed">Manage your schedule and upcoming meetings</p>
+    <div className="space-y-6 max-w-4xl mx-auto animate-fade-in">
+      {/* Breadcrumb Navigation */}
+      <div className="flex items-center justify-between">
+        <Link 
+          href="/dashboard" 
+          className="inline-flex items-center gap-2 text-xs font-semibold text-text-dimmed hover:text-accent transition-colors group cursor-pointer"
+        >
+          <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
+          <span>Back to Overview</span>
+        </Link>
+        <button
+          onClick={handleRefresh}
+          disabled={refreshing || loading}
+          className="flex items-center gap-1.5 text-xs bg-bg-surface hover:bg-bg-elevated border border-border px-3 py-1.5 rounded-xl text-text-secondary hover:text-text-primary transition-all cursor-pointer disabled:opacity-50"
+        >
+          <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin text-accent' : ''}`} />
+          <span>{refreshing ? 'Syncing...' : 'Sync Calendar'}</span>
+        </button>
+      </div>
+
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl md:text-3xl font-black text-text-primary tracking-tight">Appointments</h1>
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-accent/15 text-accent border border-accent/25">
+              {events.length} Booked
+            </span>
+          </div>
+          <p className="text-sm text-text-dimmed mt-1">Scheduled client meetings and service bookings from GHL calendars.</p>
+        </div>
       </div>
 
       <div className="space-y-4">

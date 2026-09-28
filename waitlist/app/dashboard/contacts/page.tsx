@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Search, Loader2 } from 'lucide-react';
+import Link from 'next/link';
+import { Search, Loader2, ArrowLeft, RefreshCw, Users, Sparkles } from 'lucide-react';
 
 interface Contact {
   id: string;
@@ -18,6 +19,7 @@ interface Contact {
 export default function ContactsPage() {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedContact, setExpandedContact] = useState<string | null>(null);
@@ -31,26 +33,33 @@ export default function ContactsPage() {
     setExpandedContact(expandedContact === id ? null : id);
   };
 
-  useEffect(() => {
-    const fetchContacts = async () => {
-      try {
-        const res = await fetch('/api/dashboard/contacts');
-        const data = await res.json();
-        
-        if (data.success) {
-          setContacts(data.contacts);
-        } else {
-          setError(data.error || 'Failed to load contacts');
-        }
-      } catch (err) {
-        setError('A network error occurred while fetching contacts.');
-      } finally {
-        setLoading(false);
+  const fetchContacts = async () => {
+    try {
+      setError('');
+      const res = await fetch('/api/dashboard/contacts');
+      const data = await res.json();
+      
+      if (data.success) {
+        setContacts(data.contacts || []);
+      } else {
+        setError(data.error || 'Failed to load contacts');
       }
-    };
+    } catch (err) {
+      setError('A network error occurred while fetching contacts.');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
+  useEffect(() => {
     fetchContacts();
   }, []);
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchContacts();
+  };
 
   const filteredContacts = contacts.filter(contact => {
     const searchString = `${contact.firstName} ${contact.lastName} ${contact.email} ${contact.phone}`.toLowerCase();
@@ -58,21 +67,45 @@ export default function ContactsPage() {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
+      {/* Breadcrumb Navigation */}
+      <div className="flex items-center justify-between">
+        <Link 
+          href="/dashboard" 
+          className="inline-flex items-center gap-2 text-xs font-semibold text-text-dimmed hover:text-accent transition-colors group cursor-pointer"
+        >
+          <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
+          <span>Back to Overview</span>
+        </Link>
+        <button
+          onClick={handleRefresh}
+          disabled={refreshing || loading}
+          className="flex items-center gap-1.5 text-xs bg-bg-surface hover:bg-bg-elevated border border-border px-3 py-1.5 rounded-xl text-text-secondary hover:text-text-primary transition-all cursor-pointer disabled:opacity-50"
+        >
+          <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin text-accent' : ''}`} />
+          <span>{refreshing ? 'Syncing...' : 'Sync Contacts'}</span>
+        </button>
+      </div>
+
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary mb-1">Contacts</h1>
-          <p className="text-sm text-text-dimmed">Manage your leads and clients pulled directly from STRATUS CRM.</p>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl md:text-3xl font-black text-text-primary tracking-tight">Contacts</h1>
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-accent/15 text-accent border border-accent/25">
+              {contacts.length} Total
+            </span>
+          </div>
+          <p className="text-sm text-text-dimmed mt-1">Live CRM contact records synchronized from your GoHighLevel sub-account.</p>
         </div>
         
-        <div className="relative w-full md:w-72">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <div className="relative w-full md:w-80">
+          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
             <Search className="h-4 w-4 text-text-dimmed" />
           </div>
           <input
             type="text"
-            className="block w-full pl-10 pr-3 py-2 border border-border rounded-lg bg-bg-surface text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent"
-            placeholder="Search contacts..."
+            className="block w-full pl-10 pr-4 py-2.5 border border-border rounded-xl bg-bg-surface text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent placeholder:text-text-dimmed transition-all shadow-2xs"
+            placeholder="Search by name, email, or phone..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />

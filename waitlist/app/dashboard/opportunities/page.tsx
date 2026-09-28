@@ -1,33 +1,42 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Briefcase, Loader2, DollarSign, User, Calendar, Phone } from 'lucide-react';
+import Link from 'next/link';
+import { Briefcase, Loader2, DollarSign, User, Calendar, Phone, ArrowLeft, RefreshCw } from 'lucide-react';
 
 export default function OpportunitiesPage() {
   const [data, setData] = useState<{ pipelineName: string, stages: any[] } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    const fetchOpportunities = async () => {
-      try {
-        const res = await fetch('/api/dashboard/opportunities');
-        const json = await res.json();
-        
-        if (json.success) {
-          setData(json);
-        } else {
-          setError(json.error || 'Failed to load opportunities');
-        }
-      } catch (err) {
-        setError('A network error occurred.');
-      } finally {
-        setLoading(false);
+  const fetchOpportunities = async () => {
+    try {
+      setError('');
+      const res = await fetch('/api/dashboard/opportunities');
+      const json = await res.json();
+      
+      if (json.success) {
+        setData(json);
+      } else {
+        setError(json.error || 'Failed to load opportunities');
       }
-    };
+    } catch (err) {
+      setError('A network error occurred.');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
+  useEffect(() => {
     fetchOpportunities();
   }, []);
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchOpportunities();
+  };
 
   if (loading) {
     return (
@@ -53,11 +62,49 @@ export default function OpportunitiesPage() {
     );
   }
 
+  const totalOpportunities = data.stages.reduce((acc, s) => acc + (s.opportunities?.length || 0), 0);
+  const totalValue = data.stages.reduce((acc, s) => {
+    return acc + (s.opportunities || []).reduce((subAcc: number, opp: any) => subAcc + (opp.value || 0), 0);
+  }, 0);
+
   return (
-    <div className="space-y-6 h-[calc(100vh-120px)] flex flex-col">
-      <div>
-        <h1 className="text-2xl font-bold text-text-primary mb-1">Opportunities</h1>
-        <p className="text-sm text-text-dimmed">Pipeline: <span className="font-semibold text-text-primary">{data.pipelineName || 'Main Pipeline'}</span></p>
+    <div className="space-y-6 h-[calc(100vh-140px)] flex flex-col animate-fade-in">
+      {/* Breadcrumb Navigation */}
+      <div className="flex items-center justify-between">
+        <Link 
+          href="/dashboard" 
+          className="inline-flex items-center gap-2 text-xs font-semibold text-text-dimmed hover:text-accent transition-colors group cursor-pointer"
+        >
+          <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
+          <span>Back to Overview</span>
+        </Link>
+        <button
+          onClick={handleRefresh}
+          disabled={refreshing || loading}
+          className="flex items-center gap-1.5 text-xs bg-bg-surface hover:bg-bg-elevated border border-border px-3 py-1.5 rounded-xl text-text-secondary hover:text-text-primary transition-all cursor-pointer disabled:opacity-50"
+        >
+          <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin text-accent' : ''}`} />
+          <span>{refreshing ? 'Syncing...' : 'Sync Pipeline'}</span>
+        </button>
+      </div>
+
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl md:text-3xl font-black text-text-primary tracking-tight">Opportunities</h1>
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-accent/15 text-accent border border-accent/25">
+              {totalOpportunities} Active Leads
+            </span>
+          </div>
+          <p className="text-sm text-text-dimmed mt-1">Pipeline: <span className="font-semibold text-text-primary">{data.pipelineName || 'Main Pipeline'}</span></p>
+        </div>
+
+        {totalValue > 0 && (
+          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-semibold text-sm w-fit">
+            <DollarSign className="w-4 h-4" />
+            <span>Total Value: ${totalValue.toLocaleString()}</span>
+          </div>
+        )}
       </div>
 
       <div className="flex-1 overflow-x-auto overflow-y-hidden pb-4">

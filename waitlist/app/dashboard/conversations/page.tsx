@@ -1,33 +1,42 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { MessageSquare, Loader2, User, Clock, Phone, Mail } from 'lucide-react';
+import Link from 'next/link';
+import { MessageSquare, Loader2, User, Clock, Phone, Mail, ArrowLeft, RefreshCw } from 'lucide-react';
 
 export default function ConversationsPage() {
   const [conversations, setConversations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    const fetchConversations = async () => {
-      try {
-        const res = await fetch('/api/dashboard/conversations');
-        const json = await res.json();
-        
-        if (json.success) {
-          setConversations(json.conversations);
-        } else {
-          setError(json.error || 'Failed to load conversations');
-        }
-      } catch (err) {
-        setError('A network error occurred.');
-      } finally {
-        setLoading(false);
+  const fetchConversations = async () => {
+    try {
+      setError('');
+      const res = await fetch('/api/dashboard/conversations');
+      const json = await res.json();
+      
+      if (json.success) {
+        setConversations(json.conversations || []);
+      } else {
+        setError(json.error || 'Failed to load conversations');
       }
-    };
+    } catch (err) {
+      setError('A network error occurred.');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
+  useEffect(() => {
     fetchConversations();
   }, []);
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchConversations();
+  };
 
   if (loading) {
     return (
@@ -54,10 +63,36 @@ export default function ConversationsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-text-primary mb-1">Conversations</h1>
-        <p className="text-sm text-text-dimmed">Recent messages with your leads</p>
+    <div className="space-y-6 animate-fade-in">
+      {/* Breadcrumb Navigation */}
+      <div className="flex items-center justify-between">
+        <Link 
+          href="/dashboard" 
+          className="inline-flex items-center gap-2 text-xs font-semibold text-text-dimmed hover:text-accent transition-colors group cursor-pointer"
+        >
+          <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
+          <span>Back to Overview</span>
+        </Link>
+        <button
+          onClick={handleRefresh}
+          disabled={refreshing || loading}
+          className="flex items-center gap-1.5 text-xs bg-bg-surface hover:bg-bg-elevated border border-border px-3 py-1.5 rounded-xl text-text-secondary hover:text-text-primary transition-all cursor-pointer disabled:opacity-50"
+        >
+          <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin text-accent' : ''}`} />
+          <span>{refreshing ? 'Syncing...' : 'Sync Messages'}</span>
+        </button>
+      </div>
+
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl md:text-3xl font-black text-text-primary tracking-tight">Conversations</h1>
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-accent/15 text-accent border border-accent/25">
+              {conversations.length} Active
+            </span>
+          </div>
+          <p className="text-sm text-text-dimmed mt-1">Live SMS & Email communication threads with your customer leads.</p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4">
