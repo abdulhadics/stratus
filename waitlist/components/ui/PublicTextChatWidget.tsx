@@ -135,7 +135,7 @@ export function PublicTextChatWidget() {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="p-3 bg-bg-surface border-t border-border">
+      <div className="p-3 pb-5 md:pb-4 bg-bg-surface border-t border-border">
         {isHardStopped ? (
           <div className="text-center p-3 text-sm text-text-dimmed bg-bg-elevated rounded-lg border border-border">
             Chat ended. Book a free discovery call to keep the conversation going.

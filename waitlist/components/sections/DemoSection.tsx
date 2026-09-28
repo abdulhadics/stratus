@@ -31,7 +31,7 @@ export function DemoSection() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 items-stretch">
           {/* Left: AI Avatar Chat Widget */}
           <div className="relative flex flex-col justify-between">
-            <div className="aspect-square rounded-xl overflow-hidden">
+            <div className="h-[450px] md:h-auto md:aspect-square rounded-xl overflow-hidden">
               <PublicTextChatWidget />
             </div>
             <p className="text-[12px] text-text-dimmed mt-3">
