@@ -23,6 +23,7 @@ export function AvatarChatWidget() {
   const [showTextInput, setShowTextInput] = useState(false);
   const [transcription, setTranscription] = useState<Transcription | null>(null);
   const [inputText, setInputText] = useState('');
+  const [imageError, setImageError] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -390,7 +391,7 @@ export function AvatarChatWidget() {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 relative flex items-center justify-center min-h-[350px]">
+      <div className="flex-1 relative flex items-center justify-center min-h-[420px] py-4">
         {/* Video + Audio */}
         <video
           ref={videoRef}
@@ -421,16 +422,16 @@ export function AvatarChatWidget() {
           <div className="flex flex-col items-center justify-center gap-6 z-10 p-8 text-center bg-bg-surface/95 rounded-2xl border border-accent/25 backdrop-blur-md max-w-md w-full mx-4 shadow-2xl">
             <div className="relative">
               <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-accent/10 border-4 border-accent/40 flex items-center justify-center shadow-[0_0_50px_rgba(var(--accent-rgb),0.25)] overflow-hidden">
-                <img 
-                  src="/john.jpeg" 
-                  alt="John Avatar" 
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none';
-                    (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
-                  }}
-                />
-                <span className="text-accent text-5xl font-bold hidden">J</span>
+                {!imageError ? (
+                  <img 
+                    src="/john.jpeg" 
+                    alt="John Avatar" 
+                    className="w-full h-full object-cover"
+                    onError={() => setImageError(true)}
+                  />
+                ) : (
+                  <span className="text-accent text-5xl font-bold">J</span>
+                )}
               </div>
               <span className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-emerald-500 border-4 border-bg-surface flex items-center justify-center shadow">
                 <Mic className="w-4 h-4 text-white" />
