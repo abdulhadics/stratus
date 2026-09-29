@@ -420,11 +420,20 @@ export function AvatarChatWidget() {
         {status === 'idle' && (
           <div className="flex flex-col items-center justify-center gap-6 z-10 p-8 text-center bg-bg-surface/95 rounded-2xl border border-accent/25 backdrop-blur-md max-w-md w-full mx-4 shadow-2xl">
             <div className="relative">
-              <div className="w-20 h-20 rounded-full bg-accent/20 border-2 border-accent/40 flex items-center justify-center shadow-[0_0_35px_rgba(var(--accent-rgb),0.35)]">
-                <span className="text-accent text-3xl font-bold">J</span>
+              <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-accent/10 border-4 border-accent/40 flex items-center justify-center shadow-[0_0_50px_rgba(var(--accent-rgb),0.25)] overflow-hidden">
+                <img 
+                  src="/john.jpeg" 
+                  alt="John Avatar" 
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                    (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+                  }}
+                />
+                <span className="text-accent text-5xl font-bold hidden">J</span>
               </div>
-              <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 border-2 border-bg-surface flex items-center justify-center shadow">
-                <Mic className="w-3.5 h-3.5 text-white" />
+              <span className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-emerald-500 border-4 border-bg-surface flex items-center justify-center shadow">
+                <Mic className="w-4 h-4 text-white" />
               </span>
             </div>
             <div className="w-full">
