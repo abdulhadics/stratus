@@ -74,9 +74,10 @@ export const authOptions: AuthOptions = {
         } else {
           // Google OAuth login (user object came from Google profile)
           // We need to fetch their role and GHL info from our DB
-          if (user.email) {
+          const email = (user as any).email;
+          if (email) {
             const dbUser = await prisma.user.findUnique({
-              where: { email: user.email }
+              where: { email: email }
             });
             if (dbUser) {
               token.id = dbUser.id;
