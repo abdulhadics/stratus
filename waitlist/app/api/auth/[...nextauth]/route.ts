@@ -1,10 +1,15 @@
 import NextAuth, { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
 export const authOptions: AuthOptions = {
   providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
     CredentialsProvider({
       name: "Credentials",
       credentials: {
@@ -42,12 +47,45 @@ export const authOptions: AuthOptions = {
     })
   ],
   callbacks: {
+    async signIn({ user, account }) {
+      if (account?.provider === 'google') {
+        // Ensure user exists in our DB before allowing Google login
+        if (!user.email) return false;
+        
+        const dbUser = await prisma.user.findUnique({
+          where: { email: user.email }
+        });
+        
+        if (!dbUser) {
+          // You could throw an error here, but returning false redirects them to an unauthenticated state
+          return false; 
+        }
+      }
+      return true;
+    },
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
-        token.role = (user as any).role;
-        token.ghlLocationId = (user as any).ghlLocationId;
-        token.ghlApiToken = (user as any).ghlApiToken;
+        if ('role' in user) {
+          // Credentials login (user object came from authorize function)
+          token.id = user.id;
+          token.role = (user as any).role;
+          token.ghlLocationId = (user as any).ghlLocationId;
+          token.ghlApiToken = (user as any).ghlApiToken;
+        } else {
+          // Google OAuth login (user object came from Google profile)
+          // We need to fetch their role and GHL info from our DB
+          if (user.email) {
+            const dbUser = await prisma.user.findUnique({
+              where: { email: user.email }
+            });
+            if (dbUser) {
+              token.id = dbUser.id;
+              token.role = dbUser.role;
+              token.ghlLocationId = dbUser.ghlLocationId;
+              token.ghlApiToken = dbUser.ghlApiToken;
+            }
+          }
+        }
       }
       return token;
     },
