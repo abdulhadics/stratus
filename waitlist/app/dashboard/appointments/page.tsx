@@ -138,10 +138,10 @@ export default function AppointmentsPage() {
                 
                 {event.contactId && (
                   <div className="mt-4 pt-4 border-t border-border/50 grid grid-cols-1 md:grid-cols-2 gap-4">
-                     <div className="flex items-center text-sm text-text-dimmed">
+                     <Link href={`/dashboard/contacts?contactId=${event.contactId}`} className="flex items-center text-sm text-text-dimmed hover:text-accent transition-colors group cursor-pointer w-fit">
                         <User className="w-4 h-4 mr-2" />
-                        Contact ID: {event.contactId}
-                     </div>
+                        Contact ID: <span className="underline decoration-accent/30 underline-offset-2 ml-1 group-hover:decoration-accent">{event.contactId}</span>
+                     </Link>
                      {event.notes && (
                        <div className="flex items-start text-sm text-text-dimmed">
                           <FileText className="w-4 h-4 mr-2 mt-0.5 shrink-0" />

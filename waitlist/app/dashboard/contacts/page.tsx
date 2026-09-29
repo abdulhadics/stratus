@@ -54,7 +54,24 @@ export default function ContactsPage() {
 
   useEffect(() => {
     fetchContacts();
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const cId = params.get('contactId');
+      if (cId) {
+        setSearchQuery(cId);
+      }
+    }
   }, []);
+
+  useEffect(() => {
+    if (contacts.length > 0 && typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const cId = params.get('contactId');
+      if (cId && contacts.some(c => c.id === cId)) {
+        setExpandedContact(cId);
+      }
+    }
+  }, [contacts]);
 
   const handleRefresh = () => {
     setRefreshing(true);
@@ -62,7 +79,7 @@ export default function ContactsPage() {
   };
 
   const filteredContacts = contacts.filter(contact => {
-    const searchString = `${contact.firstName} ${contact.lastName} ${contact.email} ${contact.phone}`.toLowerCase();
+    const searchString = `${contact.id} ${contact.firstName} ${contact.lastName} ${contact.email} ${contact.phone}`.toLowerCase();
     return searchString.includes(searchQuery.toLowerCase());
   });
 
