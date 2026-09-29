@@ -86,6 +86,15 @@ export function Header() {
               >
                 Admin Portal
               </Button>
+            ) : session?.user ? (
+              <Button
+                variant="secondary"
+                size="sm"
+                className="hidden sm:inline-flex border border-accent text-accent bg-transparent hover:bg-accent/10"
+                onClick={() => { window.location.href = '/dashboard'; }}
+              >
+                Client Portal
+              </Button>
             ) : (
               <Button
                 variant="secondary"
@@ -124,6 +133,7 @@ export function Header() {
         navItems={NAV_ITEMS}
         onNavigate={handleNavClick}
         isAdmin={session?.user?.role === 'ADMIN'}
+        isLoggedIn={!!session?.user}
       />
 
       {/* Spacer for fixed header */}

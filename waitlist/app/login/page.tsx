@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
-import { signIn } from 'next-auth/react';
+import { useState, useEffect } from 'react';
+import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { StratusLogo, StratusWordmark } from '@/components/ui/StratusLogo';
 
 export default function LoginPage() {
+  const { status } = useSession();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -13,6 +14,12 @@ export default function LoginPage() {
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [resetSuccess, setResetSuccess] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      router.push('/dashboard');
+    }
+  }, [status, router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

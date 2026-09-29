@@ -14,9 +14,10 @@ interface MobileNavigationProps {
   navItems: Array<{ key: 'nav.promise' | 'nav.life' | 'nav.howItWorks' | 'nav.packages' | 'nav.faq'; href: string }>;
   onNavigate: (href: string) => void;
   isAdmin?: boolean;
+  isLoggedIn?: boolean;
 }
 
-export function MobileNavigation({ isOpen, onClose, navItems, onNavigate, isAdmin }: MobileNavigationProps) {
+export function MobileNavigation({ isOpen, onClose, navItems, onNavigate, isAdmin, isLoggedIn }: MobileNavigationProps) {
   const { t } = useTranslation();
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -115,6 +116,15 @@ export function MobileNavigation({ isOpen, onClose, navItems, onNavigate, isAdmi
               onClick={() => { window.location.href = '/dashboard/admin'; }}
             >
               Admin Portal
+            </Button>
+          ) : isLoggedIn ? (
+            <Button
+              variant="secondary"
+              size="lg"
+              className="w-full border border-accent text-accent bg-transparent hover:bg-accent/10"
+              onClick={() => { window.location.href = '/dashboard'; }}
+            >
+              Client Portal
             </Button>
           ) : (
             <Button
