@@ -13,10 +13,13 @@ export async function POST(req: Request) {
       where: { email }
     });
 
-    if (user && user.ghlLocationId) {
-      const ghlToken = user.ghlApiToken || process.env.GHL_AGENCY_API_TOKEN || process.env.GHL_API_TOKEN;
+    // We don't strictly need user.ghlLocationId because we are querying the Stratus Internal account.
+    // We just ensure the user exists in our DB.
+    if (user) {
+      const ghlToken = process.env.GHL_API_TOKEN;
+      const internalLocationId = process.env.GHL_LOCATION_ID;
       
-      if (ghlToken) {
+      if (ghlToken && internalLocationId) {
         const headers = {
           'Authorization': `Bearer ${ghlToken}`,
           'Version': '2021-07-28',
@@ -24,9 +27,15 @@ export async function POST(req: Request) {
           'Content-Type': 'application/json'
         };
 
-        // 1. Search for the contact by email in GHL
-        const searchRes = await fetch(`https://services.leadconnectorhq.com/contacts/search?locationId=${user.ghlLocationId}&query=${encodeURIComponent(email)}`, {
-          headers
+        // 1. Search for the contact by email in GHL using the correct POST endpoint
+        const searchRes = await fetch(`https://services.leadconnectorhq.com/contacts/search`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            locationId: internalLocationId,
+            filters: [{ field: 'email', operator: 'eq', value: email }],
+            pageLimit: 1
+          })
         });
 
         if (searchRes.ok) {
